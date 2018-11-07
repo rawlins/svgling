@@ -1,5 +1,7 @@
 # svgling: syntax trees in python + svg
 
+**Author**: Kyle Rawlins, [kgr@jhu.edu](kgr@jhu.edu)
+
 The `svgling` package is a pure python package for doing single-pass rendering
 of linguistics-style constituent trees into SVG. It is primarily intended for
 integrating with Jupyter notebooks, but could be used to generate SVG diagrams
