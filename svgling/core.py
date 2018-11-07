@@ -225,7 +225,8 @@ def svg_build_tree(t, name="tree", options=None):
     height = ((options.max_depth - 1) *
               options.distance_to_daughter + 2) # 1 extra em for descenders
     width = leaf_textwidth(t, options)
-    tree = svgwrite.Drawing(name, (em(width), em(height)))
+    tree = svgwrite.Drawing(name, (em(width), em(height)),
+        style="font-family: times, serif; font-weight:normal; font-style: normal;")
     if (options.debug):
         tree.add(tree.rect(insert=(0,0), size=("100%", "100%"),
             fill="none", stroke="lightgray"))
