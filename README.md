@@ -1,4 +1,4 @@
-# svgling: syntax trees in python + svg
+# `svgling`: syntax trees in python + svg
 
 **Author**: Kyle Rawlins, [kgr@jhu.edu](kgr@jhu.edu)
 
@@ -25,12 +25,38 @@ This produces an SVG image like the following:
 ![example sentence](./demotree.svg)
 
 The package also by default tries by default to monkeypatch `nltk.tree.Tree` so
-that a Jupyter notebook will use svg-based rendering, instead of the built-in
-.png rendering. For more examples and documentation, see
-[Overview.ipynb](./Overview.ipynb); a rendered preview version can be seen
+that a Jupyter notebook will use svg-based rendering for these objects, instead
+of the built-in `.png` rendering (svg takes priority). For more examples and
+documentation, see [Overview.ipynb](./Overview.ipynb); a rendered preview
+version can be seen
 [here](https://nbviewer.jupyter.org/github/rawlins/svgling/blob/master/Overview.ipynb).
+
+## Strengths and limitations
+
+The `svgling` package does 'single-pass' rendering -- meaning, it takes a tree
+structure as input, produces an svg output, and that's it. Because of this, it
+is extremely simple to use in Jupyter, and no messing with plugins or Jupyter
+settings should be necessary. Because it is SVG-based, scaling and embedding in
+any web context should work trivially. It also has minimal dependencies, just
+one package that provides an abstraction layer over generating svg. (If you're
+interested in programmatic diagramming in svg for Jupyter, I do recommend
+[`svgwrite`](https://github.com/mozman/svgwrite), it's under active development
+and has a very pleasant API + good documentation.)
+
+There are many good things about the svg format, but one of the challenges is
+that it mostly uses absolute position, and text elements exact position and size
+can't be determined without actually rendering to some device and seeing what
+happens. In addition, the exact details of rendering are in various ways at the
+mercy of the rendering device. This all means that `svgling` uses a bunch of
+tricks to estimate node size and width, and won't always be perfect on all
+devices. This situation also places some hard limitations on how far `svgling`
+can be extended without adding javascript or other multi-pass rendering
+techniques. For example, I would eventually like to allow mathjax in nodes, and
+allow nodes with complex / multi-line shapes, but at the moment this does not
+seem possible without javascript on the client side.
 
 There are many things that it might be nice to add to this package; if you find
 `svgling` useful, have any requests, or find any bugs, please let me know.
 There's a small roadmap and discussion of possible features at the end of
-`Overview.ipynb`.
+`Overview.ipynb`, as well as a more extended discussion of some of the issues
+introduced in the above paragraph.
