@@ -44,16 +44,16 @@ interested in programmatic diagramming in svg for Jupyter, I do recommend
 and has a very pleasant API + good documentation.)
 
 There are many good things about the svg format, but one of the challenges is
-that it mostly uses absolute position, and text elements exact position and size
-can't be determined without actually rendering to some device and seeing what
-happens. In addition, the exact details of rendering are in various ways at the
-mercy of the rendering device. This all means that `svgling` uses a bunch of
-tricks to estimate node size and width, and won't always be perfect on all
-devices. This situation also places some hard limitations on how far `svgling`
-can be extended without adding javascript or other multi-pass rendering
-techniques. For example, I would eventually like to allow mathjax in nodes, and
-allow nodes with complex / multi-line shapes, but at the moment this does not
-seem possible without javascript on the client side.
+that it mostly uses absolute position, and the exact position and size of text
+elements can't be determined without actually rendering to some device and
+seeing what happens. In addition, the exact details of rendering are in various
+ways at the mercy of the rendering device. This all means that `svgling` uses a
+bunch of tricks to estimate node size and width, and won't always be perfect on
+all devices. This situation also places some hard limitations on how far
+`svgling` can be extended without adding javascript or other multi-pass
+rendering techniques. For example, I would eventually like to allow mathjax in
+nodes, and allow nodes with complex / multi-line shapes, but at the moment this
+does not seem possible without javascript on the client side.
 
 There are many things that it might be nice to add to this package; if you find
 `svgling` useful, have any requests, or find any bugs, please let me know.
