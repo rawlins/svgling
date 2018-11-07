@@ -24,7 +24,7 @@ The basic interface is pretty simple: pass a tree object to `svgling.draw_tree`.
 
 This produces an SVG image like the following:
 
-![example sentence](https://raw.githubusercontent.com/rawlins/svgling/master/demotree.svg)
+![example sentence](./demotree.svg)
 
 The package also by default tries by default to monkeypatch `nltk.tree.Tree` so
 that a Jupyter notebook will use svg-based rendering for these objects, instead
