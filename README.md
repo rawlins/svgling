@@ -6,6 +6,10 @@
 
 **Repository**: [https://github.com/rawlins/svgling/](https://github.com/rawlins/svgling/)
 
+**Installation**: download and use setuptools, or `pip install svgling`
+
+**License**: MIT License
+
 The `svgling` package is a pure python package for doing single-pass rendering
 of linguistics-style constituent trees into SVG. It is primarily intended for
 integrating with Jupyter notebooks, but could be used to generate SVG diagrams
