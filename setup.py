@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='svgling',
-    version='0.1.1',
+    version='0.1.2',
     description='SVG+Python based rendering of linguistics-style (constituent) trees',
     long_description=long_description,
     long_description_content_type="text/markdown",
