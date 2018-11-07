@@ -2,6 +2,10 @@
 
 **Author**: Kyle Rawlins, [kgr@jhu.edu](kgr@jhu.edu)
 
+**Dependencies**: [`svgwrite`](https://pypi.org/project/svgwrite/), python 3
+
+**Repository**: [https://github.com/rawlins/svgling/](https://github.com/rawlins/svgling/)
+
 The `svgling` package is a pure python package for doing single-pass rendering
 of linguistics-style constituent trees into SVG. It is primarily intended for
 integrating with Jupyter notebooks, but could be used to generate SVG diagrams
@@ -13,8 +17,6 @@ tuples of tuples), with node labels as strings, or trees from the
 [`nltk`](https://www.nltk.org/) package, i.e. objects instantiating the
 [`nltk.tree.Tree`](https://www.nltk.org/_modules/nltk/tree.html) API.
 
-**Dependencies**: [`svgwrite`](https://pypi.org/project/svgwrite/), python 3
-
 The basic interface is pretty simple: pass a tree object to `svgling.draw_tree`.
 
     svgling.draw_tree(("S", ("NP", ("D", "the"), ("N", "rhinoceros")), ("VP", ("V", "saw"), ("NP", ("D", "the"), ("N", "elephant"))))
@@ -22,12 +24,12 @@ The basic interface is pretty simple: pass a tree object to `svgling.draw_tree`.
 
 This produces an SVG image like the following:
 
-![example sentence](./demotree.svg)
+![example sentence](https://raw.githubusercontent.com/rawlins/svgling/master/demotree.svg)
 
 The package also by default tries by default to monkeypatch `nltk.tree.Tree` so
 that a Jupyter notebook will use svg-based rendering for these objects, instead
 of the built-in `.png` rendering (svg takes priority). For more examples and
-documentation, see [Overview.ipynb](./Overview.ipynb); a rendered preview
+documentation, see [Overview.ipynb](https://github.com/rawlins/svgling/blob/master/Overview.ipynb); a rendered preview
 version can be seen
 [here](https://nbviewer.jupyter.org/github/rawlins/svgling/blob/master/Overview.ipynb).
 
