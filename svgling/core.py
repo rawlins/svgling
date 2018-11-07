@@ -85,13 +85,15 @@ class TreeOptions(object):
                        leaf_padding=2,
                        distance_to_daughter=3,
                        debug=False,
-                       leaf_nodes_align=False):
+                       leaf_nodes_align=False,
+                       global_font_style="font-family: times, serif; font-weight:normal; font-style: normal;"):
         self.horiz_spacing = horiz_spacing
         self.leaf_padding = leaf_padding
         self.distance_to_daughter = distance_to_daughter
         self.debug = debug
         self.leaf_nodes_align = leaf_nodes_align
         self.max_depth = 0
+        self.global_font_style = global_font_style
 
 def is_leaf(t):
     return len(tree_cdr(t)) == 0
@@ -226,7 +228,7 @@ def svg_build_tree(t, name="tree", options=None):
               options.distance_to_daughter + 2) # 1 extra em for descenders
     width = leaf_textwidth(t, options)
     tree = svgwrite.Drawing(name, (em(width), em(height)),
-        style="font-family: times, serif; font-weight:normal; font-style: normal;")
+        style=options.global_font_style)
     if (options.debug):
         tree.add(tree.rect(insert=(0,0), size=("100%", "100%"),
             fill="none", stroke="lightgray"))
