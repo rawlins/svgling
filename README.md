@@ -31,25 +31,25 @@ This produces an SVG image like the following:
 
 The package also by default tries to monkey-patch `nltk.tree.Tree` so that
 Jupyter will use svgling's rendering for tree objects, instead of the built-in
-`png` rendering (svg takes priority). For more examples and documentation, see
+`png` rendering (`svg` takes priority). For more examples and documentation, see
 [Overview.ipynb](https://github.com/rawlins/svgling/blob/master/Overview.ipynb);
 a rendered preview version of this notebook can be seen
 [here](https://nbviewer.jupyter.org/github/rawlins/svgling/blob/master/Overview.ipynb).
 
-For best nltk behavior, you may want to in addition do the following when you
+For best `nltk` behavior, you may want to in addition do the following when you
 import `svgling`:
 
     import nltk
     del nltk.tree.Tree._repr_png_
 
-The reason for this is that even though the svg is shown over png, Jupyter still
-calls the png rendering function if there is one. On a mac, deleting this
+The reason for this is that even though the `svg` is shown over `png`, Jupyter still
+calls the `png` rendering function if there is one. On a mac, deleting this
 function will prevent the annoying window-less app that shows up (and stays as
-long as the kernel is running) when you view an nltk tree. On 64-bit windows,
-reportedly, the png rendering code in nltk causes problems, and deleting this
-may avoid them. For headless uses of nltk (e.g. travis tests that run a notebook
-(nltk issue [#1887](https://github.com/nltk/nltk/issues/1887), automated
-generation of rendered notebooks) deleting this function will prevent errors.
+long as the kernel is running) when you view an `nltk` tree. On 64-bit windows,
+reportedly, the `png` rendering code in `nltk` causes problems, and deleting this
+may avoid them. For headless uses of `nltk` on linux (see nltk issue
+[#1887](https://github.com/nltk/nltk/issues/1887) for use-cases) deleting this
+function will prevent errors resulting from tk not being able to open.
 
 ## Strengths and limitations
 
