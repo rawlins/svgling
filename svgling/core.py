@@ -13,7 +13,7 @@ def treelet_split_str(t):
         return None
 
 def treelet_split_nltk(t):
-    # nltk.Tree API: the head is in label(). The children are elements of the
+    # nltk.Tree API: the parent is in label(). The children are elements of the
     # object itself, which inherits from list.
     try:
         h = t.label()
@@ -23,7 +23,7 @@ def treelet_split_nltk(t):
 
 def treelet_split_list(t):
     # treat a list as a lisp-like tree structure, i.e. each subtree is a list
-    # of the head followed by any children.
+    # of the parent followed by any children.
     # A 0-length list is treated as an empty leaf node.
     try:
         if (len(t) == 0):
@@ -38,7 +38,7 @@ def treelet_split_fallback(t):
     return (str(t), tuple())
 
 def tree_split(t):
-    """Splits `t` into a head and an iterable of children, possibly empty."""
+    """Splits `t` into a parent and an iterable of children, possibly empty."""
     split = treelet_split_str(t)
     if split is not None:
         return split
@@ -54,7 +54,7 @@ def tree_cxr(t, i):
     return tree_split(t)[i]
 
 def tree_car(t):
-    """What is the head of a tree-like object `t`?
+    """What is the parent of a tree-like object `t`?
     Try to adapt to various possibilities, including nltk.Tree."""
     return tree_cxr(t, 0)
 
@@ -95,6 +95,10 @@ class TreeOptions(object):
         self.max_depth = 0
         self.global_font_style = global_font_style
 
+    def label_width(self, label):
+        # 2.0 is a fudge factor -- roughly, 2 chars per em
+        return (len(str(label)) + self.leaf_padding) / 2.0
+
 def is_leaf(t):
     return len(tree_cdr(t)) == 0
 
@@ -106,26 +110,24 @@ def tree_depth(t):
         subdepth = max(subdepth, tree_depth(subtree))
     return subdepth + 1
 
-def leaf_textwidth(t, options=None):
-    """How many characters wide are all the leafs? Will add padding."""
+def subtree_textwidth(t, options=None):
+    """How many ems wide are all the leafs? Will add padding."""
     if options is None:
         options=TreeOptions()
-    head, children = tree_split(t)
+    parent, children = tree_split(t)
     if len(children) == 0:
-        result = len(str(head)) + options.leaf_padding
-        #if options.horiz_spacing == HorizOptions.TEXT:
-        result = result / 2.0 # fudge factor -- roughly, 2 chars per em
-        return result
+        return options.label_width(parent)
     subwidth = 0
     for subtree in children:
-        subwidth += leaf_textwidth(subtree, options)
-    return subwidth
+        subwidth += subtree_textwidth(subtree, options)
+    # don't make the width either smaller than the label, or smaller than 1em
+    return max(subwidth, options.label_width(parent), 1)
 
 def leaf_nodecount(t, options=None):
     """How many nodes wide are all the leafs? Will add padding."""
     if options is None:
         options=TreeOptions()
-    head, children = tree_split(t)
+    parent, children = tree_split(t)
     if len(children) == 0:
         return 1 + options.leaf_padding
     subwidth = 0
@@ -141,7 +143,7 @@ def subtree_proportions(l, options):
         sum = 0
         for t in l:
             if options.horiz_spacing == HorizOptions.TEXT:
-                widths.append(leaf_textwidth(t, options))
+                widths.append(subtree_textwidth(t, options))
             else: # NODES
                 widths.append(leaf_nodecount(t, options))
             sum += widths[-1]
@@ -155,7 +157,7 @@ def subtree_proportions(l, options):
 # SVG generation
 ################
 
-def svg_add_subtree(parent, t, options=None, cur_depth=0):
+def svg_add_subtree(svg_parent, t, options=None, cur_depth=0):
     # This uses two tricks to simulate the ways in which relative positioning
     # in raw SVG is hard:
     # 1. For x, it uses percentage-based positioning relative to nested `svg`
@@ -174,12 +176,12 @@ def svg_add_subtree(parent, t, options=None, cur_depth=0):
         options = TreeOptions()
     if (options.max_depth == 0):
         options.max_depth = tree_depth(t)
-    head, children = tree_split(t)
-    head = str(head)
-    if len(head) > 0:
+    parent, children = tree_split(t)
+    parent = str(parent)
+    if len(parent) > 0:
         line_start = "1.2em"
-        parent.add(svgwrite.text.Text(head, insert=("50%", em(1)),
-                                            text_anchor="middle"))
+        svg_parent.add(svgwrite.text.Text(parent, insert=("50%", em(1)),
+                                              text_anchor="middle"))
     else:
         line_start = "0em"
     if (len(children) > 0):
@@ -200,12 +202,12 @@ def svg_add_subtree(parent, t, options=None, cur_depth=0):
                 child.add(svgwrite.shapes.Rect(insert=("0%","0%"),
                                                size=("100%", "100%"),
                                                fill="none", stroke="red"))
-            parent.add(child)
+            svg_parent.add(child)
 
-            parent.add(svgwrite.shapes.Line(start=("50%", line_start),
-                                            end=(perc(x_pos + x_widths[i] / 2),
-                                                 em(daughter_height)),
-                                            stroke="black"))
+            svg_parent.add(svgwrite.shapes.Line(start=("50%", line_start),
+                                                end=(perc(x_pos + x_widths[i] / 2),
+                                                     em(daughter_height)),
+                                                stroke="black"))
             svg_add_subtree(child, children[i], options=options,
                                                 cur_depth=cur_depth + 1)
             x_pos += x_widths[i]
@@ -226,7 +228,7 @@ def svg_build_tree(t, name="tree", options=None):
     options.max_depth = tree_depth(t)
     height = ((options.max_depth - 1) *
               options.distance_to_daughter + 2) # 1 extra em for descenders
-    width = leaf_textwidth(t, options)
+    width = subtree_textwidth(t, options)
     tree = svgwrite.Drawing(name, (em(width), em(height)),
         style=options.global_font_style)
     if (options.debug):
