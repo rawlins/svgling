@@ -86,18 +86,23 @@ class TreeOptions(object):
                        distance_to_daughter=3,
                        debug=False,
                        leaf_nodes_align=False,
-                       global_font_style="font-family: times, serif; font-weight:normal; font-style: normal;"):
+                       global_font_style="font-family: times, serif; font-weight:normal; font-style: normal;",
+                       average_glyph_width=2.0):
         self.horiz_spacing = horiz_spacing
         self.leaf_padding = leaf_padding
         self.distance_to_daughter = distance_to_daughter
         self.debug = debug
         self.leaf_nodes_align = leaf_nodes_align
-        self.max_depth = 0
         self.global_font_style = global_font_style
+        # 2.0 default value is a heuristic -- roughly, 2 chars per em
+        self.average_glyph_width = average_glyph_width 
+
+        # not technically an option, but convenient to store here for now...
+        self.max_depth = 0
+
 
     def label_width(self, label):
-        # 2.0 is a fudge factor -- roughly, 2 chars per em
-        return (len(str(label)) + self.leaf_padding) / 2.0
+        return (len(str(label)) + self.leaf_padding) / self.average_glyph_width
 
 def is_leaf(t):
     return len(tree_cdr(t)) == 0
