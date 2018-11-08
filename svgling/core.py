@@ -243,13 +243,16 @@ def svg_build_tree(t, name="tree", options=None):
     svg_add_subtree(tree, t, options=options)
     return tree
 
-def draw_tree(t, options=None):
+def draw_tree(*t, options=None):
     """Return an svg tree object wrapped in an IPython SVG object, for display
     in a Jupyter notebook."""
     from IPython.core.display import SVG
     if options is None:
         options = TreeOptions(debug=False)
+    if len(t) == 1:
+        t = t[0]
     tree = svg_build_tree(t, options=options)
+
     return SVG(tree.tostring())
 
 nltk_tree_options = TreeOptions()
