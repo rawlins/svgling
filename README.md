@@ -25,21 +25,35 @@ The basic interface is pretty simple: pass a tree object to `svgling.draw_tree`.
 
     svgling.draw_tree(("S", ("NP", ("D", "the"), ("N", "rhinoceros")), ("VP", ("V", "saw"), ("NP", ("D", "the"), ("N", "elephant"))))
 
-
 This produces an SVG image like the following:
 
 ![example sentence](https://raw.githubusercontent.com/rawlins/svgling/master/demotree.svg?sanitize=true)
 
-The package also by default tries by default to monkeypatch `nltk.tree.Tree` so
-that a Jupyter notebook will use svg-based rendering for these objects, instead
-of the built-in `.png` rendering (svg takes priority). For more examples and
-documentation, see [Overview.ipynb](https://github.com/rawlins/svgling/blob/master/Overview.ipynb); a rendered preview
-version can be seen
+The package also by default tries to monkey-patch `nltk.tree.Tree` so that
+Jupyter will use svgling's rendering for tree objects, instead of the built-in
+`png` rendering (svg takes priority). For more examples and documentation, see
+[Overview.ipynb](https://github.com/rawlins/svgling/blob/master/Overview.ipynb);
+a rendered preview version of this notebook can be seen
 [here](https://nbviewer.jupyter.org/github/rawlins/svgling/blob/master/Overview.ipynb).
+
+For best nltk behavior, you may want to in addition do the following when you
+import `svgling`:
+
+    import nltk
+    del nltk.tree.Tree._repr_png_
+
+The reason for this is that even though the svg is shown over png, Jupyter still
+calls the png rendering function if there is one. On a mac, deleting this
+function will prevent the annoying window-less app that shows up (and stays as
+long as the kernel is running) when you view an nltk tree. On 64-bit windows,
+reportedly, the png rendering code in nltk causes problems, and deleting this
+may avoid them. For headless uses of nltk (e.g. travis tests that run a notebook
+(nltk issue [#1887](https://github.com/nltk/nltk/issues/1887), automated
+generation of rendered notebooks) deleting this function will prevent errors.
 
 ## Strengths and limitations
 
-The `svgling` package does 'single-pass' rendering -- meaning, it takes a tree
+The `svgling` package does its rendering in one pass -- it takes a tree
 structure as input, produces an svg output, and that's it. Because of this, it
 is extremely simple to use in Jupyter, and no messing with plugins or Jupyter
 settings should be necessary. Because it is SVG-based, scaling and embedding in
@@ -49,17 +63,17 @@ interested in programmatic diagramming in svg for Jupyter, I do recommend
 [`svgwrite`](https://github.com/mozman/svgwrite), it's under active development
 and has a very pleasant API + good documentation.)
 
-There are many good things about the svg format, but one of the challenges is
-that it mostly uses absolute position, and the exact position and size of text
-elements can't be determined without actually rendering to some device and
-seeing what happens. In addition, the exact details of rendering are in various
-ways at the mercy of the rendering device. This all means that `svgling` uses a
-bunch of tricks to estimate node size and width, and won't always be perfect on
-all devices. This situation also places some hard limitations on how far
-`svgling` can be extended without adding javascript or other multi-pass
-rendering techniques. For example, I would eventually like to allow mathjax in
-nodes, and allow nodes with complex / multi-line shapes, but at the moment this
-does not seem possible without javascript on the client side.
+Single-pass rendering also places limitations on what can be done. One of the
+challenges is that it mostly uses absolute position, and the exact position and
+size of text elements can't be determined without actually rendering to some
+device and seeing what happens. In addition, the exact details of rendering are
+in various ways at the mercy of the rendering device. This all means that
+`svgling` uses a bunch of tricks to estimate node size and width, and won't
+always be perfect on all devices. This situation also places some hard
+limitations on how far `svgling` can be extended without adding javascript or
+other multi-pass rendering techniques. For example, I would eventually like to
+allow mathjax in nodes, and allow nodes with complex / multi-line shapes, but at
+the moment this does not seem possible without javascript on the client side.
 
 There are many things that it might be nice to add to this package; if you find
 `svgling` useful, have any requests, or find any bugs, please let me know.
