@@ -100,9 +100,21 @@ class TreeOptions(object):
         # not technically an option, but convenient to store here for now...
         self.max_depth = 0
 
-
     def label_width(self, label):
         return (len(str(label)) + self.leaf_padding) / self.average_glyph_width
+
+    def tree_height(self, t):
+        """Calculate tree height, in ems. Takes into account multi-line leaf
+        nodes."""
+        # TODO: generalize to multi-line nodes of all kinds.
+        parent, children = tree_split(t)
+        if len(children) == 0:
+            return len(parent.split("\n"))
+        subheight = 0
+        for subtree in children:
+            subheight = max(subheight, self.tree_height(subtree))
+        return subheight + self.distance_to_daughter
+
 
 def is_leaf(t):
     return len(tree_cdr(t)) == 0
@@ -121,7 +133,7 @@ def subtree_textwidth(t, options=None):
         options=TreeOptions()
     parent, children = tree_split(t)
     if len(children) == 0:
-        return options.label_width(parent)
+        return max([options.label_width(line) for line in parent.split("\n")])
     subwidth = 0
     for subtree in children:
         subwidth += subtree_textwidth(subtree, options)
@@ -162,6 +174,13 @@ def subtree_proportions(l, options):
 # SVG generation
 ################
 
+def svg_add_label(svg_parent, label, options):
+    y = 1
+    for line in label.split("\n"):
+        svg_parent.add(svgwrite.text.Text(line, insert=("50%", em(y)),
+                                                text_anchor="middle"))
+        y += 1
+
 def svg_add_subtree(svg_parent, t, options=None, cur_depth=0):
     # This uses two tricks to simulate the ways in which relative positioning
     # in raw SVG is hard:
@@ -177,19 +196,23 @@ def svg_add_subtree(svg_parent, t, options=None, cur_depth=0):
     # pure python + svg part of this can be taken, for example, what to do with
     # more complex node contents, what to do if you want to draw movement
     # arrows, etc. But this so far has worked surprisingly well.
-    if (options is None):
+    if options is None:
         options = TreeOptions()
-    if (options.max_depth == 0):
+    if options.max_depth == 0:
         options.max_depth = tree_depth(t)
     parent, children = tree_split(t)
     parent = str(parent)
+    if len(children) > 0:
+        parent = " ".join(parent.split("\n")) # hack to allow for multi-line
+                                              # leaf nodes. Multi-line nodes in
+                                              # general require more work, so
+                                              # avoid rendering them for now.
     if len(parent) > 0:
         line_start = "1.2em"
-        svg_parent.add(svgwrite.text.Text(parent, insert=("50%", em(1)),
-                                              text_anchor="middle"))
+        svg_add_label(svg_parent, parent, options)
     else:
         line_start = "0em"
-    if (len(children) > 0):
+    if len(children) > 0:
         x_pos = 0
         x_widths = subtree_proportions(children, options=options)
         for i in range(len(children)):
@@ -231,8 +254,7 @@ def svg_build_tree(t, name="tree", options=None):
     if options is None:
         options = TreeOptions()
     options.max_depth = tree_depth(t)
-    height = ((options.max_depth - 1) *
-              options.distance_to_daughter + 2) # 1 extra em for descenders
+    height = options.tree_height(t) + 1 # 1 extra em for descenders
     width = subtree_textwidth(t, options)
     tree = svgwrite.Drawing(name, (em(width), em(height)),
         style=options.global_font_style)
@@ -250,12 +272,12 @@ def svg_build_tree(t, name="tree", options=None):
     svg_add_subtree(tree, t, options=options)
     return tree
 
-def draw_tree(*t, options=None):
+def draw_tree(*t, options=None, **opts):
     """Return an svg tree object wrapped in an IPython SVG object, for display
     in a Jupyter notebook."""
     from IPython.core.display import SVG
     if options is None:
-        options = TreeOptions(debug=False)
+        options = TreeOptions(**opts)
     if len(t) == 1:
         t = t[0]
     tree = svg_build_tree(t, options=options)
