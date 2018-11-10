@@ -23,7 +23,7 @@ tuples of tuples), with node labels as strings, or trees from the
 
 The basic interface is pretty simple: pass a tree object to `svgling.draw_tree`.
 
-    svgling.draw_tree(("S", ("NP", ("D", "the"), ("N", "rhinoceros")), ("VP", ("V", "saw"), ("NP", ("D", "the"), ("N", "elephant"))))
+    svgling.draw_tree(("S", ("NP", ("D", "the"), ("N", "elephant")), ("VP", ("V", "saw"), ("NP", ("D", "the"), ("N", "rhinoceros"))))
 
 This produces an SVG image like the following:
 
