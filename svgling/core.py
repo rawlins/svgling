@@ -80,10 +80,185 @@ def em(n):
 def perc(n):
     return "%g%%" % n
 
+class NodePos(object):
+    def __init__(self, svg, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.inner_width = width
+        self.height = height
+        self.inner_height = height
+        self.svg = svg
+
+    @classmethod
+    def from_label(cls, label, options):
+        y = 1
+        svg_parent = svgwrite.container.SVG(x=0, y=0, width="100%")
+        if len(label) == 0:
+            return NodePos(svg_parent, 50, 0, 0, 0)
+        for line in label.split("\n"):
+            svg_parent.add(svgwrite.text.Text(line, insert=("50%", em(y)),
+                                                    text_anchor="middle"))
+            y += 1
+        width = max([options.label_width(line) for line in label.split("\n")])
+        return NodePos(svg_parent, 50, 0, width, y-1)
+
+class TreeLayout(object):
+    def __init__(self, t, options=None):
+        if options is None:
+            options = TreeOptions()
+        self.level_heights = dict()
+        self.level_ys = dict({0: 0})
+        self.depth = 0
+        self.options = options
+        self._do_layout(t)
+
+    def _do_layout(self, t):
+        self.level_heights = dict()
+        self.level_ys = dict({0: 0})
+        self.depth =  tree_depth(t) - 1
+        for i in range(self.depth + 1):
+            self.level_heights[i] = 0
+        parsed = self._build_initial_layout(t)
+        if len(parsed) > 0:
+            self.max_width = parsed[0].width
+        else:
+            self.max_width = 0
+        self._normalize_widths(parsed)
+        self._normalize_y(parsed)
+        self._adjust_leaf_nodes(parsed)
+        self.layout = parsed
+        self.raw_tree = t
+
+    def _build_initial_layout(self, t, level=0):
+        # initialize raw widths and node heights, both in em at this point.
+        # also initialize level_heights for all levels.
+        parent, children = tree_split(t)
+        node = NodePos.from_label(parent, self.options)
+
+        # if leaf nodes align, all leaf nodes contribute to height for the
+        # deepest level, not their actual depth
+        if len(children) == 0 and self.options.leaf_nodes_align:
+            level = self.depth
+        self.level_heights[level] = max(self.level_heights[level], node.height)
+        result_children = [self._build_initial_layout(c, level+1)
+                                                            for c in children]
+        node.width = max(node.width, sum([c[0].width for c in result_children]))
+        return [node] + result_children
+
+    def _subtree_proportions(self, l):
+        if len(l) == 0:
+            return list()
+        if (self.options.horiz_spacing == HorizOptions.EVEN):
+            return [100.0 / len(l)] * len(l)
+        else: # TEXT or NODES
+            widths = list()
+            sum = 0
+            for t in l:
+                if self.options.horiz_spacing == HorizOptions.TEXT:
+                    widths.append(t[0].width) # precalculated
+                else: # NODES
+                    widths.append(leaf_nodecount(t[0], self.options))
+                sum += widths[-1]
+
+            # normalize to percentages
+            for i in range(len(widths)):
+                widths[i] = widths[i] * 100.0 / sum
+            return widths
+
+    def _normalize_widths(self, t):
+        # normalize widths to percentages.
+        parent, children = t[0], t[1:]
+        for c in children:
+            self._normalize_widths(c)
+        widths = self._subtree_proportions(children)
+        for i in range(len(children)):
+            children[i][0].width = widths[i]
+
+    def _normalize_y(self, t, level=0):
+        # calculate y distances for each level. This is done on a second pass
+        # because it needs level_heights to be initialized.
+        parent, children = t[0], t[1:]
+        y_distance = (parent.height + 
+                      self.options.distance_to_daughter +
+                        (self.level_heights[level] - parent.height) / 2)
+        if len(children) > 0 and (level + 1) not in self.level_ys:
+            self.level_ys[level + 1] = self.options.distance_to_daughter + self.level_heights[level]
+        for c in children:
+            c[0].y = (y_distance +
+                (self.level_heights[level + 1] - c[0].height) / 2)
+            self._normalize_y(c, level + 1)
+
+    def _adjust_leaf_nodes(self, t, level=0):
+        # if leaf nodes align, move leaves down to match the lowest one. Done on
+        # a third pass so that non-leaf ys are all established.
+        if not self.options.leaf_nodes_align:
+            return
+        parent, children = t[0], t[1:]
+        if len(children) == 0 and level > 0:
+            parent.y = (parent.y
+                - (self.level_heights[level] - parent.height) / 2
+                + sum([self.level_ys[y] for y in range(level + 1, self.depth+1)])
+                + (self.level_heights[self.depth] - parent.height) / 2)
+        for c in children:
+            self._adjust_leaf_nodes(c, level + 1)
+
+    def _svg_add_subtree(self, svg_parent, t):
+        parent, children = t[0], t[1:]
+        if parent.height > 0:
+            line_start = parent.height + 0.2
+        else:
+            line_start = 0
+        x_pos = 0
+        svg_parent.add(parent.svg)
+        for c in children:
+            child = svgwrite.container.SVG(x=perc(x_pos),
+                                           y=em(c[0].y),
+                                           width=perc(c[0].width))
+            if self.options.debug:
+                child.add(svgwrite.shapes.Rect(insert=("0%","0%"),
+                                               size=("100%", "100%"),
+                                               fill="none", stroke="red"))
+            svg_parent.add(child)
+
+            svg_parent.add(svgwrite.shapes.Line(start=("50%", em(line_start)),
+                                                end=(perc(x_pos + c[0].width / 2),
+                                                     em(c[0].y)),
+                                                stroke="black"))
+            self._svg_add_subtree(child, c)
+            x_pos += c[0].width
+
+    def height(self):
+        return (sum([self.level_ys[l] for l in range(self.depth + 1)]) +
+                self.level_heights[self.depth] +
+                1)
+
+    def _svg_build_tree(self, name="tree"):
+        width = self.max_width
+        height = self.height()
+        tree = svgwrite.Drawing(name, (em(width), em(height)),
+            style=self.options.global_font_style)
+        if self.options.debug:
+            tree.add(tree.rect(insert=(0,0), size=("100%", "100%"),
+                fill="none", stroke="lightgray"))
+            for i in range(1, int(width)):
+                tree.add(tree.line(start=(em(i), 0),
+                                   end=(em(i), "100%"),
+                                   stroke="lightgray"))
+            for i in range(1, int(height)):
+                tree.add(tree.line(start=(0, em(i)),
+                                   end=("100%", em(i)),
+                                   stroke="lightgray"))
+        self._svg_add_subtree(tree, self.layout)
+        return tree
+
+    def _repr_svg_(self):
+        return self._svg_build_tree().tostring()
+
 class TreeOptions(object):
     def __init__(self, horiz_spacing=HorizOptions.TEXT,
                        leaf_padding=2,
-                       distance_to_daughter=3,
+                       distance_to_daughter=2,
                        debug=False,
                        leaf_nodes_align=False,
                        global_font_style="font-family: times, serif; font-weight:normal; font-style: normal;",
@@ -113,7 +288,7 @@ class TreeOptions(object):
         subheight = 0
         for subtree in children:
             subheight = max(subheight, self.tree_height(subtree))
-        return subheight + self.distance_to_daughter
+        return subheight + self.distance_to_daughter + 1
 
 
 def is_leaf(t):
@@ -220,9 +395,9 @@ def svg_add_subtree(svg_parent, t, options=None, cur_depth=0):
                 # Find a position for the daughter svg that lines up with the
                 # deepest leaf nodes, relative to the current depth.
                 daughter_height = ((options.max_depth - cur_depth - 1) *
-                                        options.distance_to_daughter)
+                                        (options.distance_to_daughter + 1))
             else:
-                daughter_height = options.distance_to_daughter
+                daughter_height = options.distance_to_daughter + 1
             child = svgwrite.container.SVG(x=perc(x_pos),
                                            y=em(daughter_height),
                                            width=perc(x_widths[i]))
@@ -272,7 +447,7 @@ def svg_build_tree(t, name="tree", options=None):
     svg_add_subtree(tree, t, options=options)
     return tree
 
-def draw_tree(*t, options=None, **opts):
+def draw_tree_old(*t, options=None, **opts):
     """Return an svg tree object wrapped in an IPython SVG object, for display
     in a Jupyter notebook."""
     from IPython.core.display import SVG
@@ -283,6 +458,17 @@ def draw_tree(*t, options=None, **opts):
     tree = svg_build_tree(t, options=options)
 
     return SVG(tree.tostring())
+
+
+def draw_tree(*t, options=None, **opts):
+    """Return an svg tree object wrapped in an IPython SVG object, for display
+    in a Jupyter notebook."""
+    from IPython.core.display import SVG
+    if options is None:
+        options = TreeOptions(**opts)
+    if len(t) == 1:
+        t = t[0]
+    return TreeLayout(t, options=options)
 
 nltk_tree_options = TreeOptions()
 
