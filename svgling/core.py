@@ -84,7 +84,7 @@ class NodePos(object):
     def __init__(self, svg, x, y, width, height, depth):
         self.x = x
         self.y = y
-        self.width = width
+        self.width = max(width, 1) # avoid divide by 0 errors
         self.inner_width = width
         self.height = height
         self.inner_height = height
