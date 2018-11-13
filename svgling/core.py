@@ -81,27 +81,28 @@ def perc(n):
     return "%g%%" % n
 
 class NodePos(object):
-    def __init__(self, svg, x, y, width, height):
+    def __init__(self, svg, x, y, width, height, depth):
         self.x = x
         self.y = y
         self.width = width
         self.inner_width = width
         self.height = height
         self.inner_height = height
+        self.depth = depth
         self.svg = svg
 
     @classmethod
-    def from_label(cls, label, options):
+    def from_label(cls, label, depth, options):
         y = 1
         svg_parent = svgwrite.container.SVG(x=0, y=0, width="100%")
         if len(label) == 0:
-            return NodePos(svg_parent, 50, 0, 0, 0)
+            return NodePos(svg_parent, 50, 0, 0, 0, depth)
         for line in label.split("\n"):
             svg_parent.add(svgwrite.text.Text(line, insert=("50%", em(y)),
                                                     text_anchor="middle"))
             y += 1
         width = max([options.label_width(line) for line in label.split("\n")])
-        return NodePos(svg_parent, 50, 0, width, y-1)
+        return NodePos(svg_parent, 50, 0, width, y-1, depth)
 
 class TreeLayout(object):
     def __init__(self, t, options=None):
@@ -134,7 +135,7 @@ class TreeLayout(object):
         # initialize raw widths and node heights, both in em at this point.
         # also initialize level_heights for all levels.
         parent, children = tree_split(t)
-        node = NodePos.from_label(parent, self.options)
+        node = NodePos.from_label(parent, level, self.options)
 
         # if leaf nodes align, all leaf nodes contribute to height for the
         # deepest level, not their actual depth
@@ -185,8 +186,14 @@ class TreeLayout(object):
         if len(children) > 0 and (level + 1) not in self.level_ys:
             self.level_ys[level + 1] = self.options.distance_to_daughter + self.level_heights[level]
         for c in children:
+            if self.options.leaf_nodes_align and len(c) == 1 and level + 1 < self.depth:
+                # calculate the initial y for this node as if its height is 0. This
+                # is used in case a two-segment descender is drawn.
+                child_height = 0
+            else:
+                child_height = c[0].height
             c[0].y = (y_distance +
-                (self.level_heights[level + 1] - c[0].height) / 2)
+                (self.level_heights[level + 1] - child_height) / 2)
             self._normalize_y(c, level + 1)
 
     def _adjust_leaf_nodes(self, t, level=0):
@@ -195,15 +202,18 @@ class TreeLayout(object):
         if not self.options.leaf_nodes_align:
             return
         parent, children = t[0], t[1:]
-        if len(children) == 0 and level > 0:
+        if len(children) == 0 and level > 0 and level < self.depth:
+            parent.original_y = parent.y
             parent.y = (parent.y
-                - (self.level_heights[level] - parent.height) / 2
+                - self.level_heights[level] / 2 # initial y calculated as if
+                                                # height is 0
                 + sum([self.level_ys[y] for y in range(level + 1, self.depth+1)])
                 + (self.level_heights[self.depth] - parent.height) / 2)
         for c in children:
             self._adjust_leaf_nodes(c, level + 1)
 
     def _svg_add_subtree(self, svg_parent, t):
+        from svgwrite.shapes import Line
         parent, children = t[0], t[1:]
         if parent.height > 0:
             line_start = parent.height + 0.2
@@ -212,8 +222,10 @@ class TreeLayout(object):
         x_pos = 0
         svg_parent.add(parent.svg)
         for c in children:
+            y_target = em(c[0].y)
+            x_target = perc(x_pos + c[0].width / 2)
             child = svgwrite.container.SVG(x=perc(x_pos),
-                                           y=em(c[0].y),
+                                           y=y_target,
                                            width=perc(c[0].width))
             if self.options.debug:
                 child.add(svgwrite.shapes.Rect(insert=("0%","0%"),
@@ -221,10 +233,20 @@ class TreeLayout(object):
                                                fill="none", stroke="red"))
             svg_parent.add(child)
 
-            svg_parent.add(svgwrite.shapes.Line(start=("50%", em(line_start)),
-                                                end=(perc(x_pos + c[0].width / 2),
-                                                     em(c[0].y)),
-                                                stroke="black"))
+            if (self.options.leaf_nodes_align
+                                and not self.options.descend_direct
+                                and len(c) == 1 and c[0].depth < self.depth):
+                intermediate = (x_target, em(c[0].original_y))
+                svg_parent.add(Line(start=("50%", em(line_start)),
+                                    end=intermediate,
+                                    stroke="black"))
+                svg_parent.add(Line(start=intermediate,
+                                    end=(x_target, y_target),
+                                    stroke="black"))
+            else:
+                svg_parent.add(Line(start=("50%", em(line_start)),
+                                    end=(perc(x_pos + c[0].width / 2), y_target),
+                                    stroke="black"))
             self._svg_add_subtree(child, c)
             x_pos += c[0].width
 
@@ -262,7 +284,8 @@ class TreeOptions(object):
                        debug=False,
                        leaf_nodes_align=False,
                        global_font_style="font-family: times, serif; font-weight:normal; font-style: normal;",
-                       average_glyph_width=2.0):
+                       average_glyph_width=2.0,
+                       descend_direct=True):
         self.horiz_spacing = horiz_spacing
         self.leaf_padding = leaf_padding
         self.distance_to_daughter = distance_to_daughter
@@ -270,7 +293,11 @@ class TreeOptions(object):
         self.leaf_nodes_align = leaf_nodes_align
         self.global_font_style = global_font_style
         # 2.0 default value is a heuristic -- roughly, 2 chars per em
-        self.average_glyph_width = average_glyph_width 
+        self.average_glyph_width = average_glyph_width
+        # for multi-level descents, do we just draw a direct (usually shraply
+        # angled) line, or do we draw an angled line one level, and a straight
+        # line for the rest? Node position is unaffected.
+        self.descend_direct = descend_direct
 
         # not technically an option, but convenient to store here for now...
         self.max_depth = 0
