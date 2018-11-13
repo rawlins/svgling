@@ -198,6 +198,14 @@ class TreeLayout(object):
         self.tree = t
         self._do_layout(t) # initializes self.layout
 
+    def __str__(self):
+        return str(self.tree)
+
+    def __repr__(self):
+        # TODO: options repr? Not really very important? This function is mostly
+        # here so that raw object ids don't contribute to .ipynb diffs.
+        return "TreeLayout(%s)" % repr(self.tree)
+
     def relayout(options=None, **args):
         if options is None:
             options = TreeOptions(**args)
