@@ -96,7 +96,7 @@ class NodePos(object):
         y = 1
         svg_parent = svgwrite.container.SVG(x=0, y=0, width="100%")
         if len(label) == 0:
-            return NodePos(svg_parent, 50, 0, 0, 0, depth)
+            return NodePos(svg_parent, 50, 0, options.label_width(""), 0, depth)
         for line in label.split("\n"):
             svg_parent.add(svgwrite.text.Text(line, insert=("50%", em(y)),
                                                     text_anchor="middle"))
