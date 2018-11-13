@@ -286,7 +286,7 @@ class TreeLayout(object):
                 if self.options.horiz_spacing == HorizOptions.TEXT:
                     widths.append(t[0].width) # precalculated
                 else: # NODES
-                    widths.append(leaf_nodecount(t[0], self.options))
+                    widths.append(leaf_nodecount(t, self.options))
                 sum += widths[-1]
 
             # normalize to percentages
@@ -426,11 +426,14 @@ class TreeLayout(object):
         self._svg_add_subtree(tree, self.layout)
         return tree
 
+    def get_svg(self):
+        return self.svg_build_tree()
+
     def _repr_svg_(self):
         return self.svg_build_tree().tostring()
 
 ################
-# SVG generation
+# Module-level api
 ################
 
 def draw_tree(*t, options=None, **opts):
