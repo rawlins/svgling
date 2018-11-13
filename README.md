@@ -39,17 +39,17 @@ a rendered preview version of this notebook can be seen
 For best `nltk` behavior, you may want to in addition do the following when you
 import `svgling`:
 
-    import nltk
-    del nltk.tree.Tree._repr_png_
+    svgling.disable_nltk_png()
 
-The reason for this is that even though the `svg` is shown over `png`, Jupyter still
-calls the `png` rendering function if there is one. On a mac, deleting this
-function will prevent the annoying window-less app that shows up (and stays as
-long as the kernel is running) when you view an `nltk` tree. On 64-bit windows,
-reportedly, the `png` rendering code in `nltk` causes problems, and deleting this
-may avoid them. For headless uses of `nltk` on linux (see nltk issue
-[#1887](https://github.com/nltk/nltk/issues/1887) for use-cases) deleting this
-function will prevent errors resulting from tk not being able to open.
+This call is effectively a safe wrapper around `del nltk.tree.Tree._repr_png_`.
+The reason for doing this is that even though the `svg` is shown over `png`,
+Jupyter still calls the `png` rendering function if there is one. On a mac,
+deleting this function will prevent the annoying window-less app that shows up
+(and stays as long as the kernel is running) when you view an `nltk` tree. On
+64-bit windows, reportedly, the `png` rendering code in `nltk` causes problems,
+and deleting this may avoid them. For headless uses of `nltk` on linux (see nltk
+issue [#1887](https://github.com/nltk/nltk/issues/1887) for use-cases) deleting
+this function will prevent errors resulting from tk not being able to open.
 
 ## Strengths and limitations
 
