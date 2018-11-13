@@ -83,10 +83,19 @@ def tree_depth(t):
 
 # either EVEN or NODES usually looks best with abstract trees; TEXT usually
 # looks the best for trees with real node labels, and so it is the default.
-class HorizOptions(enum.Enum):
-    TEXT = 0
-    EVEN = 1
-    NODES = 2
+class HorizSpacing(enum.Enum):
+    TEXT = 0  # Space daughter nodes proportional to label width
+    EVEN = 1  # Space daughter nodes evenly
+    NODES = 2 # Space daughter nodes based on number of leaf nodes
+
+HorizOptions = HorizSpacing # backwards compatibility
+
+class VertAlign(enum.Enum):
+    TOP = 0    # align nodes at the top of the level's height
+    CENTER = 1 # align nodes to the center of the level's height. Default.
+    BOTTOM = 2 # align nodes with the bottom of the level's height
+    FULL = 3   # all nodes take up the full level height. Currently, this aligns
+               # text to the top, maybe would be better if centered?
 
 def em(n):
     return "%gem" % n
@@ -95,7 +104,8 @@ def perc(n):
     return "%g%%" % n
 
 class TreeOptions(object):
-    def __init__(self, horiz_spacing=HorizOptions.TEXT,
+    def __init__(self, horiz_spacing=HorizSpacing.TEXT,
+                       vert_align=VertAlign.CENTER,
                        leaf_padding=2,
                        distance_to_daughter=2,
                        debug=False,
@@ -104,6 +114,7 @@ class TreeOptions(object):
                        average_glyph_width=2.0,
                        descend_direct=True):
         self.horiz_spacing = horiz_spacing
+        self.vert_align = vert_align
         self.leaf_padding = leaf_padding
         self.distance_to_daughter = distance_to_daughter
         self.debug = debug
@@ -201,6 +212,26 @@ class TreeLayout(object):
     def width(self):
         return self.max_width
 
+    def label_y_dodge(self, node=None, level=None, height=None):
+        """Calculate the y positions of a label, relative to other labels in the
+        same row. Returns a tuple of the top dodge, and the bottom dodge, as
+        positive numbers."""
+        if node is None:
+            node = NodePos(None, 0, 0, 0, 0, 0)
+        if level is None:
+            level = node.depth
+        if height is None:
+            height = node.height
+        if self.options.vert_align == VertAlign.TOP:
+            return (0, self.level_heights[level] - height)
+        elif self.options.vert_align == VertAlign.BOTTOM:
+            return (self.level_heights[level] - height, 0)
+        elif self.options.vert_align == VertAlign.CENTER:
+            dodge = (self.level_heights[level] - height) / 2.0
+            return (dodge, dodge)
+        else:
+            return (0,0)
+
     def _do_layout(self, t):
         self.level_heights = dict()
         self.level_ys = dict({0: 0})
@@ -208,6 +239,7 @@ class TreeLayout(object):
         for i in range(self.depth + 1):
             self.level_heights[i] = 0
         parsed = self._build_initial_layout(t)
+        self._calc_level_ys()
         if len(parsed) > 0:
             self.max_width = parsed[0].width
         else:
@@ -219,7 +251,8 @@ class TreeLayout(object):
 
     def _build_initial_layout(self, t, level=0):
         # initialize raw widths and node heights, both in em at this point.
-        # also initialize level_heights for all levels.
+        # also initialize level_heights for all levels, and depth values for
+        # nodes.
         parent, children = tree_split(t)
         node = NodePos.from_label(parent, level, self.options)
 
@@ -262,41 +295,51 @@ class TreeLayout(object):
         for i in range(len(children)):
             children[i][0].width = widths[i]
 
-    def _normalize_y(self, t, level=0):
+    def _calc_level_ys(self):
+        self.level_ys[0] = 0
+        for i in range(1, self.depth + 1):
+            self.level_ys[i] = (self.options.distance_to_daughter
+                                + self.level_heights[i - 1])
+
+    def _normalize_y(self, t):
         # calculate y distances for each level. This is done on a second pass
         # because it needs level_heights to be initialized.
         parent, children = t[0], t[1:]
+        if (self.options.vert_align == VertAlign.FULL):
+            parent.height = self.level_heights[parent.depth]
+        if (len(children) == 0):
+            return
+        level = parent.depth
         y_distance = (parent.height + 
                       self.options.distance_to_daughter +
-                        (self.level_heights[level] - parent.height) / 2)
-        if len(children) > 0 and (level + 1) not in self.level_ys:
-            self.level_ys[level + 1] = self.options.distance_to_daughter + self.level_heights[level]
+                      self.label_y_dodge(node=parent)[1])
+
         for c in children:
             if self.options.leaf_nodes_align and len(c) == 1 and level + 1 < self.depth:
-                # calculate the initial y for this node as if its height is 0. This
-                # is used in case a two-segment descender is drawn.
+                # calculate the initial y for this node as if its height is 0.
+                # This is used in case a two-segment descender is drawn.
                 child_height = 0
             else:
                 child_height = c[0].height
-            c[0].y = (y_distance +
-                (self.level_heights[level + 1] - child_height) / 2)
-            self._normalize_y(c, level + 1)
+            c[0].y = (y_distance
+                      + self.label_y_dodge(node=c[0], height=child_height)[0])
+            self._normalize_y(c)
 
-    def _adjust_leaf_nodes(self, t, level=0):
+    def _adjust_leaf_nodes(self, t):
         # if leaf nodes align, move leaves down to match the lowest one. Done on
         # a third pass so that non-leaf ys are all established.
         if not self.options.leaf_nodes_align:
             return
         parent, children = t[0], t[1:]
+        level = parent.depth
         if len(children) == 0 and level > 0 and level < self.depth:
             parent.original_y = parent.y
             parent.y = (parent.y
-                - self.level_heights[level] / 2 # initial y calculated as if
-                                                # height is 0
-                + sum([self.level_ys[y] for y in range(level + 1, self.depth+1)])
-                + (self.level_heights[self.depth] - parent.height) / 2)
+                - self.label_y_dodge(node=parent, height=0)[0]
+                + sum([self.level_ys[y] for y in range(level+1, self.depth+1)])
+                + self.label_y_dodge(node=parent, level=self.depth)[0])
         for c in children:
-            self._adjust_leaf_nodes(c, level + 1)
+            self._adjust_leaf_nodes(c)
 
     def _svg_add_subtree(self, svg_parent, t):
         # This uses several tricks to simulate the ways in which relative
@@ -346,9 +389,9 @@ class TreeLayout(object):
             self._svg_add_subtree(child, c)
             x_pos += c[0].width
 
-    def _svg_build_tree(self, name="tree"):
-        """Build an `svgwrite.Drawing` object based on the layout calculated when
-        initializing the class."""
+    def svg_build_tree(self, name="tree"):
+        """Build an `svgwrite.Drawing` object based on the layout calculated
+        when initializing the object."""
 
         # estimate canvas size based on depth + leaf widths. This probably isn't
         # very accurate in some limiting cases...but to do any better would need
@@ -376,7 +419,7 @@ class TreeLayout(object):
         return tree
 
     def _repr_svg_(self):
-        return self._svg_build_tree().tostring()
+        return self.svg_build_tree().tostring()
 
 ################
 # SVG generation
