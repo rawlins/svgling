@@ -172,6 +172,17 @@ class NodePos(object):
         self.depth = depth
         self.svg = svg
 
+    def width(self):
+        return self.width
+
+    def height(self):
+        return self.height
+
+    def get_svg(self):
+        # TODO: generalize this / make it less hacky
+        self.svg["y"] = em(self.y)
+        return self.svg
+
     @classmethod
     def from_label(cls, label, depth, options):
         y = 1
@@ -240,6 +251,13 @@ class TreeLayout(object):
         else:
             return (0,0)
 
+    def y_distance(self, level_a, level_b):
+        """What is the total y distance between levels a and b, starting from
+        the containing svg for level_a?"""
+        # level_ys is a dict, so can't use slicing
+        level_b = min(self.depth, level_b)
+        return sum([self.level_ys[l] for l in range(level_a + 1, level_b + 1)])
+
     def _do_layout(self, t):
         self.level_heights = dict()
         self.level_ys = dict({0: 0})
@@ -254,7 +272,7 @@ class TreeLayout(object):
             self.max_width = 0
         self._normalize_widths(parsed)
         self._normalize_y(parsed)
-        self._adjust_leaf_nodes(parsed)
+        #self._adjust_leaf_nodes(parsed)
         self.layout = parsed
 
     def _build_initial_layout(self, t, level=0):
@@ -262,12 +280,13 @@ class TreeLayout(object):
         # also initialize level_heights for all levels, and depth values for
         # nodes.
         parent, children = tree_split(t)
-        node = NodePos.from_label(parent, level, self.options)
 
         # if leaf nodes align, all leaf nodes contribute to height for the
         # deepest level, not their actual depth
         if len(children) == 0 and self.options.leaf_nodes_align:
             level = self.depth
+        node = NodePos.from_label(parent, level, self.options)
+
         self.level_heights[level] = max(self.level_heights[level], node.height)
         result_children = [self._build_initial_layout(c, level+1)
                                                             for c in children]
@@ -304,6 +323,7 @@ class TreeLayout(object):
             children[i][0].width = widths[i]
 
     def _calc_level_ys(self):
+        # Calculate the y position of each row, relative to containing svg
         self.level_ys[0] = 0
         for i in range(1, self.depth + 1):
             self.level_ys[i] = (self.options.distance_to_daughter
@@ -315,39 +335,9 @@ class TreeLayout(object):
         parent, children = t[0], t[1:]
         if (self.options.vert_align == VertAlign.FULL):
             parent.height = self.level_heights[parent.depth]
-        if (len(children) == 0):
-            return
-        level = parent.depth
-        y_distance = (parent.height + 
-                      self.options.distance_to_daughter +
-                      self.label_y_dodge(node=parent)[1])
-
+        parent.y = self.label_y_dodge(node=parent)[0]
         for c in children:
-            if self.options.leaf_nodes_align and len(c) == 1 and level + 1 < self.depth:
-                # calculate the initial y for this node as if its height is 0.
-                # This is used in case a two-segment descender is drawn.
-                child_height = 0
-            else:
-                child_height = c[0].height
-            c[0].y = (y_distance
-                      + self.label_y_dodge(node=c[0], height=child_height)[0])
             self._normalize_y(c)
-
-    def _adjust_leaf_nodes(self, t):
-        # if leaf nodes align, move leaves down to match the lowest one. Done on
-        # a third pass so that non-leaf ys are all established.
-        if not self.options.leaf_nodes_align:
-            return
-        parent, children = t[0], t[1:]
-        level = parent.depth
-        if len(children) == 0 and level > 0 and level < self.depth:
-            parent.original_y = parent.y
-            parent.y = (parent.y
-                - self.label_y_dodge(node=parent, height=0)[0]
-                + sum([self.level_ys[y] for y in range(level+1, self.depth+1)])
-                + self.label_y_dodge(node=parent, level=self.depth)[0])
-        for c in children:
-            self._adjust_leaf_nodes(c)
 
     def _svg_add_subtree(self, svg_parent, t):
         # This uses several tricks to simulate the ways in which relative
@@ -362,17 +352,17 @@ class TreeLayout(object):
         #    ought to be relative to text size, only use that.
         from svgwrite.shapes import Line
         parent, children = t[0], t[1:]
+        line_start = parent.y + parent.height
         if parent.height > 0:
-            line_start = parent.height + 0.2
-        else:
-            line_start = 0
+            line_start += 0.2 # extra space for descenders
         x_pos = 0
-        svg_parent.add(parent.svg)
+        svg_parent.add(parent.get_svg())
         for c in children:
-            y_target = em(c[0].y)
+            box_y = self.y_distance(parent.depth, c[0].depth)
+            y_target = em(box_y + c[0].y)
             x_target = perc(x_pos + c[0].width / 2)
             child = svgwrite.container.SVG(x=perc(x_pos),
-                                           y=y_target,
+                                           y=em(box_y),
                                            width=perc(c[0].width))
             if self.options.debug:
                 child.add(svgwrite.shapes.Rect(insert=("0%","0%"),
@@ -380,20 +370,24 @@ class TreeLayout(object):
                                                fill="none", stroke="red"))
             svg_parent.add(child)
 
-            if (self.options.leaf_nodes_align
-                                and not self.options.descend_direct
-                                and len(c) == 1 and c[0].depth < self.depth):
-                intermediate = (x_target, em(c[0].original_y))
+            if c[0].depth > parent.depth + 1 and not self.options.descend_direct:
+                # we are skipping level(s). Find the y position that an empty
+                # node on the next level would have.
+                intermediate_y = em(self.label_y_dodge(level=parent.depth+1,
+                                                     height=0)[0]
+                                  + self.y_distance(parent.depth, parent.depth+1))
+                # TODO: do as Path?
                 svg_parent.add(Line(start=("50%", em(line_start)),
-                                    end=intermediate,
+                                    end=(x_target, intermediate_y),
                                     stroke="black"))
-                svg_parent.add(Line(start=intermediate,
+                svg_parent.add(Line(start=(x_target, intermediate_y),
                                     end=(x_target, y_target),
                                     stroke="black"))
             else:
                 svg_parent.add(Line(start=("50%", em(line_start)),
-                                    end=(perc(x_pos + c[0].width / 2), y_target),
+                                    end=(x_target, y_target),
                                     stroke="black"))
+
             self._svg_add_subtree(child, c)
             x_pos += c[0].width
 
