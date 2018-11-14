@@ -38,7 +38,7 @@ class SideBySide(object):
     def height(self):
         return max([e.height() for e in self.elements])
 
-    def get_svg(self, name="figure", debug=True):
+    def get_svg(self, name="figure", debug=False):
         # TODO: is there any problem embedding `Drawing`s within `Drawing`s?
         container = svgwrite.Drawing(name, (em(self.width()), em(self.height())))
         # the somewhat elaborate recursion here is to try to handle the case
