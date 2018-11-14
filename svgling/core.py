@@ -110,7 +110,7 @@ class TreeOptions(object):
                        distance_to_daughter=2,
                        debug=False,
                        leaf_nodes_align=False,
-                       global_font_style="font-family: times, serif; font-weight:normal; font-style: normal;",
+                       global_font_style="font-family: times, serif; font-weight:normal; font-style: normal; font-size: 12pt;",
                        average_glyph_width=2.0,
                        descend_direct=True):
         self.horiz_spacing = horiz_spacing
