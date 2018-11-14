@@ -77,6 +77,18 @@ def tree_depth(t):
         subdepth = max(subdepth, tree_depth(subtree))
     return subdepth + 1
 
+def leaf_iter(t):
+    parent, children = tree_split(t)
+    if len(children) == 0:
+        yield parent
+    for c in children:
+        yield from leaf_iter(c)
+
+def common_parent(path1, path2):
+    for i in range(min(len(path1), len(path2))):
+        if path1[i] != path2[i]:
+            return tuple(path1[0:i])
+
 ################
 # Tree layout options
 ################
@@ -171,6 +183,7 @@ class NodePos(object):
         self.inner_height = height
         self.depth = depth
         self.svg = svg
+        self.text = svg
 
     def width(self):
         return self.width
@@ -183,6 +196,9 @@ class NodePos(object):
         self.svg["y"] = em(self.y)
         return self.svg
 
+    def __repr__(self):
+        return self.text
+
     @classmethod
     def from_label(cls, label, depth, options):
         y = 1
@@ -194,7 +210,9 @@ class NodePos(object):
                                                     text_anchor="middle"))
             y += 1
         width = max([options.label_width(line) for line in label.split("\n")])
-        return NodePos(svg_parent, 50, 0, width, y-1, depth)
+        result = NodePos(svg_parent, 50, 0, width, y-1, depth)
+        result.text = label
+        return result
 
 class TreeLayout(object):
     """Container class for storing a tree layout state."""
@@ -204,9 +222,11 @@ class TreeLayout(object):
         self.level_heights = dict()
         self.level_ys = dict({0: 0})
         self.max_width = 1
+        self.extra_y = 1.0
         self.depth = 0
         self.options = options
         self.tree = t
+        self.annotations = list() # list of svgwrite objects
         self._do_layout(t) # initializes self.layout
 
     def __str__(self):
@@ -223,10 +243,37 @@ class TreeLayout(object):
         # TODO: redo in self, instead?
         return TreeLayout(self.tree, options=options)
 
+    ######## Annotations
+
+    def box_constituent(self, path, stroke="none", rounding="5pt",
+                        stroke_width="0.5pt", fill="gray", fill_opacity=0.15):
+        (x, y, width, height) = self.subtree_bounds(path)
+        rect = svgwrite.shapes.Rect(insert=(perc(x), em(y)),
+                                    size=(perc(width), em(height)),
+                                    stroke=stroke,
+                                    fill=fill,
+                                    fill_opacity=fill_opacity,
+                                    rx=rounding,
+                                    ry=rounding,
+                                    stroke_width=stroke_width)
+        self.annotations.append(rect)
+
+    def underline_constituent(self, path, stroke="black", stroke_width="0.5pt",
+                              stroke_opacity=1.0):
+        (x, y, width, height) = self.subtree_bounds(path)
+        underline = svgwrite.shapes.Line(start=(perc(x), em(y + height)),
+                                         end=(perc(x + width), em(y + height)),
+                                         stroke=stroke,
+                                         stroke_width=stroke_width,
+                                         stroke_opacity=stroke_opacity)
+        self.annotations.append(underline)
+
+    ######## Layout information
+
     def height(self):
         return (sum([self.level_ys[l] for l in range(self.depth + 1)]) +
                 self.level_heights[self.depth] +
-                1)
+                self.extra_y)
 
     def width(self):
         return self.max_width
@@ -258,6 +305,93 @@ class TreeLayout(object):
         level_b = min(self.depth, level_b)
         return sum([self.level_ys[l] for l in range(level_a + 1, level_b + 1)])
 
+    def layout_iter(self, path):
+        """An iterator over every position in the layout, where the head is
+        at position 0, and any children follow. Will throw AttributeError on an
+        invalid path at the point in iteration where the path is invalid. (If
+        you want to validate a path, you can do this by converting to a list.)
+        """
+        node = self.layout
+        yield node
+        i = 0
+        for c in path:
+            parent, children = node[0], node[1:]
+            try:
+                node = children[c]
+            except IndexError:
+                raise AttributeError(
+                    "Invalid tree path at index %d (daughter %d)" % (i, c))
+            yield node
+            i += 1
+
+    def node_iter(self, path):
+        """An iterator over every node in the layout. Will throw AttributeError
+        on an invalid path at the point in iteration where the path is invalid.
+        """
+        for n in self.layout_iter(path):
+            yield n[0]
+
+    def sublayout(self, path):
+        """Find the position in the layout given by a tree path, i.e. a sequence
+        of daughter indices (indexed from 0). Will throw AttributeError on an
+        invalid path."""
+        return list(self.layout_iter(path))[-1]
+
+    def nmost_path(self, path, n):
+        """Find the deepest path from starting position `path` that can be
+        reached via daughter index n repeatedly."""
+        path = list(path)
+        t = self.sublayout(path)
+        parent, children = t[0], t[1:]
+        i = len(path)
+        while i < self.depth + 1:
+            try:
+                parent, children = children[n][0], children[n][1:]
+                path = path + [n]
+            except IndexError:
+                break
+        return path
+
+    def leftmost_path(self, path=()):
+        """Find the deepest path starting position `path` that can be
+        found by going left repeatedly."""
+        return self.nmost_path(path, 0)
+
+    def rightmost_path(self, path=()):
+        """Find the deepest path starting position `path` that can be
+        found by going right repeatedly."""
+        return self.nmost_path(path, -1)
+
+    def node_x_vals(self, path):
+        """Find, relative to the outer svg, the x position and width for node
+        at position `path`. Both values are in percentages."""
+        left = 0.0
+        width = 100.0
+        i = 0
+        for node in self.node_iter(path):
+            left += node.x * width / 100.0
+            width = width * node.width / 100.0
+        return left, width
+
+    def subtree_bounds(self, path):
+        """Found the bounding box for a subtree whose parent is at position
+        `path`, in the format of a tuple (x, y, width, height). X values are
+        in percentages, and Y values are in ems. The values are relative to the
+        outermost svg."""
+        parent = self.sublayout(path)
+        deepest = max([l.depth for l in leaf_iter(parent)])
+        left_path = self.leftmost_path(path)
+        right_path = self.rightmost_path(path)
+        x = self.node_x_vals(left_path)[0]
+        width = sum(self.node_x_vals(right_path)) - x
+        y = self.y_distance(0, parent[0].depth)
+        height = (self.y_distance(parent[0].depth, deepest)
+                  + self.level_heights[deepest]
+                  + 0.5)
+        return (x, y, width, height)
+
+    ########### Layout stuff, mostly internal
+
     def _do_layout(self, t):
         self.level_heights = dict()
         self.level_ys = dict({0: 0})
@@ -270,6 +404,9 @@ class TreeLayout(object):
             self.max_width = parsed[0].width
         else:
             self.max_width = 0
+        if len(parsed) > 0:
+            parsed[0].width = 100.0
+            parsed[0].x = 0
         self._normalize_widths(parsed)
         self._normalize_y(parsed)
         #self._adjust_leaf_nodes(parsed)
@@ -319,8 +456,11 @@ class TreeLayout(object):
         for c in children:
             self._normalize_widths(c)
         widths = self._subtree_proportions(children)
+        x_pos = 0
         for i in range(len(children)):
             children[i][0].width = widths[i]
+            children[i][0].x = x_pos
+            x_pos += widths[i]
 
     def _calc_level_ys(self):
         # Calculate the y position of each row, relative to containing svg
@@ -339,6 +479,8 @@ class TreeLayout(object):
         for c in children:
             self._normalize_y(c)
 
+    ######### SVG building
+
     def _svg_add_subtree(self, svg_parent, t):
         # This uses several tricks to simulate the ways in which relative
         # positioning in raw SVG is hard:
@@ -355,13 +497,12 @@ class TreeLayout(object):
         line_start = parent.y + parent.height
         if parent.height > 0:
             line_start += 0.2 # extra space for descenders
-        x_pos = 0
         svg_parent.add(parent.get_svg())
         for c in children:
             box_y = self.y_distance(parent.depth, c[0].depth)
             y_target = em(box_y + c[0].y)
-            x_target = perc(x_pos + c[0].width / 2)
-            child = svgwrite.container.SVG(x=perc(x_pos),
+            x_target = perc(c[0].x + c[0].width / 2)
+            child = svgwrite.container.SVG(x=perc(c[0].x),
                                            y=em(box_y),
                                            width=perc(c[0].width))
             if self.options.debug:
@@ -389,7 +530,6 @@ class TreeLayout(object):
                                     stroke="black"))
 
             self._svg_add_subtree(child, c)
-            x_pos += c[0].width
 
     def svg_build_tree(self, name="tree"):
         """Build an `svgwrite.Drawing` object based on the layout calculated
@@ -418,13 +558,18 @@ class TreeLayout(object):
                                    end=("100%", em(i)),
                                    stroke="lightgray"))
         self._svg_add_subtree(tree, self.layout)
+        for a in self.annotations:
+            tree.add(a)
         return tree
 
     def get_svg(self):
-        return self.svg_build_tree()
+        tree = self.svg_build_tree()
+        for a in self.annotations:
+            tree.add(a)
+        return tree
 
     def _repr_svg_(self):
-        return self.svg_build_tree().tostring()
+        return self.get_svg().tostring()
 
 ################
 # Module-level api
