@@ -33,7 +33,7 @@ class SideBySide(object):
 
     def width(self):
         return (sum([e.width() for e in self.elements])
-                + self.padding * (len(self.elements) - 1))
+                + self.padding * (len(self.elements) + 1))
 
     def height(self):
         return max([e.height() for e in self.elements])
@@ -49,9 +49,10 @@ class SideBySide(object):
         # only partially specified.
         last_box = container
         inherit_style(container, self.svg_contents[0])
-        last_width = 0
+        last_width = self.padding
         for i in range(len(self.elements)):
-            outer_box = svgwrite.container.SVG(x=em(last_width), y=0, width="100%")
+            outer_box = svgwrite.container.SVG(x=em(last_width),
+                                               y=0, width="100%")
             box = svgwrite.container.SVG(x=0, y=0)
             outer_box.add(box)
             box.add(self.svg_contents[i])
@@ -63,7 +64,7 @@ class SideBySide(object):
             inherit_style(last_box, outer_box)
             last_box.add(outer_box)
             last_box = box
-            last_width = self.elements[i].width()
+            last_width = self.elements[i].width() + self.padding
         return container
 
     def _repr_svg_(self):
@@ -77,7 +78,7 @@ class RowByRow(object):
 
     def height(self):
         return (sum([e.height() for e in self.elements])
-                + self.padding * (len(self.elements) - 1))
+                + self.padding * (len(self.elements) + 1))
 
     def width(self):
         return max([e.width() for e in self.elements])
@@ -87,7 +88,7 @@ class RowByRow(object):
         # TODO: update with recursive code as in SideBySide
         container = svgwrite.Drawing(name,
                                      (em(self.width()), em(self.height())))
-        y_pos = 0
+        y_pos = self.padding
         for i in range(len(self.elements)):
             height = self.elements[i].height()
             box = svgwrite.container.SVG(x=0, y=em(y_pos), height=em(height))
