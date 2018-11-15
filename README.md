@@ -16,7 +16,13 @@ integrating with Jupyter notebooks, but could be used to generate SVG diagrams
 for all sorts of other purposes. It involves no javascript and so will work
 in Jupyter without any plugins.
 
-It accepts two main tree formats: lisp-style trees made from lists of lists (or
+Core design principles/goals:
+
+1. Be well suited for *programmatic* generation of tree diagrams (not just hand-customized diagrams).
+2. Be equally suited for theoretical linguistics and computational linguistics/NLP, at least for cases where the latter is targeting constituent trees. (This package is not aimed at dependency trees.)
+3. Do as much as possible with pure python (as opposed to python+javascript, or python+tk, or python+dot, or...).
+
+The tree drawing code accepts two main tree formats: lisp-style trees made from lists of lists (or
 tuples of tuples), with node labels as strings, or trees from the
 [`nltk`](https://www.nltk.org/) package, i.e. objects instantiating the
 [`nltk.tree.Tree`](https://www.nltk.org/_modules/nltk/tree.html) API.
