@@ -296,7 +296,6 @@ class TreeLayout(object):
         n1_x = n1_pos[0] + n1_pos[2] / 2
         n2_y = n2_pos[1] + n2_pos[3]
         n2_x = n2_pos[0] + n2_pos[2] / 2
-        #y_target = max(n1_y, n2_y) + 1.0
         y_depth = self.deepest_intervening_leaf(path1, path2)
         y_target = self.y_distance(0, y_depth) + self.level_heights[y_depth] + 1.2
         y_target = self._movement_find_y(min(n1_x, n2_x), max(n1_x, n2_x), y_target)
@@ -318,7 +317,6 @@ class TreeLayout(object):
         self.annotations.append(svgwrite.shapes.Line(
             start=(perc(n2_x), em(n2_y)), end=(perc(n2_x - 1), em(n2_y + 0.45)),
             stroke=stroke, stroke_width=stroke_width))
-
 
     ######## Layout information
 
@@ -452,7 +450,7 @@ class TreeLayout(object):
         return left, width
 
     def subtree_bounds(self, path):
-        """Found the bounding box for a subtree whose parent is at position
+        """Find the bounding box for a subtree whose parent is at position
         `path`, in the format of a tuple (x, y, width, height). X values are
         in percentages, and Y values are in ems. The values are relative to the
         outermost svg."""
@@ -465,7 +463,7 @@ class TreeLayout(object):
         y = self.y_distance(0, parent[0].depth)
         height = (self.y_distance(parent[0].depth, deepest)
                   + self.level_heights[deepest]
-                  + 0.5)
+                  + 0.5) # add a little extra room for descenders
         return (x, y, width, height)
 
     ########### Layout stuff, mostly internal
@@ -482,12 +480,11 @@ class TreeLayout(object):
             self.max_width = parsed[0].width
         else:
             self.max_width = 0
-        if len(parsed) > 0:
+        if len(parsed) > 0: # normalize_widths doesn't affect parents
             parsed[0].width = 100.0
             parsed[0].x = 0
         self._normalize_widths(parsed)
         self._normalize_y(parsed)
-        #self._adjust_leaf_nodes(parsed)
         self.layout = parsed
 
     def _build_initial_layout(self, t, level=0):
@@ -509,6 +506,7 @@ class TreeLayout(object):
         return [node] + result_children
 
     def _subtree_proportions(self, l):
+        # convert widths of l to percentages, depedning on self.options
         if len(l) == 0:
             return list()
         if (self.options.horiz_spacing == HorizOptions.EVEN):
@@ -529,7 +527,7 @@ class TreeLayout(object):
             return widths
 
     def _normalize_widths(self, t):
-        # normalize widths to percentages.
+        # normalize tree widths to percentages in the appropriate way.
         parent, children = t[0], t[1:]
         for c in children:
             self._normalize_widths(c)
