@@ -188,6 +188,19 @@ class NodePos(object):
         self.depth = depth
         self.svg = svg
         self.text = svg
+        self.clear_edge_styles()
+
+    def set_edge_style(self, daughter, style):
+        self.edge_styles[daughter] = style
+
+    def get_edge_style(self, daughter):
+        return self.edge_styles.get(daughter, None)
+
+    def has_edge_style(self, daughter):
+        return daughter in self.edge_styles
+
+    def clear_edge_styles(self):
+        self.edge_styles = dict() # no info about surrounding tree structure...
 
     def width(self):
         return self.width
@@ -217,6 +230,86 @@ class NodePos(object):
         result = NodePos(svg_parent, 50, 0, width, y-1, depth)
         result.text = label
         return result
+
+class EdgeStyle(object):
+    def __init__(self, path=None, stroke="black", stroke_width=None):
+        if path:
+            path = tuple(path)
+        self.path = path
+        self.stroke = stroke
+        self.stroke_width = stroke_width
+
+    def __hash__(self):
+        if (self.path is not None):
+            return hash(self.path)
+        else:
+            return object.hash(self)
+
+    def svg_opts(self):
+        opts = dict({"stroke": self.stroke})
+        if self.stroke_width:
+            opts["stroke_width"] = self.stroke_width
+        return opts
+
+    def draw(self, svg_parent, tree_layout, parent, child):
+        line_start = parent.y + parent.height
+        if parent.height > 0:
+            line_start += 0.2 # extra space for descenders
+        box_y = tree_layout.y_distance(parent.depth, child.depth)
+        y_target = em(box_y + child.y)
+        x_target = perc(child.x + child.width / 2)
+        svg_parent.add(svgwrite.shapes.Line(start=("50%", em(line_start)),
+                                            end=(x_target, y_target),
+                                            **self.svg_opts()))
+
+class IndirectDescent(EdgeStyle):
+    def draw(self, svg_parent, tree_layout, parent, child):
+        from svgwrite.shapes import Line
+        if child.depth > parent.depth + 1:
+            line_start = parent.y + parent.height
+            if parent.height > 0:
+                line_start += 0.2 # extra space for descenders
+            box_y = tree_layout.y_distance(parent.depth, child.depth)
+            y_target = em(box_y + child.y)
+            x_target = perc(child.x + child.width / 2)
+            # we are skipping level(s). Find the y position that an empty
+            # node on the next level would have.
+            intermediate_y = em(tree_layout.label_y_dodge(level=parent.depth+1,
+                                                          height=0)[0]
+                        + tree_layout.y_distance(parent.depth, parent.depth+1))
+            # TODO: do as Path?
+            svg_parent.add(Line(start=("50%", em(line_start)),
+                                end=(x_target, intermediate_y),
+                                **self.svg_opts()))
+            svg_parent.add(Line(start=(x_target, intermediate_y),
+                                end=(x_target, y_target),
+                                **self.svg_opts()))
+        else:
+            EdgeStyle.draw(self, svg_parent, tree_layout, parent, child)
+
+class TriangleEdge(EdgeStyle):
+    def draw(self, svg_parent, tree_layout, parent, child):
+        line_start = parent.y + parent.height
+        if parent.height > 0:
+            line_start += 0.2 # extra space for descenders
+        box_y = tree_layout.y_distance(parent.depth, child.depth)
+        y_target = em(box_y + child.y)
+
+        # difference from the midpoint. 0.8 is a heuristic to account for leaf
+        # padding. Under normal font conditions, doesn't start to look off until
+        # ~60 character widths.
+        width_dodge = 0.8 * child.inner_width / 2.0
+        x_target_l = perc(child.x + child.width / 2 - width_dodge)
+        x_target_r = perc(child.x + child.width / 2 + width_dodge)
+        svg_parent.add(svgwrite.shapes.Line(start=("50%", em(line_start)),
+                                            end=(x_target_l, y_target),
+                                            **self.svg_opts()))
+        svg_parent.add(svgwrite.shapes.Line(start=("50%", em(line_start)),
+                                            end=(x_target_r, y_target),
+                                            **self.svg_opts()))
+        svg_parent.add(svgwrite.shapes.Line(start=(x_target_l, y_target),
+                                            end=(x_target_r, y_target),
+                                            **self.svg_opts()))
 
 class TreeLayout(object):
     """Container class for storing a tree layout state."""
@@ -468,6 +561,21 @@ class TreeLayout(object):
 
     ########### Layout stuff, mostly internal
 
+    def set_edge_style(self, path, style):
+        if len(path) == 0: # there are no edges to the top node
+            return
+        path_to_parent = path[:-1]
+        parent, children = tree_split(self.sublayout(path_to_parent))
+        daughter = path[-1]
+        if daughter >= len(children):
+            raise AttributeError("Invalid daughter index %d" % daughter)
+        daughter = daughter % len(children) # handle negative indices
+        parent.set_edge_style(daughter, style)
+
+    def clear_edge_styles(self):
+        for n in self.node_iter():
+            n.clear_edge_styles()
+
     def _do_layout(self, t):
         self.level_heights = dict()
         self.level_ys = dict({0: 0})
@@ -505,38 +613,43 @@ class TreeLayout(object):
         node.width = max(node.width, sum([c[0].width for c in result_children]))
         return [node] + result_children
 
-    def _subtree_proportions(self, l):
-        # convert widths of l to percentages, depedning on self.options
-        if len(l) == 0:
-            return list()
-        if (self.options.horiz_spacing == HorizOptions.EVEN):
-            return [100.0 / len(l)] * len(l)
-        else: # TEXT or NODES
-            widths = list()
-            sum = 0
-            for t in l:
-                if self.options.horiz_spacing == HorizOptions.TEXT:
-                    widths.append(t[0].width) # precalculated
-                else: # NODES
-                    widths.append(leaf_nodecount(t, self.options))
-                sum += widths[-1]
-
-            # normalize to percentages
-            for i in range(len(widths)):
-                widths[i] = widths[i] * 100.0 / sum
-            return widths
+    def _sublayout_width(self, t):
+        if self.options.horiz_spacing == HorizOptions.TEXT:
+            return t[0].width # precalculated
+        elif self.options.horiz_spacing == HorizOptions.NODES:
+            return leaf_nodecount(t, self.options)
+        else: # EVEN
+            return 1
 
     def _normalize_widths(self, t):
         # normalize tree widths to percentages in the appropriate way.
         parent, children = t[0], t[1:]
+        if len(children) == 0:
+            return
+        widths = list()
+        sum = 0
+        em_sum = 0
+        # calculate widths according to scheme determined by options. This
+        # may or may not be in real units.
+        for t in children:
+            widths.append(self._sublayout_width(t))
+            sum += widths[-1]
+            em_sum += t[0].width
+
+        # normalize to percentages
+        x_pos = 0
+        for i in range(len(widths)):
+            # TODO: inner width is not very accurate for non-TEXT width schemes.
+            # Could calculate it relative to the entire canvas? Could I just
+            # switch to viewbox-determined units rather than percentages?
+            children[i][0].inner_width = children[i][0].inner_width * 100.0 / em_sum
+            children[i][0].width = widths[i] * 100.0 / sum
+            children[i][0].x = x_pos
+            x_pos += children[i][0].width
+
+        # recurse
         for c in children:
             self._normalize_widths(c)
-        widths = self._subtree_proportions(children)
-        x_pos = 0
-        for i in range(len(children)):
-            children[i][0].width = widths[i]
-            children[i][0].x = x_pos
-            x_pos += widths[i]
 
     def _calc_level_ys(self):
         # Calculate the y position of each row, relative to containing svg
@@ -570,10 +683,8 @@ class TreeLayout(object):
         #    ought to be relative to text size, only use that.
         from svgwrite.shapes import Line
         parent, children = t[0], t[1:]
-        line_start = parent.y + parent.height
-        if parent.height > 0:
-            line_start += 0.2 # extra space for descenders
         svg_parent.add(parent.get_svg())
+        i = 0
         for c in children:
             box_y = self.y_distance(parent.depth, c[0].depth)
             y_target = em(box_y + c[0].y)
@@ -586,26 +697,16 @@ class TreeLayout(object):
                                                size=("100%", "100%"),
                                                fill="none", stroke="red"))
             svg_parent.add(child)
-
-            if c[0].depth > parent.depth + 1 and not self.options.descend_direct:
-                # we are skipping level(s). Find the y position that an empty
-                # node on the next level would have.
-                intermediate_y = em(self.label_y_dodge(level=parent.depth+1,
-                                                     height=0)[0]
-                                  + self.y_distance(parent.depth, parent.depth+1))
-                # TODO: do as Path?
-                svg_parent.add(Line(start=("50%", em(line_start)),
-                                    end=(x_target, intermediate_y),
-                                    stroke="black"))
-                svg_parent.add(Line(start=(x_target, intermediate_y),
-                                    end=(x_target, y_target),
-                                    stroke="black"))
+            if parent.has_edge_style(i):
+                edge = parent.get_edge_style(i)
+            elif self.options.descend_direct:
+                edge = EdgeStyle()
             else:
-                svg_parent.add(Line(start=("50%", em(line_start)),
-                                    end=(x_target, y_target),
-                                    stroke="black"))
+                edge = IndirectDescent()
+            edge.draw(svg_parent, self, parent, c[0])
 
             self._svg_add_subtree(child, c)
+            i += 1
 
     def svg_build_tree(self, name="tree"):
         """Build an `svgwrite.Drawing` object based on the layout calculated
