@@ -1,5 +1,5 @@
 import svgwrite
-import enum
+import enum, math
 
 ################
 # Tree utility functions
@@ -88,6 +88,10 @@ def common_parent(path1, path2):
     for i in range(min(len(path1), len(path2))):
         if path1[i] != path2[i]:
             return tuple(path1[0:i])
+    if len(path1) < len(path2):
+        return path1
+    else:
+        return path2
 
 ################
 # Tree layout options
@@ -268,6 +272,54 @@ class TreeLayout(object):
                                          stroke_opacity=stroke_opacity)
         self.annotations.append(underline)
 
+    def _movement_find_y(self, x1, x2, y):
+        # try to keep movement arrows from obscuring each other; a bit hacky
+        try:
+            self._movement_arrows
+        except:
+            self._movement_arrows = list()
+        for existing_x1, existing_x2, existing_y in self._movement_arrows:
+            if math.isclose(y, existing_y) and (x1 < existing_x2 or x2 > existing_x1):
+                return self._movement_find_y(x1, x2, y + 0.5)
+        self._movement_arrows.append((x1, x2, y))
+        return y
+
+    def deepest_intervening_leaf(self, path1, path2):
+        """Find the deepest leaf node between nodes characterized by two paths.
+        """
+        return max([n.depth for n in self.leaf_span_iter(path1, path2)])
+
+    def movement_arrow(self, path1, path2, stroke="black", stroke_width="0.5pt"):
+        n1_pos = self.subtree_bounds(path1)
+        n2_pos = self.subtree_bounds(path2)
+        n1_y = n1_pos[1] + n1_pos[3]
+        n1_x = n1_pos[0] + n1_pos[2] / 2
+        n2_y = n2_pos[1] + n2_pos[3]
+        n2_x = n2_pos[0] + n2_pos[2] / 2
+        #y_target = max(n1_y, n2_y) + 1.0
+        y_depth = self.deepest_intervening_leaf(path1, path2)
+        y_target = self.y_distance(0, y_depth) + self.level_heights[y_depth] + 1.2
+        y_target = self._movement_find_y(min(n1_x, n2_x), max(n1_x, n2_x), y_target)
+        self.extra_y = max(self.extra_y, 2)
+        #TODO polyline? need to use a viewbox
+        self.annotations.append(svgwrite.shapes.Line(
+            start=(perc(n1_x), em(n1_y)), end=(perc(n1_x), em(y_target)),
+            stroke=stroke, stroke_width=stroke_width))
+        self.annotations.append(svgwrite.shapes.Line(
+            start=(perc(n1_x), em(y_target)), end=(perc(n2_x), em(y_target)),
+            stroke=stroke, stroke_width=stroke_width))
+        self.annotations.append(svgwrite.shapes.Line(
+            start=(perc(n2_x), em(y_target)), end=(perc(n2_x), em(n2_y)),
+            stroke=stroke, stroke_width=stroke_width))
+        #TODO markers for arrowheads? these arrowheads are a bit dumb
+        self.annotations.append(svgwrite.shapes.Line(
+            start=(perc(n2_x), em(n2_y)), end=(perc(n2_x + 1), em(n2_y + 0.45)),
+            stroke=stroke, stroke_width=stroke_width))
+        self.annotations.append(svgwrite.shapes.Line(
+            start=(perc(n2_x), em(n2_y)), end=(perc(n2_x - 1), em(n2_y + 0.45)),
+            stroke=stroke, stroke_width=stroke_width))
+
+
     ######## Layout information
 
     def height(self):
@@ -330,6 +382,32 @@ class TreeLayout(object):
         """
         for n in self.layout_iter(path):
             yield n[0]
+
+    def leaf_span_iter(self, path1, path2):
+        """Iterate over a potentially non-constituent sequences of leaves
+        delimited by path1 and path2. Includes any leaves under the paths, and
+        so therefore will be non-empty (if the tree is non-empty). The paths
+        may be in either order, but the iteration will always be left-to-right.
+        """
+        branch = common_parent(path1, path2)
+        # the complication comes in here because the path bounds might not
+        # specify a constituent (in fact they typically won't unless they are
+        # equal).
+        constituent_leaves = list(leaf_iter(self.sublayout(branch)))
+        path1_leaves = list(leaf_iter(self.sublayout(path1)))
+        path2_leaves = list(leaf_iter(self.sublayout(path2)))
+        for i in range(len(constituent_leaves)):
+            if constituent_leaves[i] == path1_leaves[0]:
+                path1_i = i
+            if constituent_leaves[i] == path2_leaves[0]:
+                path2_i = i
+        if path1_i < path2_i:
+            left = path1_i
+            right = path2_i + len(path2_leaves)
+        else:
+            left = path2_i
+            right = path1_i + len(path1_leaves)
+        return iter(constituent_leaves[left:right])
 
     def sublayout(self, path):
         """Find the position in the layout given by a tree path, i.e. a sequence
