@@ -626,6 +626,10 @@ class TreeLayout(object):
         parent, children = t[0], t[1:]
         if len(children) == 0:
             return
+        # recurse first, so that parent widths are still in ems
+        for c in children:
+            self._normalize_widths(c)
+
         widths = list()
         sum = 0
         em_sum = 0
@@ -636,6 +640,11 @@ class TreeLayout(object):
             sum += widths[-1]
             em_sum += t[0].width
 
+        # if the parent node is wider than all the children, the parent box is
+        # what will determine the overall box size. The limiting case of this
+        # is when each is one node.
+        if em_sum < parent.inner_width:
+            em_sum = parent.inner_width
         # normalize to percentages
         x_pos = 0
         for i in range(len(widths)):
@@ -646,10 +655,6 @@ class TreeLayout(object):
             children[i][0].width = widths[i] * 100.0 / sum
             children[i][0].x = x_pos
             x_pos += children[i][0].width
-
-        # recurse
-        for c in children:
-            self._normalize_widths(c)
 
     def _calc_level_ys(self):
         # Calculate the y position of each row, relative to containing svg
