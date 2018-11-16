@@ -97,6 +97,12 @@ def common_parent(path1, path2):
 # Tree layout options
 ################
 
+
+SERIF = "font-family: times, serif; font-weight:normal; font-style: normal; font-size: 12pt;"
+# n.b. Lucida Console is more like 1.5 average glyph width
+MONO = "font-family: \"Lucida Console\", Monaco, monospace; font-weight:normal; font-style: normal; font-size: 12pt;"
+SANS = "font-family: Arial, Helvetica, sans-serif; font-weight:normal; font-style: normal; font-size: 12pt;"
+
 # either EVEN or NODES usually looks best with abstract trees; TEXT usually
 # looks the best for trees with real node labels, and so it is the default.
 class HorizSpacing(enum.Enum):
@@ -126,7 +132,7 @@ class TreeOptions(object):
                        distance_to_daughter=2,
                        debug=False,
                        leaf_nodes_align=False,
-                       global_font_style="font-family: times, serif; font-weight:normal; font-style: normal; font-size: 12pt;",
+                       global_font_style=SERIF,
                        average_glyph_width=2.0,
                        descend_direct=True):
         self.horiz_spacing = horiz_spacing
