@@ -98,10 +98,10 @@ def common_parent(path1, path2):
 ################
 
 
-SERIF = "font-family: times, serif; font-weight:normal; font-style: normal; font-size: 12pt;"
+SERIF = "font-family: times, serif; font-weight:normal; font-style: normal;"
 # n.b. Lucida Console is more like 1.5 average glyph width
-MONO = "font-family: \"Lucida Console\", Monaco, monospace; font-weight:normal; font-style: normal; font-size: 12pt;"
-SANS = "font-family: Arial, Helvetica, sans-serif; font-weight:normal; font-style: normal; font-size: 12pt;"
+MONO = "font-family: \"Lucida Console\", Monaco, monospace; font-weight:normal; font-style: normal;"
+SANS = "font-family: Arial, Helvetica, sans-serif; font-weight:normal; font-style: normal;"
 
 # either EVEN or NODES usually looks best with abstract trees; TEXT usually
 # looks the best for trees with real node labels, and so it is the default.
@@ -122,6 +122,9 @@ class VertAlign(enum.Enum):
 def em(n):
     return "%gem" % n
 
+def px(n):
+    return "%gpx" % n
+
 def perc(n):
     return "%g%%" % n
 
@@ -134,7 +137,8 @@ class TreeOptions(object):
                        leaf_nodes_align=False,
                        global_font_style=SERIF,
                        average_glyph_width=2.0,
-                       descend_direct=True):
+                       descend_direct=True,
+                       font_size = 16):
         self.horiz_spacing = horiz_spacing
         self.vert_align = vert_align
         self.leaf_padding = leaf_padding
@@ -151,6 +155,10 @@ class TreeOptions(object):
 
         # not technically an option, but convenient to store here for now...
         self.max_depth = 0
+        self.font_size = font_size
+
+    def style_str(self):
+        return self.global_font_style + " font-size: " + px(self.font_size) + ";"
 
     def label_width(self, label):
         return (len(str(label)) + self.leaf_padding) / self.average_glyph_width
@@ -166,6 +174,9 @@ class TreeOptions(object):
         for subtree in children:
             subheight = max(subheight, self.tree_height(subtree))
         return subheight + self.distance_to_daughter + 1
+
+    def em_to_px(self, n):
+        return n * self.font_size
 
 def leaf_nodecount(t, options=None):
     """How many nodes wide are all the leafs? Will add padding."""
@@ -211,7 +222,7 @@ class NodePos(object):
     def width(self):
         return self.width
 
-    def height(self):
+    def em_height(self):
         return self.height
 
     def get_svg(self):
@@ -349,7 +360,7 @@ class TreeLayout(object):
     ######## Annotations
 
     def box_constituent(self, path, stroke="none", rounding="5pt",
-                        stroke_width="0.5pt", fill="gray", fill_opacity=0.15):
+                        stroke_width="1px", fill="gray", fill_opacity=0.15):
         (x, y, width, height) = self.subtree_bounds(path)
         rect = svgwrite.shapes.Rect(insert=(perc(x), em(y)),
                                     size=(perc(width), em(height)),
@@ -361,7 +372,7 @@ class TreeLayout(object):
                                     stroke_width=stroke_width)
         self.annotations.append(rect)
 
-    def underline_constituent(self, path, stroke="black", stroke_width="0.5pt",
+    def underline_constituent(self, path, stroke="black", stroke_width="1px",
                               stroke_opacity=1.0):
         (x, y, width, height) = self.subtree_bounds(path)
         underline = svgwrite.shapes.Line(start=(perc(x), em(y + height)),
@@ -388,7 +399,7 @@ class TreeLayout(object):
         """
         return max([n.depth for n in self.leaf_span_iter(path1, path2)])
 
-    def movement_arrow(self, path1, path2, stroke="black", stroke_width="0.5pt"):
+    def movement_arrow(self, path1, path2, stroke="black", stroke_width="1px"):
         n1_pos = self.subtree_bounds(path1)
         n2_pos = self.subtree_bounds(path2)
         n1_y = n1_pos[1] + n1_pos[3]
@@ -396,36 +407,52 @@ class TreeLayout(object):
         n2_y = n2_pos[1] + n2_pos[3]
         n2_x = n2_pos[0] + n2_pos[2] / 2
         y_depth = self.deepest_intervening_leaf(path1, path2)
-        y_target = self.y_distance(0, y_depth) + self.level_heights[y_depth] + 1.2
-        y_target = self._movement_find_y(min(n1_x, n2_x), max(n1_x, n2_x), y_target)
-        self.extra_y = max(self.extra_y, 2)
+        # first calculate the baseline of the deepest intervening leaf (which
+        # could be n1, n2, or some other node). Then find a position that is at
+        # least 1.5em below that baseline that will (uniquely) hold the
+        # horizontal part of the movement line. Then ensure that the canvas
+        # will have at least space for that line + 0.5em.
+        y_target_base = (self.y_distance(0, y_depth)
+                         + self.level_heights[y_depth])
+        y_target = self._movement_find_y(min(n1_x, n2_x),
+                        max(n1_x, n2_x), y_target_base + 1.5)
+        self.extra_y = max(self.extra_y, y_target - y_target_base + 0.5)
+        opts = {"stroke": stroke}
+        if stroke_width is not None:
+            opts["stroke_width"] = stroke_width
         #TODO polyline? need to use a viewbox
         self.annotations.append(svgwrite.shapes.Line(
             start=(perc(n1_x), em(n1_y)), end=(perc(n1_x), em(y_target)),
-            stroke=stroke, stroke_width=stroke_width))
+            **opts))
         self.annotations.append(svgwrite.shapes.Line(
             start=(perc(n1_x), em(y_target)), end=(perc(n2_x), em(y_target)),
-            stroke=stroke, stroke_width=stroke_width))
+            **opts))
         self.annotations.append(svgwrite.shapes.Line(
             start=(perc(n2_x), em(y_target)), end=(perc(n2_x), em(n2_y)),
-            stroke=stroke, stroke_width=stroke_width))
+            **opts))
         #TODO markers for arrowheads? these arrowheads are a bit dumb
         self.annotations.append(svgwrite.shapes.Line(
             start=(perc(n2_x), em(n2_y)), end=(perc(n2_x + 1), em(n2_y + 0.45)),
-            stroke=stroke, stroke_width=stroke_width))
+            **opts))
         self.annotations.append(svgwrite.shapes.Line(
             start=(perc(n2_x), em(n2_y)), end=(perc(n2_x - 1), em(n2_y + 0.45)),
-            stroke=stroke, stroke_width=stroke_width))
+            **opts))
 
     ######## Layout information
 
-    def height(self):
+    def em_height(self):
         return (sum([self.level_ys[l] for l in range(self.depth + 1)]) +
                 self.level_heights[self.depth] +
                 self.extra_y)
 
-    def width(self):
+    def em_width(self):
         return self.max_width
+
+    def height(self):
+        return self.options.em_to_px(self.em_height())
+
+    def width(self):
+        return self.options.em_to_px(self.em_width())
 
     def label_y_dodge(self, node=None, level=None, height=None):
         """Calculate the y positions of a label, relative to other labels in the
@@ -730,18 +757,16 @@ class TreeLayout(object):
         # rendering. Here we try to do as good as possible with pure python =>
         # SVG.
 
-        width = self.max_width
-        height = self.height()
-        tree = svgwrite.Drawing(name, (em(width), em(height)),
-            style=self.options.global_font_style)
+        tree = svgwrite.Drawing(name, (px(self.width()), px(self.height())),
+            style=self.options.style_str())
         if self.options.debug:
             tree.add(tree.rect(insert=(0,0), size=("100%", "100%"),
                 fill="none", stroke="lightgray"))
-            for i in range(1, int(width)):
+            for i in range(1, int(self.em_width())):
                 tree.add(tree.line(start=(em(i), 0),
                                    end=(em(i), "100%"),
                                    stroke="lightgray"))
-            for i in range(1, int(height)):
+            for i in range(1, int(self.em_height())):
                 tree.add(tree.line(start=(0, em(i)),
                                    end=("100%", em(i)),
                                    stroke="lightgray"))

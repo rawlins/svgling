@@ -1,6 +1,6 @@
 import svgwrite
 import svgling.core
-from svgling.core import em, perc
+from svgling.core import em, perc, px
 
 ################
 # More general SVG utility classes for drawing complex figures
@@ -26,13 +26,14 @@ def inherit_style(parent, child):
         parent["style"] = style
 
 class SideBySide(object):
-    def __init__(self, *args, padding=1):
+    def __init__(self, *args, padding=16):
         self.elements = args
         self.svg_contents = [e.get_svg() for e in self.elements]
+        self.widths = [e.width() for e in self.elements]
         self.padding = padding
 
     def width(self):
-        return (sum([e.width() for e in self.elements])
+        return (sum(self.widths)
                 + self.padding * (len(self.elements) + 1))
 
     def height(self):
@@ -40,58 +41,67 @@ class SideBySide(object):
 
     def get_svg(self, name="figure", debug=False):
         # TODO: is there any problem embedding `Drawing`s within `Drawing`s?
-        container = svgwrite.Drawing(name, (em(self.width()), em(self.height())))
-        # the somewhat elaborate recursion here is to try to handle the case
-        # where the font style changes the meaning of an `em` between
-        # subfigures. TODO: I still haven't figured out how to calculate the
-        # width reliably when this happens.
-        # TODO: this also leads to unexpected inheritence if font styles are
-        # only partially specified.
-        last_box = container
-        inherit_style(container, self.svg_contents[0])
-        last_width = self.padding
+        container = svgwrite.Drawing(name, (px(self.width()), px(self.height())))
+        x_pos = self.padding
         for i in range(len(self.elements)):
-            outer_box = svgwrite.container.SVG(x=em(last_width),
-                                               y=0, width="100%")
-            box = svgwrite.container.SVG(x=0, y=0)
-            outer_box.add(box)
+            width = self.widths[i]
+            box = svgwrite.container.SVG(x=px(x_pos),
+                                         y=0, width=px(width))
             box.add(self.svg_contents[i])
             if debug:
                 box.add(svgwrite.shapes.Rect(insert=("0%","0%"),
                                                  size=("100%", "100%"),
                                                  fill="none", stroke="red"))
-            inherit_style(box, self.svg_contents[i])
-            inherit_style(last_box, outer_box)
-            last_box.add(outer_box)
-            last_box = box
-            last_width = self.elements[i].width() + self.padding
+            container.add(box)
+            x_pos += width + self.padding
         return container
 
     def _repr_svg_(self):
         return self.get_svg().tostring()
 
 class RowByRow(object):
-    def __init__(self, *args, padding=1):
+    def __init__(self, *args, padding=16, gridify=True):
         self.elements = args
-        self.svg_contents = [e.get_svg() for e in self.elements]
         self.padding = padding
+        if gridify:
+            self._gridify()
+        self.svg_contents = [e.get_svg() for e in self.elements]
 
     def height(self):
         return (sum([e.height() for e in self.elements])
                 + self.padding * (len(self.elements) + 1))
+
+    def _gridify(self):
+        max_widths = list()
+        max_padding = 0
+        for e in self.elements:
+            if isinstance(e, SideBySide):
+                max_padding = max(max_padding, e.padding)
+                for j in range(len(e.elements)):
+                    if j >= len(max_widths):
+                        max_widths.extend([0])
+                    max_widths[j] = max(max_widths[j], e.elements[j].width())
+            else:
+                if len(max_widths) == 0:
+                    max_widths.extend([0])
+                max_widths[0] = max(max_widths[0], e.width())
+        for e in self.elements:
+            if isinstance(e, SideBySide):
+                e.padding = max_padding
+                for j in range(len(e.elements)):
+                    e.widths[j] = max_widths[j]
 
     def width(self):
         return max([e.width() for e in self.elements])
 
     def get_svg(self, name="figure"):
         # TODO: is there any problem embedding `Drawing`s within `Drawing`s?
-        # TODO: update with recursive code as in SideBySide
         container = svgwrite.Drawing(name,
-                                     (em(self.width()), em(self.height())))
+                                     (px(self.width()), px(self.height())))
         y_pos = self.padding
         for i in range(len(self.elements)):
             height = self.elements[i].height()
-            box = svgwrite.container.SVG(x=0, y=em(y_pos), height=em(height))
+            box = svgwrite.container.SVG(x=0, y=px(y_pos), height=px(height))
             box.add(self.svg_contents[i])
             inherit_style(box, self.svg_contents[i])
             container.add(box)
@@ -102,50 +112,54 @@ class RowByRow(object):
         return self.get_svg().tostring()
 
 class Caption(object):
-    font_style = "font-family: times, serif; font-weight:normal; font-style: italic; font-size: 10pt;"
-    def __init__(self, fig, caption):
+    font_style = "font-family: times, serif; font-weight:normal; font-style: italic;"
+    def __init__(self, fig, caption, font_size=13):
         self.fig = fig
         self.caption = caption
+        self.font_size = font_size
 
     def height(self):
-        return self.fig.height() + 2.0
+        return self.fig.height() + 2.0 * self.font_size
 
     def width(self):
         return max(self.fig.width(), self.caption_width())
 
     def caption_width(self):
-        return len(self.caption) / 2.0
+        return self.font_size * len(self.caption) / 2.0
+
+    def style_str(self):
+        # TODO: generalize caption style
+        return self.font_style + " font-size: " + px(self.font_size) + ";"
 
     def get_svg(self, name="figure", debug=False):
         width = self.width()
+        height = self.height()
         fig_width = self.fig.width()
         caption_width = self.caption_width()
-        container = svgwrite.Drawing(name,
-                                     (em(width), em(self.height())))
+        container = svgwrite.Drawing(name, (px(width), px(height)))
         y_pos = self.fig.height()
         caption_svg = svgwrite.text.Text(self.caption,
                                          insert=("50%", "1em"),
                                          text_anchor="middle",
-                                         style = self.font_style)
+                                         style = self.style_str())
         # this next is to keep any font style from impacting the interpretation
         # of ems in positioning the box.
-        caption_box = svgwrite.container.SVG(x=0, y=em(y_pos))
+        caption_box = svgwrite.container.SVG(x=0, y=px(y_pos), width="100%", height="100%")
         if debug:
             caption_box.add(svgwrite.shapes.Rect(insert=("0%","0%"),
                                                  size=("100%", "100%"),
                                                  fill="none", stroke="red"))
         caption_box.add(caption_svg)
-        # TODO: this is a bit broken if font style in the fig changes...
         if (fig_width > caption_width):
             fig_x = 0
         else:
             fig_x = (caption_width - fig_width) / 2.0
-        box = svgwrite.container.SVG(x=em(fig_x), y=0, width=em(fig_width))
+        box = svgwrite.container.SVG(x=px(fig_x), y=0,
+                                     width=px(fig_width),
+                                     height=px(self.fig.height()))
         fig_svg = self.fig.get_svg()
         box.add(fig_svg)
-        inherit_style(box, fig_svg)
         container.add(box)
-        inherit_style(container, box)
         container.add(caption_box)
         return container
 
