@@ -102,8 +102,9 @@ class RowByRow(object):
                                      (px(self.width()), px(self.height())))
         y_pos = self.padding
         for i in range(len(self.elements)):
+            height = self.elements[i].height()
             box = svgwrite.container.SVG(x=0, y=px(y_pos),
-                                         height=px(self.elements[i].height()),
+                                         height=px(height),
                                          width=px(self.elements[i].width()))
             box.add(self.svg_contents[i])
             inherit_style(box, self.svg_contents[i])
