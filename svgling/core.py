@@ -359,8 +359,8 @@ class TreeLayout(object):
 
     ######## Annotations
 
-    def box_constituent(self, path, stroke="none", rounding="5pt",
-                        stroke_width="1px", fill="gray", fill_opacity=0.15):
+    def box_constituent(self, path, stroke="none", rounding=8,
+                        stroke_width=1, fill="gray", fill_opacity=0.15):
         (x, y, width, height) = self.subtree_bounds(path)
         rect = svgwrite.shapes.Rect(insert=(perc(x), em(y)),
                                     size=(perc(width), em(height)),
@@ -372,7 +372,7 @@ class TreeLayout(object):
                                     stroke_width=stroke_width)
         self.annotations.append(rect)
 
-    def underline_constituent(self, path, stroke="black", stroke_width="1px",
+    def underline_constituent(self, path, stroke="black", stroke_width=1,
                               stroke_opacity=1.0):
         (x, y, width, height) = self.subtree_bounds(path)
         underline = svgwrite.shapes.Line(start=(perc(x), em(y + height)),
@@ -399,7 +399,7 @@ class TreeLayout(object):
         """
         return max([n.depth for n in self.leaf_span_iter(path1, path2)])
 
-    def movement_arrow(self, path1, path2, stroke="black", stroke_width="1px"):
+    def movement_arrow(self, path1, path2, stroke="black", stroke_width=1):
         n1_pos = self.subtree_bounds(path1)
         n2_pos = self.subtree_bounds(path2)
         n1_y = n1_pos[1] + n1_pos[3]
@@ -756,9 +756,14 @@ class TreeLayout(object):
         # code that adjusts the tree spacing dynamically after the initial
         # rendering. Here we try to do as good as possible with pure python =>
         # SVG.
+        width = self.width()
+        height = self.height()
 
-        tree = svgwrite.Drawing(name, (px(self.width()), px(self.height())),
+        tree = svgwrite.Drawing(name, (px(width), px(height)),
             style=self.options.style_str())
+        tree.viewbox(minx=0, miny=0, width=width, height=height)
+        tree.fit()
+
         if self.options.debug:
             tree.add(tree.rect(insert=(0,0), size=("100%", "100%"),
                 fill="none", stroke="lightgray"))

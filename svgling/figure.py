@@ -42,13 +42,15 @@ class SideBySide(object):
     def get_svg(self, name="figure", debug=False):
         # TODO: is there any problem embedding `Drawing`s within `Drawing`s?
         container = svgwrite.Drawing(name, (px(self.width()), px(self.height())))
+        container.viewbox(minx=0, miny=0, width=self.width(), height=self.height())
+        container.fit()
         x_pos = self.padding
         for i in range(len(self.elements)):
             width = self.widths[i]
-            box = svgwrite.container.SVG(x=px(x_pos),
+            box = svgwrite.container.SVG(x=x_pos,
                                          y=0,
-                                         width=px(width),
-                                         height=px(self.elements[i].height()))
+                                         width=width,
+                                         height=self.elements[i].height())
             box.add(self.svg_contents[i])
             if debug:
                 box.add(svgwrite.shapes.Rect(insert=("0%","0%"),
@@ -100,12 +102,14 @@ class RowByRow(object):
         # TODO: is there any problem embedding `Drawing`s within `Drawing`s?
         container = svgwrite.Drawing(name,
                                      (px(self.width()), px(self.height())))
+        container.viewbox(minx=0, miny=0, width=self.width(), height=self.height())
+        container.fit()
         y_pos = self.padding
         for i in range(len(self.elements)):
             height = self.elements[i].height()
-            box = svgwrite.container.SVG(x=0, y=px(y_pos),
-                                         height=px(height),
-                                         width=px(self.elements[i].width()))
+            box = svgwrite.container.SVG(x=0, y=y_pos,
+                                         height=height,
+                                         width=self.elements[i].width())
             box.add(self.svg_contents[i])
             inherit_style(box, self.svg_contents[i])
             container.add(box)
@@ -141,6 +145,8 @@ class Caption(object):
         fig_width = self.fig.width()
         caption_width = self.caption_width()
         container = svgwrite.Drawing(name, (px(width), px(height)))
+        container.viewbox(minx=0, miny=0, width=width, height=height)
+        container.fit()
         y_pos = self.fig.height()
         caption_svg = svgwrite.text.Text(self.caption,
                                          insert=("50%", "1em"),
@@ -148,7 +154,7 @@ class Caption(object):
                                          style = self.style_str())
         # this next is to keep any font style from impacting the interpretation
         # of ems in positioning the box.
-        caption_box = svgwrite.container.SVG(x=0, y=px(y_pos), width="100%", height="100%")
+        caption_box = svgwrite.container.SVG(x=0, y=y_pos, width="100%", height="100%")
         if debug:
             caption_box.add(svgwrite.shapes.Rect(insert=("0%","0%"),
                                                  size=("100%", "100%"),
@@ -158,9 +164,9 @@ class Caption(object):
             fig_x = 0
         else:
             fig_x = (caption_width - fig_width) / 2.0
-        box = svgwrite.container.SVG(x=px(fig_x), y=0,
-                                     width=px(fig_width),
-                                     height=px(self.fig.height()))
+        box = svgwrite.container.SVG(x=fig_x, y=0,
+                                     width=fig_width,
+                                     height=self.fig.height())
         fig_svg = self.fig.get_svg()
         box.add(fig_svg)
         container.add(box)
