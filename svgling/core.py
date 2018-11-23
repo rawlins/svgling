@@ -401,13 +401,14 @@ class TreeLayout(object):
 
     def movement_arrow(self, path1, path2, stroke="black", stroke_width=1):
         width = self.width()
-        n1_pos = self.subtree_bounds(path1)
-        n2_pos = self.subtree_bounds(path2)
+        n1_pos = self.subtree_bounds_user(path1)
+        n2_pos = self.subtree_bounds_user(path2)
         n1_y = n1_pos[1] + n1_pos[3]
-        n1_x = (n1_pos[0] + n1_pos[2] / 2) * width / 100.0
+        n1_x = n1_pos[0] + n1_pos[2] / 2
         n2_y = n2_pos[1] + n2_pos[3]
-        n2_x = (n2_pos[0] + n2_pos[2] / 2) * width / 100.0
-        y_depth = self.deepest_intervening_leaf(path1, path2)
+        n2_x = n2_pos[0] + n2_pos[2] / 2
+
+        y_depth = self.deepest_intervening_leaf(path1, path2) # ems
         # first calculate the baseline of the deepest intervening leaf (which
         # could be n1, n2, or some other node). Then find a position that is at
         # least 1.5em below that baseline that will (uniquely) hold the
@@ -418,25 +419,22 @@ class TreeLayout(object):
         y_target = self._movement_find_y(min(n1_x, n2_x),
                         max(n1_x, n2_x), y_target_base + 1.5)
         self.extra_y = max(self.extra_y, y_target - y_target_base + 0.5)
-        opts = {"stroke": stroke}
+
+        # convert out of ems now
+        y_target = self.options.em_to_px(y_target)
+
+        opts = {"stroke": stroke, "fill": "none"}
         if stroke_width is not None:
             opts["stroke_width"] = stroke_width
-        #TODO polyline? need to use a viewbox
-        self.annotations.append(svgwrite.shapes.Line(
-            start=(n1_x, em(n1_y)), end=(n1_x, em(y_target)),
-            **opts))
-        self.annotations.append(svgwrite.shapes.Line(
-            start=(n1_x, em(y_target)), end=(n2_x, em(y_target)),
-            **opts))
-        self.annotations.append(svgwrite.shapes.Line(
-            start=(n2_x, em(y_target)), end=(n2_x, em(n2_y)),
+        self.annotations.append(svgwrite.shapes.Polyline(
+            [(n1_x, n1_y), (n1_x, y_target), (n2_x, y_target), (n2_x, n2_y)],
             **opts))
         #TODO markers for arrowheads? these arrowheads are a bit dumb
-        self.annotations.append(svgwrite.shapes.Line(
-            start=(n2_x, em(n2_y)), end=(n2_x + 3, em(n2_y + 0.45)),
-            **opts))
-        self.annotations.append(svgwrite.shapes.Line(
-            start=(n2_x, em(n2_y)), end=(n2_x - 3, em(n2_y + 0.45)),
+        arrow_y_delta = self.options.em_to_px(0.45)
+        self.annotations.append(svgwrite.shapes.Polyline(
+            [(n2_x+3, n2_y+arrow_y_delta),
+             (n2_x, n2_y),
+             (n2_x-3, n2_y+arrow_y_delta)],
             **opts))
 
     ######## Layout information
@@ -592,6 +590,19 @@ class TreeLayout(object):
                   + self.level_heights[deepest]
                   + 0.5) # add a little extra room for descenders
         return (x, y, width, height)
+
+    def subtree_bounds_user(self, path):
+        """Find the bounding box for a subtree whose parent is at position
+        `path`, in the format of a tuple (x, y, width, height). All values
+        are in user units relative to the outermost svg."""
+        (x, y, width, height) = self.subtree_bounds(path)
+        tree_width = self.width()
+        x = x * tree_width / 100.0
+        width = width * tree_width / 100.0
+        y = self.options.em_to_px(y)
+        height = self.options.em_to_px(height)
+        return (x, y, width, height)
+
 
     ########### Layout stuff, mostly internal
 
