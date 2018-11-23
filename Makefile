@@ -1,5 +1,10 @@
 SHELL:=/bin/bash
 
+FORCE:
+
+demotree.svg: FORCE
+	python -m svgling '("S", ("NP", ("D", "the"), ("N", "elephant")), ("VP", ("V", "saw"), ("NP", ("D", "the"), ("N", "rhinoceros"))))' > demotree.svg
+
 clean:
 	rm -rf dist/ build/ svgling.egg-info/ test_env/
 

@@ -1,4 +1,4 @@
-__all__ = ['core', 'figure']
+__all__ = ['core', 'figure', '__main__']
 
 __version_info__ = (0, 1, 3)
 __release__ = False
