@@ -16,6 +16,15 @@ integrating with Jupyter notebooks, but could be used to generate SVG diagrams
 for all sorts of other purposes. It involves no javascript and so will work
 in Jupyter without any plugins.
 
+The basic interface is pretty simple: pass a tree object to `svgling.draw_tree`.
+
+    import svgling
+    svgling.draw_tree(("S", ("NP", ("D", "the"), ("N", "elephant")), ("VP", ("V", "saw"), ("NP", ("D", "the"), ("N", "rhinoceros")))))
+
+This produces an SVG image like the following:
+
+![example sentence](https://raw.githubusercontent.com/rawlins/svgling/master/demotree.svg?sanitize=true)
+
 Core design principles/goals:
 
 1. Be well suited for *programmatic* generation of tree diagrams (not just
@@ -30,15 +39,6 @@ The tree drawing code accepts two main tree formats: lisp-style trees made from
 lists of lists (or tuples of tuples), with node labels as strings, or trees from
 the [`nltk`](https://www.nltk.org/) package, i.e. objects instantiating the
 [`nltk.tree.Tree`](https://www.nltk.org/_modules/nltk/tree.html) API.
-
-The basic interface is pretty simple: pass a tree object to `svgling.draw_tree`.
-
-    import svgling
-    svgling.draw_tree(("S", ("NP", ("D", "the"), ("N", "elephant")), ("VP", ("V", "saw"), ("NP", ("D", "the"), ("N", "rhinoceros")))))
-
-This produces an SVG image like the following:
-
-![example sentence](https://raw.githubusercontent.com/rawlins/svgling/master/demotree.svg?sanitize=true)
 
 Beyond basic tree-drawing, the package supports a number of flourishes like
 movement arrows. For documentation and examples, see the three .ipynb files in
