@@ -34,7 +34,7 @@ the [`nltk`](https://www.nltk.org/) package, i.e. objects instantiating the
 The basic interface is pretty simple: pass a tree object to `svgling.draw_tree`.
 
     import svgling
-    svgling.draw_tree(("S", ("NP", ("D", "the"), ("N", "elephant")), ("VP", ("V", "saw"), ("NP", ("D", "the"), ("N", "rhinoceros"))))
+    svgling.draw_tree(("S", ("NP", ("D", "the"), ("N", "elephant")), ("VP", ("V", "saw"), ("NP", ("D", "the"), ("N", "rhinoceros")))))
 
 This produces an SVG image like the following:
 
