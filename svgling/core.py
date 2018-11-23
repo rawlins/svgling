@@ -336,7 +336,7 @@ class TreeLayout(object):
         self.level_heights = dict()
         self.level_ys = dict({0: 0})
         self.max_width = 1
-        self.extra_y = 1.0
+        self.extra_y = 0.5
         self.depth = 0
         self.options = options
         self.tree = t

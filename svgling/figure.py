@@ -127,7 +127,7 @@ class Caption(object):
         self.font_size = font_size
 
     def height(self):
-        return self.fig.height() + 2.0 * self.font_size
+        return self.fig.height() + 2.5 * self.font_size
 
     def width(self):
         return max(self.fig.width(), self.caption_width())
@@ -147,7 +147,7 @@ class Caption(object):
         container = svgwrite.Drawing(name, (px(width), px(height)))
         container.viewbox(minx=0, miny=0, width=width, height=height)
         container.fit()
-        y_pos = self.fig.height()
+        y_pos = self.fig.height() + 0.5 * self.font_size
         caption_svg = svgwrite.text.Text(self.caption,
                                          insert=("50%", "1em"),
                                          text_anchor="middle",
