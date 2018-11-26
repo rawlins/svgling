@@ -128,6 +128,8 @@ def px(n):
 def perc(n):
     return "%g%%" % n
 
+crisp_perpendiculars = True
+
 class TreeOptions(object):
     def __init__(self, horiz_spacing=HorizSpacing.TEXT,
                        vert_align=VertAlign.CENTER,
@@ -375,11 +377,14 @@ class TreeLayout(object):
     def underline_constituent(self, path, stroke="black", stroke_width=1,
                               stroke_opacity=1.0):
         (x, y, width, height) = self.subtree_bounds(path)
+        opts = {"stroke": stroke, "stroke_width": stroke_width,
+                "stroke_opacity": stroke_opacity}
+        global crisp_perpendiculars
+        if crisp_perpendiculars:
+            opts["shape_rendering"] = "crispEdges"
         underline = svgwrite.shapes.Line(start=(perc(x), em(y + height)),
                                          end=(perc(x + width), em(y + height)),
-                                         stroke=stroke,
-                                         stroke_width=stroke_width,
-                                         stroke_opacity=stroke_opacity)
+                                         **opts)
         self.annotations.append(underline)
 
     def _movement_find_y(self, x1, x2, y):
@@ -426,11 +431,20 @@ class TreeLayout(object):
         opts = {"stroke": stroke, "fill": "none"}
         if stroke_width is not None:
             opts["stroke_width"] = stroke_width
-        self.annotations.append(svgwrite.shapes.Polyline(
-            [(n1_x, n1_y), (n1_x, y_target), (n2_x, y_target), (n2_x, n2_y)],
-            **opts))
-        #TODO markers for arrowheads? these arrowheads are a bit dumb
+        global crisp_perpendiculars
+        if crisp_perpendiculars:
+            opts["shape_rendering"] = "crispEdges"
         arrow_y_delta = self.options.em_to_px(0.45)
+
+        self.annotations.append(svgwrite.shapes.Polyline(
+            [(n1_x, n1_y), (n1_x, y_target), (n2_x, y_target),
+            (n2_x, n2_y+arrow_y_delta)],
+            **opts))
+
+        #TODO markers for arrowheads? these arrowheads are a bit dumb
+        opts = {"fill": stroke, "stroke": "none"}
+        # if crisp_perpendiculars:
+        #     opts["shape_rendering"] = "crispEdges"
         self.annotations.append(svgwrite.shapes.Polyline(
             [(n2_x+3, n2_y+arrow_y_delta),
              (n2_x, n2_y),
