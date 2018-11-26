@@ -1,6 +1,6 @@
 __all__ = ['core', 'figure', 'semantics', '__main__']
 
-__version_info__ = (0, 1, 3)
+__version_info__ = (0, 2, 0)
 __release__ = False
 __version__ = ".".join(str(i) for i in __version_info__)
 
