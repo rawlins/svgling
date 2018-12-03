@@ -18,7 +18,9 @@ integrating with Jupyter notebooks, but could be used to generate SVG diagrams
 for all sorts of other purposes. It involves no javascript and so will work
 in Jupyter without any plugins.
 
-The basic interface is pretty simple: pass a tree object to `svgling.draw_tree`.
+The basic interface is pretty simple: pass a tree-describing object to
+`svgling.draw_tree` (e.g. a tuple consisting of a lable and a sequence of
+daughter nodes, which mey themselves be trees).
 
     import svgling
     svgling.draw_tree(("S", ("NP", ("D", "the"), ("N", "elephant")), ("VP", ("V", "saw"), ("NP", ("D", "the"), ("N", "rhinoceros")))))
@@ -32,7 +34,7 @@ lists of lists (or tuples of tuples), with node labels as strings, or trees from
 the [`nltk`](https://www.nltk.org/) package, i.e. objects instantiating the
 [`nltk.tree.Tree`](https://www.nltk.org/_modules/nltk/tree.html) API. The
 following nltk code, as long as `svgling` has been imported, produces an
-identical tree daigram to the above example, though by a very different route:
+identical tree diagram to the above example, though by a very different route:
 
     import svgling
     nltk.Tree.fromstring("(S (NP (D the) (N elephant)) (VP (V saw) (NP (D the) (N rhinoceros))))")
