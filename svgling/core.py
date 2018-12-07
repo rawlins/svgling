@@ -1,3 +1,4 @@
+from xml.etree import ElementTree
 import svgwrite
 import enum, math
 
@@ -40,8 +41,12 @@ def treelet_split_fallback(t):
     # fallback to str(). TODO: enhance, or remove?
     return (str(t), tuple())
 
-def tree_split(t):
+def tree_split(t, fallback=treelet_split_fallback):
     """Splits `t` into a parent and an iterable of children, possibly empty."""
+    if isinstance(t, ElementTree.Element):
+        # we do this explcitly because otherwise it gets parsed as an iterable
+        raise NotImplementedError(
+            "svgling.core does not support trees constructed with ElementTree objects.")
     split = treelet_split_str(t)
     if split is not None:
         return split
@@ -51,7 +56,7 @@ def tree_split(t):
     split = treelet_split_list(t)
     if split is not None:
         return split
-    return treelet_split_fallback(t)   
+    return fallback(t)   
 
 def tree_cxr(t, i):
     return tree_split(t)[i]
