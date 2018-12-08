@@ -42,8 +42,24 @@ def html_text_wrap(t, debug=False):
         border = ""
     e = Element("div",
         style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"
+        # CommonHTML needs something like the following, but since it's buggy
+        # on some browsers, and CommonHTML is not enabled on inter
+        # + "width: -webkit-min-content;width: -moz-min-content;width: min-content;" # ugh
         + border)
     subelement_with_text(e, "span", text=t, style="text-align:center;")
+    return e
+
+def multiline_text(*lines, debug=False):
+    if debug:
+        border = "border: 1px solid #848482;"
+    else:
+        border = ""
+    e = Element("div",
+        style="display:grid;grid-template-columns:auto;")
+    for l in lines:
+        line_div = SubElement(e, "div",
+            style="padding-left:0.75em;padding-right:0.75em;text-align:center;")
+        subelement_with_text(line_div, "span", text=l)
     return e
 
 # more code based on lambda notebook versions (next three functions).
