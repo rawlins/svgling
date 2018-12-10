@@ -1,3 +1,4 @@
+import copy
 from xml.etree import ElementTree
 Element = ElementTree.Element
 SubElement = ElementTree.SubElement
@@ -28,6 +29,12 @@ def subelement_with_text(parent, name, text="", **kwargs):
     e.text = text
     parent.append(e)
     return e
+
+def style_append(element, style):
+    e_style = element.get("style", "").strip()
+    if len(e_style) > 0 and e_style[-1] != ";":
+        e_style = e_style + ";"
+    element.set("style", e_style + style)
 
 # this is based in a similar function in the lambda notebook display code, but
 # the spacing here is customized for the needs of tree nodes.
@@ -253,13 +260,27 @@ class DivTreeLayout(object):
                 style=line_col + "grid-row:1;height:%s;" % line_height)
             line_div.append(line)
             row += 1
-        # TODO: the problem with the transform trick is that the spacing of
-        # the label cell is only applied to one column. However, it does a good
-        # job of handling the fact that the alignment isn't necessarily
-        # centered.
+        # TODO: this is a shameful stack of hacks to get non-leaf nodes for
+        # binary branches to position right. First, put the displayed label in
+        # a floated cell positioned along the middle grid line in a 0-width
+        # grid cell, and transformed to be centered. Second, show the same
+        # content in a 0-height hidden div that is centered across the whole
+        # grid, in order to get the label to contribute to grid width. Neither
+        # of these tricks by themself does the whole thing: the floated div
+        # alone can lead to non-leaf nodes overlapping, and the centered div
+        # (if it were visible) wouldn't position short labels correctly. A
+        # previous version used just the transform trick on a 1-grid cell, but
+        # this led to bad spacing when the label is too long.
         label_cell = SubElement(e, "div",
-            style="grid-row:%d;grid-column:1;justify-self:right;transform:translate(50%%);" % row)
-        label_cell.append(to_html(label, debug=self.options.debug))
+            style="grid-row:%d;grid-column:1;justify-self:right;width:0;" % row)
+        label_subdiv = to_html(label, debug=self.options.debug)
+        label_dup = copy.deepcopy(label_subdiv)
+        style_append(label_subdiv,
+            "float:right;transform:translate(50%);white-space:nowrap;")
+        label_cell.append(label_subdiv)
+        spacer_cell = SubElement(e, "div",
+            style="grid-row:%d;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;" % row)
+        spacer_cell.append(label_dup)
         row += 1
         d1_cell = SubElement(e, "div",
             style="grid-column:1;grid-row:%d;justify-self:right;" % row)
