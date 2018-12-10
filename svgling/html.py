@@ -172,15 +172,12 @@ class DivTreeLayout(object):
         result = self.node_layout(parent, *child_layouts, parent_dir=parent_dir)
         if initial:
             result.set("style",
-                        result.get("style", "") + self.options.style_str())
+                       result.get("style", "") + self.options.style_str())
         return result
 
     def _repr_html_(self):
         return ElementTree.tostring(self.render(), encoding="unicode",
                                                    method="xml")
-
-    def em_to_px(self, n):
-        return n * self.font_size
 
     def node_layout_unary_grid(self, label, daughter, parent_dir=None):
         if self.options.debug:
@@ -261,7 +258,7 @@ class DivTreeLayout(object):
         # job of handling the fact that the alignment isn't necessarily
         # centered.
         label_cell = SubElement(e, "div",
-            style="grid-row:%d;grid-column:1;justify-self:right;transform:translate(50%%)" % row)
+            style="grid-row:%d;grid-column:1;justify-self:right;transform:translate(50%%);" % row)
         label_cell.append(to_html(label, debug=self.options.debug))
         row += 1
         d1_cell = SubElement(e, "div",
