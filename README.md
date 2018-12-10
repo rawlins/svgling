@@ -85,7 +85,10 @@ always be perfect on all devices. This situation also places some hard
 limitations on how far `svgling` can be extended without adding javascript or
 other multi-pass rendering techniques. For example, I would eventually like to
 allow mathjax in nodes, and allow nodes with complex / multi-line shapes, but at
-the moment this does not seem possible without javascript on the client side.
+the moment this does not seem possible in pure SVG without javascript on the
+client side. The package does provide basic support for hybrid HTML/SVG tree
+diagrams that allow complex nodes, including MathJax, but with substantial
+limitations.
 
 There are many things that it might be nice to add to this package; if you find
 `svgling` useful, have any requests, or find any bugs, please let me know.

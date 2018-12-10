@@ -25,3 +25,13 @@ Fixes, improvements, changes:
 - TreeLayout objects manage font size directly.
 - `distance_to_daughter` is now a distance between levels, i.e. excluding node
   height.
+
+## [0.2.1] - Hybrid HTML/SVG tree drawing - 2018-12-10
+
+New features:
+- Basic support for drawing trees using a mix of HTML/CSS (for positioning) and
+  SVG (for line drawing). This is much more limited than the core drawing
+  algorithms, but allows for arbitrary node labels + MathJax.
+
+Fixes, improvements, changes:
+- Improve documentation
