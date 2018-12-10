@@ -20,7 +20,7 @@ in Jupyter without any plugins.
 
 The basic interface is pretty simple: pass a tree-describing object to
 `svgling.draw_tree` (e.g. a tuple consisting of a lable and a sequence of
-daughter nodes, which mey themselves be trees).
+daughter nodes, which may themselves be trees).
 
     import svgling
     svgling.draw_tree(("S", ("NP", ("D", "the"), ("N", "elephant")), ("VP", ("V", "saw"), ("NP", ("D", "the"), ("N", "rhinoceros")))))
