@@ -19,7 +19,7 @@ for all sorts of other purposes. It involves no javascript and so will work
 in Jupyter without any plugins.
 
 The basic interface is pretty simple: pass a tree-describing object to
-`svgling.draw_tree` (e.g. a tuple consisting of a lable and a sequence of
+`svgling.draw_tree` (e.g. a tuple consisting of a label and a sequence of
 daughter nodes, which may themselves be trees).
 
     import svgling
