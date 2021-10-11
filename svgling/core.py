@@ -124,11 +124,14 @@ class VertAlign(enum.Enum):
     FULL = 3   # all nodes take up the full level height. Currently, this aligns
                # text to the top, maybe would be better if centered?
 
-def em(n):
-    return "%gem" % n
-
 def px(n):
     return "%gpx" % n
+
+def em(n, options=None):
+    if options is None or options.relative_units:
+        return "%gem" % n
+    else:
+        return px(options.em_to_px(n))
 
 def perc(n):
     return "%g%%" % n
@@ -145,6 +148,7 @@ class TreeOptions(object):
                        global_font_style=SERIF,
                        average_glyph_width=2.0,
                        descend_direct=True,
+                       relative_units=True,
                        font_size = 16):
         self.horiz_spacing = horiz_spacing
         self.vert_align = vert_align
@@ -162,6 +166,7 @@ class TreeOptions(object):
 
         # not technically an option, but convenient to store here for now...
         self.max_depth = 0
+        self.relative_units = relative_units
         self.font_size = font_size
 
     def style_str(self):
@@ -202,7 +207,7 @@ def leaf_nodecount(t, options=None):
 ################
 
 class NodePos(object):
-    def __init__(self, svg, x, y, width, height, depth):
+    def __init__(self, svg, x, y, width, height, depth, options=None):
         self.x = x
         self.y = y
         self.width = max(width, 1) # avoid divide by 0 errors
@@ -212,6 +217,7 @@ class NodePos(object):
         self.depth = depth
         self.svg = svg
         self.text = svg
+        self.options = options
         self.clear_edge_styles()
 
     def set_edge_style(self, daughter, style):
@@ -234,7 +240,7 @@ class NodePos(object):
 
     def get_svg(self):
         # TODO: generalize this / make it less hacky
-        self.svg["y"] = em(self.y)
+        self.svg["y"] = em(self.y, self.options)
         return self.svg
 
     def __repr__(self):
@@ -245,13 +251,13 @@ class NodePos(object):
         y = 1
         svg_parent = svgwrite.container.SVG(x=0, y=0, width="100%")
         if len(label) == 0:
-            return NodePos(svg_parent, 50, 0, options.label_width(""), 0, depth)
+            return NodePos(svg_parent, 50, 0, options.label_width(""), 0, depth, options)
         for line in label.split("\n"):
-            svg_parent.add(svgwrite.text.Text(line, insert=("50%", em(y)),
+            svg_parent.add(svgwrite.text.Text(line, insert=("50%", em(y, options)),
                                                     text_anchor="middle"))
             y += 1
         width = max([options.label_width(line) for line in label.split("\n")])
-        result = NodePos(svg_parent, 50, 0, width, y-1, depth)
+        result = NodePos(svg_parent, 50, 0, width, y-1, depth, options)
         result.text = label
         return result
 
@@ -280,11 +286,12 @@ class EdgeStyle(object):
         if parent.height > 0:
             line_start += 0.2 # extra space for descenders
         box_y = tree_layout.y_distance(parent.depth, child.depth)
-        y_target = em(box_y + child.y)
+        y_target = em(box_y + child.y, tree_layout.options)
         x_target = perc(child.x + child.width / 2)
-        svg_parent.add(svgwrite.shapes.Line(start=("50%", em(line_start)),
-                                            end=(x_target, y_target),
-                                            **self.svg_opts()))
+        svg_parent.add(svgwrite.shapes.Line(
+                            start=("50%", em(line_start, tree_layout.options)),
+                            end=(x_target, y_target),
+                            **self.svg_opts()))
 
 class IndirectDescent(EdgeStyle):
     def draw(self, svg_parent, tree_layout, parent, child):
@@ -294,15 +301,16 @@ class IndirectDescent(EdgeStyle):
             if parent.height > 0:
                 line_start += 0.2 # extra space for descenders
             box_y = tree_layout.y_distance(parent.depth, child.depth)
-            y_target = em(box_y + child.y)
+            y_target = em(box_y + child.y, tree_layout.options)
             x_target = perc(child.x + child.width / 2)
             # we are skipping level(s). Find the y position that an empty
             # node on the next level would have.
             intermediate_y = em(tree_layout.label_y_dodge(level=parent.depth+1,
                                                           height=0)[0]
-                        + tree_layout.y_distance(parent.depth, parent.depth+1))
+                        + tree_layout.y_distance(parent.depth, parent.depth+1),
+                        tree_layout.options)
             # TODO: do as Path?
-            svg_parent.add(Line(start=("50%", em(line_start)),
+            svg_parent.add(Line(start=("50%", em(line_start, tree_layout.options)),
                                 end=(x_target, intermediate_y),
                                 **self.svg_opts()))
             svg_parent.add(Line(start=(x_target, intermediate_y),
@@ -317,7 +325,7 @@ class TriangleEdge(EdgeStyle):
         if parent.height > 0:
             line_start += 0.2 # extra space for descenders
         box_y = tree_layout.y_distance(parent.depth, child.depth)
-        y_target = em(box_y + child.y)
+        y_target = em(box_y + child.y, tree_layout.options)
 
         # difference from the midpoint. 0.8 is a heuristic to account for leaf
         # padding. Under normal font conditions, doesn't start to look off until
@@ -325,10 +333,10 @@ class TriangleEdge(EdgeStyle):
         width_dodge = 0.8 * child.inner_width / 2.0
         x_target_l = perc(child.x + child.width / 2 - width_dodge)
         x_target_r = perc(child.x + child.width / 2 + width_dodge)
-        svg_parent.add(svgwrite.shapes.Line(start=("50%", em(line_start)),
+        svg_parent.add(svgwrite.shapes.Line(start=("50%", em(line_start, tree_layout.options)),
                                             end=(x_target_l, y_target),
                                             **self.svg_opts()))
-        svg_parent.add(svgwrite.shapes.Line(start=("50%", em(line_start)),
+        svg_parent.add(svgwrite.shapes.Line(start=("50%", em(line_start, tree_layout.options)),
                                             end=(x_target_r, y_target),
                                             **self.svg_opts()))
         svg_parent.add(svgwrite.shapes.Line(start=(x_target_l, y_target),
@@ -369,8 +377,8 @@ class TreeLayout(object):
     def box_constituent(self, path, stroke="none", rounding=8,
                         stroke_width=1, fill="gray", fill_opacity=0.15):
         (x, y, width, height) = self.subtree_bounds(path)
-        rect = svgwrite.shapes.Rect(insert=(perc(x), em(y)),
-                                    size=(perc(width), em(height)),
+        rect = svgwrite.shapes.Rect(insert=(perc(x), em(y, self.options)),
+                                    size=(perc(width), em(height, self.options)),
                                     stroke=stroke,
                                     fill=fill,
                                     fill_opacity=fill_opacity,
@@ -387,9 +395,10 @@ class TreeLayout(object):
         global crisp_perpendiculars
         if crisp_perpendiculars:
             opts["shape_rendering"] = "crispEdges"
-        underline = svgwrite.shapes.Line(start=(perc(x), em(y + height)),
-                                         end=(perc(x + width), em(y + height)),
-                                         **opts)
+        underline = svgwrite.shapes.Line(
+                            start=(perc(x), em(y + height, self.options)),
+                            end=(perc(x + width), em(y + height, self.options)),
+                            **opts)
         self.annotations.append(underline)
 
     def _movement_find_y(self, x1, x2, y):
@@ -477,7 +486,7 @@ class TreeLayout(object):
         same row. Returns a tuple of the top dodge, and the bottom dodge, as
         positive numbers."""
         if node is None:
-            node = NodePos(None, 0, 0, 0, 0, 0)
+            node = NodePos(None, 0, 0, 0, 0, 0, self.options)
         if level is None:
             level = node.depth
         if height is None:
@@ -756,10 +765,10 @@ class TreeLayout(object):
         i = 0
         for c in children:
             box_y = self.y_distance(parent.depth, c[0].depth)
-            y_target = em(box_y + c[0].y)
+            y_target = em(box_y + c[0].y, self.options)
             x_target = perc(c[0].x + c[0].width / 2)
             child = svgwrite.container.SVG(x=perc(c[0].x),
-                                           y=em(box_y),
+                                           y=em(box_y, self.options),
                                            width=perc(c[0].width))
             if self.options.debug:
                 child.add(svgwrite.shapes.Rect(insert=("0%","0%"),
@@ -799,12 +808,12 @@ class TreeLayout(object):
             tree.add(tree.rect(insert=(0,0), size=("100%", "100%"),
                 fill="none", stroke="lightgray"))
             for i in range(1, int(self.em_width())):
-                tree.add(tree.line(start=(em(i), 0),
-                                   end=(em(i), "100%"),
+                tree.add(tree.line(start=(em(i, self.options), 0),
+                                   end=(em(i, self.options), "100%"),
                                    stroke="lightgray"))
             for i in range(1, int(self.em_height())):
-                tree.add(tree.line(start=(0, em(i)),
-                                   end=("100%", em(i)),
+                tree.add(tree.line(start=(0, em(i, self.options)),
+                                   end=("100%", em(i, self.options)),
                                    stroke="lightgray"))
         self._svg_add_subtree(tree, self.layout)
         for a in self.annotations:
