@@ -26,7 +26,7 @@ Fixes, improvements, changes:
 - `distance_to_daughter` is now a distance between levels, i.e. excluding node
   height.
 
-## [0.2.1] - Hybrid HTML/SVG tree drawing - 2018-12-10
+## [0.3.0] - Hybrid HTML/SVG tree drawing - 2018-12-10
 
 New features:
 - Basic support for drawing trees using a mix of HTML/CSS (for positioning) and
@@ -35,3 +35,14 @@ New features:
 
 Fixes, improvements, changes:
 - Improve documentation
+
+## [0.3.1] - Inkscape compatibility - 2021-10-11
+
+New feature:
+- Compatibility mode aimed at Inkscape: allow using `px` instead of relative
+  `em` units. This allows current versions of Inkscape to load the output
+  SVGs. This mode is not on by default.
+
+Fixes, improvements, changes:
+- Update documentation to reflect some issues in MathJax math mode delimeter
+  choice for hybrid mode.

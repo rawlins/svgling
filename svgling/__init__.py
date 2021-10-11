@@ -1,7 +1,7 @@
 __all__ = ['core', 'figure', 'semantics', 'html', '__main__']
 
-__version_info__ = (0, 3, 0)
-__release__ = False
+__version_info__ = (0, 3, 1)
+__release__ = True
 __version__ = ".".join(str(i) for i in __version_info__)
 
 import svgling.core
