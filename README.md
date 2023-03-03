@@ -33,11 +33,19 @@ The tree drawing code accepts two main tree formats: lisp-style trees made from
 lists of lists (or tuples of tuples), with node labels as strings, or trees from
 the [`nltk`](https://www.nltk.org/) package, i.e. objects instantiating the
 [`nltk.tree.Tree`](https://www.nltk.org/_modules/nltk/tree.html) API. The
-following nltk code, as long as `svgling` has been imported, produces an
-identical tree diagram to the above example, though by a very different route:
+following nltk code run in Jupyter, as long as `svgling` has been installed,
+produces an identical tree diagram to the above example:
 
-    import svgling
     nltk.Tree.fromstring("(S (NP (D the) (N elephant)) (VP (V saw) (NP (D the) (N rhinoceros))))")
+
+On current versions of `nltk`, the support goes both ways: the default (and
+only) tree renderer in Jupyter is `svgling`. If the package is installed, nltk
+Trees will automatically render using svgling trees. For more control, you can
+also provide a tree directly to the `svgling.draw_tree` function, which allows
+you to use options:
+
+    x = nltk.Tree.fromstring("(S (NP (D the) (N elephant)) (VP (V saw) (NP (D the) (N rhinoceros))))")
+    draw_tree(x, leaf_nodes_align=True)
 
 (That is, `svgling` monkey-patches NLTK to use SVG-based tree drawing code. You
 may also want to call `svgling.disable_nltk_png()` to fully disable the

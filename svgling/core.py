@@ -833,28 +833,56 @@ class TreeLayout(object):
 # Module-level api
 ################
 
+default_options = TreeOptions()
+nltk_tree_options = default_options # backwards compatibility
+def reset_defaults(options=None, **opts):
+    if options is None:
+        options = TreeOptions(**opts)
+    global default_options, nltk_tree_options
+    default_options = options
+    nltk_tree_options = default_options
+
+
 def draw_tree(*t, options=None, **opts):
     """Return an object that implements SVG tree rendering, for display
     in a Jupyter notebook."""
     from IPython.core.display import SVG
     if options is None:
-        options = TreeOptions(**opts)
+        if opts:
+            options = TreeOptions(**opts)
+        else:
+            global default_options
+            options = default_options
     if len(t) == 1:
         t = t[0]
     return TreeLayout(t, options=options)
 
-nltk_tree_options = TreeOptions()
-
+# no longer needed for current nltk, but here for backwards compatibility
 def monkeypatch_nltk():
-    import nltk
-    global nltk_tree_options
-    nltk.Tree._repr_svg_ = lambda self: TreeLayout(self, options=nltk_tree_options)._repr_svg_()
+    """
+    On older versions of nltk, this lets you add an svg-based renderer to
+    Tree objects.
 
-def module_setup():
+    This is not needed on current versions of nltk, which automatically load
+    svgling if it's available.
+    """
+    import nltk
+    global default_options
+    nltk.Tree._repr_svg_ = lambda self: TreeLayout(self, options=default_options)._repr_svg_()
+
+def disable_nltk_png():
+    """
+    When nltk's PNG renderer still existed, SVG would take priority, but Jupyter
+    would typically call both renderers. This could have annoying consequences
+    because of the dependency on tk, for example in headless setups. This
+    backwards-compatibility convenience function completely disables the
+    png-drawing code in nltk. If it fails (either because nltk isn't installed,
+    or the relevant function has already been deleted) it will fail silently.
+
+    This is not needed on current versions of nltk.
+    """
     try:
-        monkeypatch_nltk()
+        import nltk
+        del nltk.tree.Tree._repr_png_
     except:
         pass
-
-module_setup()
-
