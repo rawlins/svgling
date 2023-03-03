@@ -1,5 +1,6 @@
 import svgwrite
 import svgling.core
+import svgling.figure
 from svgling.core import px
 
 def svg_double_bracket(svg_parent, x, y, width, height):
@@ -17,7 +18,7 @@ def svg_double_bracket(svg_parent, x, y, width, height):
 class DoubleBrackets(object):
     def __init__(self, content, padding=0, bracket_width=6):
         self.padding = padding
-        self.content = content
+        self.content = svgling.figure.get_svgable(content)
         self.bracket_width = bracket_width
 
     def width(self):
