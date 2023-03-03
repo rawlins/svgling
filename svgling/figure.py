@@ -25,9 +25,24 @@ def inherit_style(parent, child):
     if len(style) > 0:
         parent["style"] = style
 
+# essentially a duck type check, does the object support get_svg? If so, we
+# are already working with an svgling object. If not, try to convert it to one
+# using `draw_tree`. This is maybe a bit too broad, but it is really aiming
+# to handle nltk.tree.Tree objects.
+def get_svgable(e):
+    if hasattr(e, "get_svg") and callable(e.get_svg):
+        # we also assume height and width, but don't bother with an explicit
+        # check for now...
+        return e
+    else:
+        try:
+            return svgling.core.draw_tree(e)
+        except: # TypeError?
+            raise TypeError("Failed to convert object to renderable: '%s'" % repr(e))
+
 class SideBySide(object):
     def __init__(self, *args, padding=16):
-        self.elements = args
+        self.elements = [get_svgable(a) for a in args]
         self.svg_contents = [e.get_svg() for e in self.elements]
         self.widths = [e.width() for e in self.elements]
         self.padding = padding
@@ -65,7 +80,7 @@ class SideBySide(object):
 
 class RowByRow(object):
     def __init__(self, *args, padding=16, gridify=True):
-        self.elements = args
+        self.elements = [get_svgable(a) for a in args]
         self.padding = padding
         if gridify:
             self._gridify()
@@ -122,7 +137,7 @@ class RowByRow(object):
 class Caption(object):
     font_style = "font-family: times, serif; font-weight:normal; font-style: italic;"
     def __init__(self, fig, caption, font_size=13):
-        self.fig = fig
+        self.fig = get_svgable(fig)
         self.caption = caption
         self.font_size = font_size
 
