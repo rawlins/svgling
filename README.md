@@ -80,7 +80,7 @@ settings should be necessary. Because it is SVG-based, scaling and embedding in
 any web context should work smoothly. It also has minimal dependencies, just
 one package that provides an abstraction layer over generating svg. (If you're
 interested in programmatic diagramming in svg for Jupyter, I do recommend
-[`svgwrite`](https://github.com/mozman/svgwrite), it's under active development
+[`svgwrite`](https://github.com/mozman/svgwrite), it's under active maintenance
 and has a very pleasant API + good documentation.)
 
 Single-pass rendering also places limitations on what can be done. One of the
