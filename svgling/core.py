@@ -155,7 +155,7 @@ _opt_defaults = dict(
     distance_to_daughter=2,
     debug=False,
     leaf_nodes_align=False,
-    global_font_style=SERIF,
+    font_style=SERIF,
     # 2.0 default value is a heuristic -- roughly, 2 chars per em
     average_glyph_width=2.0,
     # for multi-level descents, do we just draw a direct (usually sharply
@@ -167,7 +167,7 @@ _opt_defaults = dict(
 
 # note: this isn't quite a MutableMapping in that `del` is not supported
 class TreeOptions(collections.abc.Mapping):
-    def __init__(self, **opts):
+    def __init__(self, global_font_style=None, **opts):
         global _opt_defaults
         mismatch = [k for k in opts if k not in _opt_defaults]
         if len(mismatch) == 1:
@@ -179,6 +179,11 @@ class TreeOptions(collections.abc.Mapping):
         fullopts.update(opts)
         for k in fullopts:
             setattr(self, k, fullopts[k])
+
+        # deprecated name, but still allow setting in constructor. See the
+        # managed setter below. Simply overrides `font_style`.
+        if global_font_style:
+            self.global_font_style = global_font_style
 
     def __getitem__(self, k):
         global _opt_defaults
@@ -213,7 +218,7 @@ class TreeOptions(collections.abc.Mapping):
         return TreeOptions(**self)
 
     def style_str(self):
-        return self.global_font_style + " font-size: " + px(self.font_size) + ";"
+        return f"{self.font_style} font-size: {px(self.font_size)};"
 
     def label_width(self, label):
         return (len(str(label)) + self.leaf_padding) / self.average_glyph_width
@@ -232,6 +237,15 @@ class TreeOptions(collections.abc.Mapping):
 
     def em_to_px(self, n):
         return n * self.font_size
+
+    # backwards compatibility:
+    @property
+    def global_font_style(self):
+        return self.font_style
+
+    @global_font_style.setter
+    def global_font_style(self, val):
+        self.font_style = val
 
 def leaf_nodecount(t, options=None):
     """How many nodes wide are all the leafs? Will add padding."""
