@@ -1,6 +1,7 @@
 from xml.etree import ElementTree
 import svgwrite
 import enum, math
+import collections.abc
 
 ################
 # Tree utility functions
@@ -115,6 +116,10 @@ class HorizSpacing(enum.Enum):
     EVEN = 1  # Space daughter nodes evenly
     NODES = 2 # Space daughter nodes based on number of leaf nodes
 
+    # generate valid python repr (as long as enum class is imported)
+    def __repr__(self):
+        return f'{self.__class__.__name__}.{self.name}'
+
 HorizOptions = HorizSpacing # backwards compatibility
 
 class VertAlign(enum.Enum):
@@ -123,6 +128,10 @@ class VertAlign(enum.Enum):
     BOTTOM = 2 # align nodes with the bottom of the level's height
     FULL = 3   # all nodes take up the full level height. Currently, this aligns
                # text to the top, maybe would be better if centered?
+
+    # generate valid python repr (as long as enum class is imported)
+    def __repr__(self):
+        return f'{self.__class__.__name__}.{self.name}'
 
 def px(n):
     return "%gpx" % n
@@ -138,36 +147,70 @@ def perc(n):
 
 crisp_perpendiculars = True
 
-class TreeOptions(object):
-    def __init__(self, horiz_spacing=HorizSpacing.TEXT,
-                       vert_align=VertAlign.CENTER,
-                       leaf_padding=2,
-                       distance_to_daughter=2,
-                       debug=False,
-                       leaf_nodes_align=False,
-                       global_font_style=SERIF,
-                       average_glyph_width=2.0,
-                       descend_direct=True,
-                       relative_units=True,
-                       font_size = 16):
-        self.horiz_spacing = horiz_spacing
-        self.vert_align = vert_align
-        self.leaf_padding = leaf_padding
-        self.distance_to_daughter = distance_to_daughter
-        self.debug = debug
-        self.leaf_nodes_align = leaf_nodes_align
-        self.global_font_style = global_font_style
-        # 2.0 default value is a heuristic -- roughly, 2 chars per em
-        self.average_glyph_width = average_glyph_width
-        # for multi-level descents, do we just draw a direct (usually shraply
-        # angled) line, or do we draw an angled line one level, and a straight
-        # line for the rest? Node position is unaffected.
-        self.descend_direct = descend_direct
+# the set of options available, and their default values
+_opt_defaults = dict(
+    horiz_spacing=HorizSpacing.TEXT,
+    vert_align=VertAlign.CENTER,
+    leaf_padding=2,
+    distance_to_daughter=2,
+    debug=False,
+    leaf_nodes_align=False,
+    global_font_style=SERIF,
+    # 2.0 default value is a heuristic -- roughly, 2 chars per em
+    average_glyph_width=2.0,
+    # for multi-level descents, do we just draw a direct (usually sharply
+    # angled) line, or do we draw an angled line one level, and a straight
+    # line for the rest? Node position is unaffected.
+    descend_direct=True,
+    relative_units=True,
+    font_size = 16)
 
-        # not technically an option, but convenient to store here for now...
-        self.max_depth = 0
-        self.relative_units = relative_units
-        self.font_size = font_size
+# note: this isn't quite a MutableMapping in that `del` is not supported
+class TreeOptions(collections.abc.Mapping):
+    def __init__(self, **opts):
+        global _opt_defaults
+        mismatch = [k for k in opts if k not in _opt_defaults]
+        if len(mismatch) == 1:
+            raise TypeError(f"Unknown tree option '{mismatch[0]}'")
+        elif len(mismatch):
+            raise TypeError(f"Unknown tree options: {', '.join(mismatch)}")
+
+        fullopts = _opt_defaults.copy()
+        fullopts.update(opts)
+        for k in fullopts:
+            setattr(self, k, fullopts[k])
+
+    def __getitem__(self, k):
+        global _opt_defaults
+        if k not in _opt_defaults:
+            raise KeyError(k)
+        return getattr(self, k)
+
+    def __setitem__(self, k, val):
+        global _opt_defaults
+        if k not in _opt_defaults:
+            raise KeyError(k)
+        setattr(self, k, val)
+
+    def __len__(self):
+        global _opt_defaults
+        return len(_opt_defaults)
+
+    def __iter__(self):
+        global _opt_defaults
+        return iter(_opt_defaults)
+
+    def __repr__(self):
+        return repr(dict(self))
+
+    def __str__(self):
+        return str(dict(self))
+
+    def _repr_pretty_(self, p, cycle):
+        return p.pretty(dict(self))
+
+    def copy(self):
+        return TreeOptions(**self)
 
     def style_str(self):
         return self.global_font_style + " font-size: " + px(self.font_size) + ";"
