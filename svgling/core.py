@@ -140,6 +140,8 @@ def em(n, options=None):
     if options is None or options.relative_units:
         return "%gem" % n
     else:
+        # convert into px using the font size specified in options. Per the
+        # css spec, 1em is Xpx where X is the current font size.
         return px(options.em_to_px(n))
 
 def perc(n):
@@ -162,7 +164,11 @@ _opt_defaults = dict(
     # angled) line, or do we draw an angled line one level, and a straight
     # line for the rest? Node position is unaffected.
     descend_direct=True,
-    relative_units=True,
+    # if True, use em, if False, use px. In principle em is a little safer,
+    # because we don't need to keep explicit track of the current font size.
+    # But, compatibility for em is worse, and it causes problems with setting
+    # font size for subtrees.
+    relative_units=False,
     font_size = 16)
 
 # note: this isn't quite a MutableMapping in that `del` is not supported
