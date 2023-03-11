@@ -103,11 +103,13 @@ def common_parent(path1, path2):
 # Tree layout options
 ################
 
+def cssfont(family, weight="normal", style="normal"):
+    return f"font-family: {family}; font-weight: {weight}; font-style: {style};"
 
-SERIF = "font-family: times, serif; font-weight:normal; font-style: normal;"
+SERIF = cssfont("times, serif")
 # n.b. Lucida Console is more like 1.5 average glyph width
-MONO = "font-family: \"Lucida Console\", Monaco, monospace; font-weight:normal; font-style: normal;"
-SANS = "font-family: Arial, Helvetica, sans-serif; font-weight:normal; font-style: normal;"
+MONO = cssfont('"Lucida Console", Monaco, monospace')
+SANS = cssfont("Arial, Helvetica, sans-serif")
 
 # either EVEN or NODES usually looks best with abstract trees; TEXT usually
 # looks the best for trees with real node labels, and so it is the default.
@@ -171,8 +173,7 @@ _opt_defaults = dict(
     relative_units=False,
     font_size = 16)
 
-# note: this isn't quite a MutableMapping in that `del` is not supported
-class TreeOptions(collections.abc.Mapping):
+class TreeOptions(collections.abc.MutableMapping):
     def __init__(self, global_font_style=None, **opts):
         global _opt_defaults
         mismatch = [k for k in opts if k not in _opt_defaults]
@@ -202,6 +203,11 @@ class TreeOptions(collections.abc.Mapping):
         if k not in _opt_defaults:
             raise KeyError(k)
         setattr(self, k, val)
+
+    def __delitem__(self, k):
+        # nonstandard: we don't want to delete, so reset to the default.
+        global _opt_defaults
+        self[k] = _opt_defaults[k]
 
     def __len__(self):
         global _opt_defaults
@@ -270,7 +276,7 @@ def leaf_nodecount(t, options=None):
 ################
 
 class NodePos(object):
-    def __init__(self, svg, x, y, width, height, depth, options=None):
+    def __init__(self, svg, x, y, width, height, depth, options):
         self.x = x
         self.y = y
         self.width = max(width, 1) # avoid divide by 0 errors
@@ -280,7 +286,7 @@ class NodePos(object):
         self.depth = depth
         self.svg = svg
         self.text = svg
-        self.options = options
+        self.options = options.copy()
         self.clear_edge_styles()
 
     def set_edge_style(self, daughter, style):
@@ -295,15 +301,16 @@ class NodePos(object):
     def clear_edge_styles(self):
         self.edge_styles = dict() # no info about surrounding tree structure...
 
-    def width(self):
-        return self.width
-
     def em_height(self):
         return self.height
 
-    def get_svg(self):
+    def get_svg(self, options=None):
         # TODO: generalize this / make it less hacky
-        self.svg["y"] = em(self.y, self.options)
+        # the options arg is because we need to set this relative to the
+        # containing tree's global font size...
+        if options is None:
+            options = self.options
+        self.svg["y"] = em(self.y, options)
         return self.svg
 
     def __repr__(self):
@@ -410,15 +417,17 @@ class TreeLayout(object):
     """Container class for storing a tree layout state."""
     def __init__(self, t, options=None):
         if options is None:
-            options = TreeOptions()
+            self.options = TreeOptions()
+        else:
+            self.options = options.copy()
         self.level_heights = dict()
         self.level_ys = dict({0: 0})
         self.max_width = 1
         self.extra_y = 0.5
         self.depth = 0
-        self.options = options
         self.tree = t
         self.annotations = list() # list of svgwrite objects
+        self.layout = None
         self._do_layout(t) # initializes self.layout
 
     def __str__(self):
@@ -429,11 +438,16 @@ class TreeLayout(object):
         # here so that raw object ids don't contribute to .ipynb diffs.
         return "TreeLayout(%s)" % repr(self.tree)
 
-    def relayout(options=None, **args):
+    def reset(self, options=None, **args):
         if options is None:
             options = TreeOptions(**args)
-        # TODO: redo in self, instead?
         return TreeLayout(self.tree, options=options)
+
+    def relayout(self):
+        self._do_layout(self.tree)
+        # annotations were already drawn in svg relative to the old layout, so
+        # they would need a complete redo
+        self.annotations = []
 
     ######## Annotations
 
@@ -553,6 +567,7 @@ class TreeLayout(object):
         if level is None:
             level = node.depth
         if height is None:
+            # height = node.height * node.options.font_size / self.options.font_size
             height = node.height
         if self.options.vert_align == VertAlign.TOP:
             return (0, self.level_heights[level] - height)
@@ -572,8 +587,8 @@ class TreeLayout(object):
         return sum([self.level_ys[l] for l in range(level_a + 1, level_b + 1)])
 
     def layout_iter(self, path):
-        """An iterator over every position in the layout, where the head is
-        at position 0, and any children follow. Will throw AttributeError on an
+        """An iterator over every position in a path, where the head is
+        at the root node, and any children follow. Will throw AttributeError on an
         invalid path at the point in iteration where the path is invalid. (If
         you want to validate a path, you can do this by converting to a list.)
         """
@@ -591,11 +606,21 @@ class TreeLayout(object):
             i += 1
 
     def node_iter(self, path):
-        """An iterator over every node in the layout. Will throw AttributeError
+        """An iterator over every node in a path. Will throw AttributeError
         on an invalid path at the point in iteration where the path is invalid.
         """
         for n in self.layout_iter(path):
             yield n[0]
+
+    def subtree_iter(self, path):
+        """Iterate over every layout position starting at the indicated path.
+        Goes depth-first, left-right."""
+        root = self.sublayout(path)
+        def df(pos):
+            yield pos
+            for c in pos[1:]:
+                yield from df(c)
+        return df(root)
 
     def leaf_span_iter(self, path1, path2):
         """Iterate over a potentially non-constituent sequences of leaves
@@ -708,6 +733,32 @@ class TreeLayout(object):
         daughter = daughter % len(children) # handle negative indices
         parent.set_edge_style(daughter, style)
 
+    def set_subtree_style(self, path, **opts):
+        allowed = ["debug", "font_style", "font_size"]
+        # Maybe: disallow font_size if relative_units = True?
+        if any(k not in allowed for k in opts.keys()):
+            raise TypeError(f"Allowed subtree option keys: {', '.join(allowed)}")
+        for pos in self.subtree_iter(path):
+            pos[0].options.update(**opts)
+        self.relayout()
+
+    def set_leaf_style(self, **opts):
+        allowed = ["debug", "font_style", "font_size"]
+        # Maybe: disallow font_size if relative_units = True?
+        if any(k not in allowed for k in opts.keys()):
+            raise TypeError(f"Allowed subtree option keys: {', '.join(allowed)}")
+        for l in leaf_iter(self.layout):
+            l.options.update(**opts)
+        self.relayout()
+
+    def set_node_style(self, path, **opts):
+        allowed = ["debug", "font_style", "font_size"]
+        # Maybe: disallow font_size if relative_units = True?
+        if any(k not in allowed for k in opts.keys()):
+            raise TypeError(f"Allowed node option keys: {', '.join(allowed)}")
+        self.sublayout(path)[0].options.update(**opts)
+        self.relayout()
+
     def clear_edge_styles(self):
         for n in self.node_iter():
             n.clear_edge_styles()
@@ -718,7 +769,7 @@ class TreeLayout(object):
         self.depth =  tree_depth(t) - 1
         for i in range(self.depth + 1):
             self.level_heights[i] = 0
-        parsed = self._build_initial_layout(t)
+        parsed = self._build_initial_layout(t, self.layout)
         self._calc_level_ys()
         if len(parsed) > 0:
             self.max_width = parsed[0].width
@@ -731,29 +782,45 @@ class TreeLayout(object):
         self._normalize_y(parsed)
         self.layout = parsed
 
-    def _build_initial_layout(self, t, level=0):
+    def _build_initial_layout(self, t, old_layout=None, level=0):
         # initialize raw widths and node heights, both in em at this point.
         # also initialize level_heights for all levels, and depth values for
         # nodes.
         parent, children = tree_split(t)
+        if old_layout:
+            node_options = old_layout[0].options
+            old_child_layout = old_layout[1:]
+        else:
+            node_options = self.options
+            # dummy values
+            old_child_layout = [None] * len(children)
 
         # if leaf nodes align, all leaf nodes contribute to height for the
         # deepest level, not their actual depth
         if len(children) == 0 and self.options.leaf_nodes_align:
             level = self.depth
-        node = NodePos.from_label(parent, level, self.options)
+        node = NodePos.from_label(parent, level, node_options)
+        node.height = node.height * node_options.font_size / self.options.font_size
 
-        self.level_heights[level] = max(self.level_heights[level], node.height)
-        result_children = [self._build_initial_layout(c, level+1)
-                                                            for c in children]
-        node.width = max(node.width, sum([c[0].width for c in result_children]))
+        real_node_height = node.height
+        # real_node_height = real_node_height * node_options.font_size / self.options.font_size
+
+        self.level_heights[level] = max(self.level_heights[level], real_node_height)
+        result_children = [self._build_initial_layout(
+                                    children[i], old_child_layout[i], level+1)
+                            for i in range(len(children))]
+
+        # take into account any font size tweaks on a particular node label
+        node.width = max(
+            node.width * node.options.font_size / self.options.font_size,
+            sum([c[0].width for c in result_children]))
         return [node] + result_children
 
     def _sublayout_width(self, t):
-        if self.options.horiz_spacing == HorizOptions.TEXT:
+        if t[0].options.horiz_spacing == HorizOptions.TEXT:
             return t[0].width # precalculated
-        elif self.options.horiz_spacing == HorizOptions.NODES:
-            return leaf_nodecount(t, self.options)
+        elif t[0].options.horiz_spacing == HorizOptions.NODES:
+            return leaf_nodecount(t, t[0].options)
         else: # EVEN
             return 1
 
@@ -767,14 +834,14 @@ class TreeLayout(object):
             self._normalize_widths(c)
 
         widths = list()
-        sum = 0
+        sub_sum = 0
         em_sum = 0
         # calculate widths according to scheme determined by options. This
         # may or may not be in real units.
-        for t in children:
-            widths.append(self._sublayout_width(t))
-            sum += widths[-1]
-            em_sum += t[0].width
+        for c in children:
+            widths.append(self._sublayout_width(c))
+            sub_sum += widths[-1]
+            em_sum += c[0].width
 
         # if the parent node is wider than all the children, the parent box is
         # what will determine the overall box size. The limiting case of this
@@ -788,7 +855,7 @@ class TreeLayout(object):
             # Could calculate it relative to the entire canvas? Could I just
             # switch to viewbox-determined units rather than percentages?
             children[i][0].inner_width = children[i][0].inner_width * 100.0 / em_sum
-            children[i][0].width = widths[i] * 100.0 / sum
+            children[i][0].width = widths[i] * 100.0 / sub_sum
             children[i][0].x = x_pos
             x_pos += children[i][0].width
 
@@ -824,23 +891,25 @@ class TreeLayout(object):
         #    ought to be relative to text size, only use that.
         from svgwrite.shapes import Line
         parent, children = t[0], t[1:]
-        svg_parent.add(parent.get_svg())
+        svg_parent.add(parent.get_svg(self.options))
         i = 0
         for c in children:
             box_y = self.y_distance(parent.depth, c[0].depth)
-            y_target = em(box_y + c[0].y, self.options)
-            x_target = perc(c[0].x + c[0].width / 2)
             child = svgwrite.container.SVG(x=perc(c[0].x),
                                            y=em(box_y, self.options),
                                            width=perc(c[0].width))
-            if self.options.debug:
+            style = c[0].options.style_str()
+            if style != parent.options.style_str():
+                child['style'] = style
+
+            if parent.options.debug or c[0].options.debug:
                 child.add(svgwrite.shapes.Rect(insert=("0%","0%"),
                                                size=("100%", "100%"),
                                                fill="none", stroke="red"))
             svg_parent.add(child)
             if parent.has_edge_style(i):
                 edge = parent.get_edge_style(i)
-            elif self.options.descend_direct:
+            elif parent.options.descend_direct:
                 edge = EdgeStyle()
             else:
                 edge = IndirectDescent()
@@ -862,8 +931,12 @@ class TreeLayout(object):
         width = self.width()
         height = self.height()
 
-        tree = svgwrite.Drawing(name, (px(width), px(height)),
-            style=self.options.style_str())
+        if self.layout:
+            style = self.layout[0].options.style_str()
+        else:
+            style = self.options.style_str() # fallback, shouldn't matter much
+
+        tree = svgwrite.Drawing(name, (px(width), px(height)), style=style)
         tree.viewbox(minx=0, miny=0, width=width, height=height)
         tree.fit()
 
