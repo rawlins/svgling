@@ -171,7 +171,9 @@ _opt_defaults = dict(
     # But, compatibility for em is worse, and it causes problems with setting
     # font size for subtrees.
     relative_units=False,
-    font_size = 16)
+    font_size = 16,
+    text_color = "",
+    text_stroke = "")
 
 class TreeOptions(collections.abc.MutableMapping):
     def __init__(self, global_font_style=None, **opts):
@@ -324,7 +326,9 @@ class NodePos(object):
             return NodePos(svg_parent, 50, 0, options.label_width(""), 0, depth, options)
         for line in label.split("\n"):
             svg_parent.add(svgwrite.text.Text(line, insert=("50%", em(y, options)),
-                                                    text_anchor="middle"))
+                                                    text_anchor="middle",
+                                                    fill=options.text_color,
+                                                    stroke=options.text_stroke))
             y += 1
         width = max([options.label_width(line) for line in label.split("\n")])
         result = NodePos(svg_parent, 50, 0, width, y-1, depth, options)
@@ -734,7 +738,7 @@ class TreeLayout(object):
         parent.set_edge_style(daughter, style)
 
     def set_subtree_style(self, path, **opts):
-        allowed = ["debug", "font_style", "font_size"]
+        allowed = ["debug", "font_style", "font_size", "text_color", "text_stroke"]
         # Maybe: disallow font_size if relative_units = True?
         if any(k not in allowed for k in opts.keys()):
             raise TypeError(f"Allowed subtree option keys: {', '.join(allowed)}")
@@ -743,7 +747,7 @@ class TreeLayout(object):
         self.relayout()
 
     def set_leaf_style(self, **opts):
-        allowed = ["debug", "font_style", "font_size"]
+        allowed = ["debug", "font_style", "font_size", "text_color", "text_stroke"]
         # Maybe: disallow font_size if relative_units = True?
         if any(k not in allowed for k in opts.keys()):
             raise TypeError(f"Allowed subtree option keys: {', '.join(allowed)}")
@@ -752,7 +756,7 @@ class TreeLayout(object):
         self.relayout()
 
     def set_node_style(self, path, **opts):
-        allowed = ["debug", "font_style", "font_size"]
+        allowed = ["debug", "font_style", "font_size", "text_color", "text_stroke"]
         # Maybe: disallow font_size if relative_units = True?
         if any(k not in allowed for k in opts.keys()):
             raise TypeError(f"Allowed node option keys: {', '.join(allowed)}")
