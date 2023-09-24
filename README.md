@@ -106,14 +106,11 @@ There are many things that it might be nice to add to this package; if you find
 The SVG files produced by `svgling` should be compatible with all major browsers
 (Chrome, Firefox, Safari, Edge) on both desktop and mobile; if you find a
 compatibility issue with some browser, please [report it as a
-bug](https://github.com/rawlins/svgling/issues). Outside of browsers, it is
-worth noting that `svgling` uses nested `svg` tags, which seem to occasionally
-provide a challenge for software that loads SVGs. I welcome reports on
-compatibility with software for editing SVG, but here's a partial list:
+bug](https://github.com/rawlins/svgling/issues). It also supports all major
+interactive editing packages that I am aware of.
 
-* Inkscape: Works as long as `relative_units=False` is passed as a generation
-  option. The combination of relative units and nested SVGs seems to be poorly
-  handled.
-* LibreOffice Draw: reported to work. Exports a non-nested SVG (which is
-  compatible with InkScape.)
-* Adobe Illustrator: no idea, reports welcome!
+There are various ways to convert the generated SVG files to other formats,
+including raster ones, but the recommended/supported way to do this
+programmatically is via the [`cairosvg`](https://cairosvg.org/) package.
+`svgling.utils` provides some convenience functions for this. See the
+"Compatibility and Conversion" section of the svgling manual for more details.

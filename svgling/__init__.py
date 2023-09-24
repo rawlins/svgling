@@ -1,4 +1,4 @@
-__all__ = ['core', 'figure', 'semantics', 'html', '__main__']
+__all__ = ['core', 'figure', 'semantics', 'html', 'utils', '__main__']
 
 __version_info__ = (0, 3, 1)
 __release__ = True

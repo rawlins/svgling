@@ -18,6 +18,9 @@ setup(name='svgling',
     license='MIT',
     url='https://github.com/rawlins/svgling',
     install_requires='svgwrite',
+    extras_require={
+        "Conversion": ["cairosvg>=2.7.0"],
+    },
     python_requires='>=3',
     packages=['svgling'],
     classifiers=[
