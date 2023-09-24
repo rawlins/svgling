@@ -45,13 +45,7 @@ also provide a tree directly to the `svgling.draw_tree` function, which allows
 you to use options:
 
     x = nltk.Tree.fromstring("(S (NP (D the) (N elephant)) (VP (V saw) (NP (D the) (N rhinoceros))))")
-    draw_tree(x, leaf_nodes_align=True)
-
-(That is, `svgling` monkey-patches NLTK to use SVG-based tree drawing code. You
-may also want to call `svgling.disable_nltk_png()` to fully disable the
-default NLTK png renderer, especially if you're on a mac or windows 64, or are
-running NLTK on a headless device; see nltk issue
-[#1887](https://github.com/nltk/nltk/issues/1887) for use-cases).)
+    svgling.draw_tree(x, leaf_nodes_align=True)
 
 Beyond basic tree-drawing, the package supports a number of flourishes like
 movement arrows. For documentation and examples, see the three .ipynb files in
@@ -112,5 +106,7 @@ interactive editing packages that I am aware of.
 There are various ways to convert the generated SVG files to other formats,
 including raster ones, but the recommended/supported way to do this
 programmatically is via the [`cairosvg`](https://cairosvg.org/) package.
-`svgling.utils` provides some convenience functions for this. See the
-"Compatibility and Conversion" section of the svgling manual for more details.
+`svgling.utils` provides some convenience functions for conversion to
+PNG/PDF/PS using cairosvg. See the "Compatibility and Conversion" section of
+the svgling manual for more details. Note that `cairosvg` is an optional
+dependency of `svgling`, so won't necessarily be installed by default.
