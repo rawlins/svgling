@@ -46,3 +46,24 @@ New feature:
 Fixes, improvements, changes:
 - Update documentation to reflect some issues in MathJax math mode delimeter
   choice for hybrid mode.
+
+## [0.4.0] - Node styling and compatibility
+
+As of 0.3.1, `svgling` is the default tree-drawing package for `nltk` Trees
+in Jupyter; this update provides better compatibility for that. It also
+improves some styling options, and direct support for format conversion.
+
+New features:
+- Limited per-node styling in trees: supports changing font style, size, and
+  color/fill
+- convenience wrappers to make conversion to PNG/PDF via the `cairosvg`
+  package easier (`cairosvg` is now an optional package dependency)
+- Support `nltk.Tree` objects directly in `svgling.figure` classes
+
+Fixes, improvements, changes:
+- Simplify import code for nltk, remove monkeypatching
+- The option `global_font_style` is renamed to just `font_style`
+- Refactor `TreeOptions` to make it easier to pass around options bundles
+- Default change: `relative_units=False`. This provides better compatibility
+  with inkscape, among other things. This option is now deprecated.
+- Documentation improvements
