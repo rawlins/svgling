@@ -8,6 +8,18 @@ except:
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+extras_require={
+    "Conversion": ["cairosvg>=2.7.0"],
+},
+
+# fix accidental uppercasing in v0.4.0
+extras_require["conversion"] = extras_require["Conversion"]
+
+# Add a group made up of all optional dependencies
+extras_require["all"] = {
+    package for group in extras_require.values() for package in group
+}
+
 setup(name='svgling',
     version='0.4.0',
     description='SVG+Python based rendering of linguistics-style (constituent) trees',
@@ -18,9 +30,7 @@ setup(name='svgling',
     license='MIT',
     url='https://github.com/rawlins/svgling',
     install_requires='svgwrite',
-    extras_require={
-        "Conversion": ["cairosvg>=2.7.0"],
-    },
+    extras_require=extras_require,
     python_requires='>=3',
     packages=['svgling'],
     classifiers=[
