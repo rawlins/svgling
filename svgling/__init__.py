@@ -7,5 +7,6 @@ __version__ = ".".join(str(i) for i in __version_info__)
 import svgling.core
 
 draw_tree = svgling.core.draw_tree
+tree2svg = svgling.core.tree2svg
 
 disable_nltk_png = svgling.core.disable_nltk_png

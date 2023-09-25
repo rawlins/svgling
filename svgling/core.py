@@ -987,9 +987,9 @@ def reset_defaults(options=None, **opts):
 
 
 def draw_tree(*t, options=None, **opts):
-    """Return an object that implements SVG tree rendering, for display
-    in a Jupyter notebook."""
-    from IPython.core.display import SVG
+    """Return an object that implements SVG tree rendering. These objects
+    auto-display in a Jupyter notebook via `_repr_svg_()`. For non-IPython
+    use, see `tree2svg`."""
     if options is None:
         if opts:
             options = TreeOptions(**opts)
@@ -999,6 +999,10 @@ def draw_tree(*t, options=None, **opts):
     if len(t) == 1:
         t = t[0]
     return TreeLayout(t, options=options)
+
+def tree2svg(*t, options=None, **opts):
+    """Convert a tree `t` into SVG output."""
+    return draw_tree(*t, options=options, **opts)._repr_svg_()
 
 # no longer needed for current nltk, but here for backwards compatibility
 def monkeypatch_nltk():
