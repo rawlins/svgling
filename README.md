@@ -2,11 +2,11 @@
 
 **Author**: Kyle Rawlins, [kgr@jhu.edu](kgr@jhu.edu)
 
-**Dependencies**: [`svgwrite`](https://pypi.org/project/svgwrite/), python 3
+**Dependencies**: [`svgwrite`](https://pypi.org/project/svgwrite/), python 3, (optional) [cairosvg](https://cairosvg.org/)
 
 **Repository**: [https://github.com/rawlins/svgling/](https://github.com/rawlins/svgling/)
 
-**Installation**: download and use setuptools, or `pip install svgling`
+**Installation**: download from github and use setuptools, or `pip install svgling` for the current release version
 
 **License**: MIT License
 
