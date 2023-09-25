@@ -7,7 +7,7 @@ def try_import_cairosvg():
         import cairosvg
         return cairosvg
     except ImportError:
-        print("For svglin conversion functions to work, install the `cairosvg` package.")
+        print("Error: for svgling conversion functions to work, install the `cairosvg` package.")
         raise
 
 # TODO: cairosvg seems to be expecting utf-8 encoded byte sequence by the docs,
