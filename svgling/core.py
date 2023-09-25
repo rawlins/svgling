@@ -960,6 +960,9 @@ class TreeLayout(object):
             tree.add(a)
         return tree
 
+    def saveas(self, filename, pretty=False, indent=2):
+        return self.get_svg().saveas(filename, pretty=pretty, indent=indent)
+
     def get_svg(self):
         tree = self.svg_build_tree()
         for a in self.annotations:
