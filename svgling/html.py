@@ -1,4 +1,4 @@
-import copy
+import copy, enum
 from xml.etree import ElementTree
 Element = ElementTree.Element
 SubElement = ElementTree.SubElement
@@ -7,6 +7,17 @@ import svgwrite
 
 import svgling.core
 from svgling.core import TreeOptions, px
+
+class Compat(enum.Enum):
+    DEFAULT = 0
+    USE_MARKDOWN = 1 # use _repr_markdown_ instead of _repr_html_, useful for (at least) quarto output
+    # TODO: colab compatibility, etc
+
+compat_mode = Compat.DEFAULT
+
+def compat(m):
+    global compat_mode
+    compat_mode = m
 
 def html_split_fallback(t):
     return (to_html(t), tuple())
@@ -182,9 +193,17 @@ class DivTreeLayout(object):
                        result.get("style", "") + self.options.style_str())
         return result
 
-    def _repr_html_(self):
+    def _to_html(self):
         return ElementTree.tostring(self.render(), encoding="unicode",
                                                    method="xml")
+
+    def _repr_markdown_(self):
+        if compat_mode == Compat.USE_MARKDOWN:
+            return self._to_html()
+
+    def _repr_html_(self):
+        if compat_mode == Compat.DEFAULT:
+            return self._to_html()
 
     def node_layout_unary_grid(self, label, daughter, parent_dir=None):
         if self.options.debug:
