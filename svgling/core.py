@@ -467,6 +467,7 @@ class TreeLayout(object):
                                     ry=rounding,
                                     stroke_width=stroke_width)
         self.annotations.append(rect)
+        return self
 
     def underline_constituent(self, path, stroke="black", stroke_width=1,
                               stroke_opacity=1.0):
@@ -483,6 +484,7 @@ class TreeLayout(object):
 
         self.extra_y = max(self.extra_y, (y + height) + 0.5 - (self.em_height() - self.extra_y))
         self.annotations.append(underline)
+        return self
 
     def _movement_find_y(self, x1, x2, y):
         # try to keep movement arrows from obscuring each other; a bit hacky
@@ -547,6 +549,7 @@ class TreeLayout(object):
              (n2_x, n2_y),
              (n2_x-3, n2_y+arrow_y_delta)],
             **opts))
+        return self
 
     ######## Layout information
 
@@ -738,6 +741,7 @@ class TreeLayout(object):
             raise AttributeError("Invalid daughter index %d" % daughter)
         daughter = daughter % len(children) # handle negative indices
         parent.set_edge_style(daughter, style)
+        return self
 
     def set_subtree_style(self, path, **opts):
         allowed = ["debug", "font_style", "font_size", "text_color", "text_stroke"]
@@ -747,6 +751,7 @@ class TreeLayout(object):
         for pos in self.subtree_iter(path):
             pos[0].options.update(**opts)
         self.relayout()
+        return self
 
     def set_leaf_style(self, **opts):
         allowed = ["debug", "font_style", "font_size", "text_color", "text_stroke"]
@@ -756,6 +761,7 @@ class TreeLayout(object):
         for l in leaf_iter(self.layout):
             l.options.update(**opts)
         self.relayout()
+        return self
 
     def set_node_style(self, path, **opts):
         allowed = ["debug", "font_style", "font_size", "text_color", "text_stroke"]
@@ -764,10 +770,12 @@ class TreeLayout(object):
             raise TypeError(f"Allowed node option keys: {', '.join(allowed)}")
         self.sublayout(path)[0].options.update(**opts)
         self.relayout()
+        return self
 
     def clear_edge_styles(self):
         for n in self.node_iter():
             n.clear_edge_styles()
+        return self
 
     def _do_layout(self, t):
         self.level_heights = dict()
