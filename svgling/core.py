@@ -480,6 +480,8 @@ class TreeLayout(object):
                             start=(perc(x), em(y + height, self.options)),
                             end=(perc(x + width), em(y + height, self.options)),
                             **opts)
+
+        self.extra_y = max(self.extra_y, (y + height) + 0.5 - (self.em_height() - self.extra_y))
         self.annotations.append(underline)
 
     def _movement_find_y(self, x1, x2, y):
