@@ -1,0 +1,23 @@
+---
+title: "About `svgling`"
+toc: false
+---
+
+## About the package
+
+The `svgling` package is, at its core, a single-pass python system for rendering constituent trees to SVG diagrams, intended primarily for use with Jupyter notebooks. It was first released in 2018 as a replacement for what at the time was the only available tree drawing approach for Jupyter, nltk's `_repr_png_` implementation, and has developed from there.
+
+* **Author**: Kyle Rawlins, [kgr@jhu.edu](kgr@jhu.edu)
+* **Dependencies**: [`svgwrite`](https://pypi.org/project/svgwrite/), python 3, (optional) [cairosvg](https://cairosvg.org/)
+* **Repository and issue tracker**: [https://github.com/rawlins/svgling/](https://github.com/rawlins/svgling/)
+* **Installation**: download from github and use setuptools, or `pip install svgling` to install the current release version from [PyPI](https://pypi.org/project/svgling/).
+* **License**: MIT License
+
+## About the author
+
+The `svgling` package is developed by [Kyle Rawlins](https://rawlins.io/). I'm a faculty member in the [Cognitive Science](https://cogsci.jhu.edu/) department at JHU; my research areas are in theoretical and computational linguistics, focusing on semantics and pragmatics. This package originally came about as a side project of my interest in [scientific computing for linguistics](https://github.com/rawlins/lambda-notebook) in Jupyter and Python, and has since taken on a life of its own.
+
+## About the website
+
+This website is rendered from runnable Jupyter notebooks using
+[quarto](https://quarto.org/).

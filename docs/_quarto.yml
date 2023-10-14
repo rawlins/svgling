@@ -1,0 +1,36 @@
+project:
+  type: website
+  pre-render: pre-render.py
+
+website:
+  title: "svgling"
+  page-navigation: true
+  repo-url: "https://github.com/rawlins/svgling"
+  repo-actions: [issue]
+  navbar:
+    left:
+      - href: index.ipynb
+        text: Home
+      - file: manual.ipynb
+        text: Manual
+      - file: gallery.ipynb
+        text: Gallery
+      - file: CHANGELOG.md
+        text: Changelog
+      - file: about.qmd
+        text: About
+
+    right:
+      - href: "https://github.com/rawlins/svgling"
+        text: Source
+
+format:
+  html:
+    theme: lumen
+    css: styles.css
+    toc: true
+    grid:
+      sidebar-width: 0px
+
+
+
