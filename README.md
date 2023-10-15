@@ -74,14 +74,13 @@ python+tk, or python+dot, or...).
 ## Strengths and limitations
 
 The `svgling` package does its rendering in one pass -- it takes a tree
-structure as input, produces an svg output, and that's it. Because of this, it
-is extremely simple to use in Jupyter, and no messing with plugins or Jupyter
-settings should be necessary. Because it is SVG-based, scaling and embedding in
-any web context should work smoothly. It also has minimal dependencies, just
-one package that provides an abstraction layer over generating svg. (If you're
-interested in programmatic diagramming in svg for Jupyter, I do recommend
-[`svgwrite`](https://github.com/mozman/svgwrite), it's under active maintenance
-and has a very pleasant API + good documentation.)
+structure as input, produces an svg output, and that's it. Because of this,
+it is extremely simple to use in Jupyter, and no messing with plugins or
+Jupyter settings should be necessary. Because it is SVG-based, scaling and
+embedding in any web context should work smoothly. It also has minimal
+dependencies, just one package
+([`svgwrite`](https://github.com/mozman/svgwrite)) that provides an abstraction
+layer over the process of generating valid SVG text.
 
 Single-pass rendering also places limitations on what can be done. One of the
 challenges is that it mostly uses absolute position, and the exact position and
