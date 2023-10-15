@@ -1,5 +1,19 @@
 # Changelog for `svgling`
 
+## Unreleased
+
+Documentation:
+
+- Major documentation improvements, convert docs to quarto
+
+Fixes, improvements, changes:
+
+- Support a repeated call notation for most TreeLayout public functions
+- Improvements to the `draw_tree` and `tree2svg` APIs
+- Fix for constituent underlines at the exact lower edge of a figure
+- Compatibility mode for rendering (some) `svgling.html` diagrams in quarto
+- Build/install improvements
+
 ## [0.4.0] - Node styling and compatibility - 2023-09-25
 
 As of 0.3.1, `svgling` is the default tree-drawing package for `nltk` Trees
