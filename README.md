@@ -50,12 +50,16 @@ you to use options:
     svgling.draw_tree(x, leaf_nodes_align=True)
 
 Beyond basic tree-drawing, the package supports a number of flourishes like
-movement arrows. For documentation and examples, see the three .ipynb files in
-the root of this repository: (links below to nbviewer static rendered versions):
+movement arrows. For documentation and examples, see the project website:
 
-* [Overview.ipynb](https://nbviewer.jupyter.org/github/rawlins/svgling/blob/master/Overview.ipynb)
-* [svgling Gallery.ipynb](https://nbviewer.jupyter.org/github/rawlins/svgling/blob/master/svgling%20Gallery.ipynb)
-* [svgling Manual.ipynb](https://nbviewer.jupyter.org/github/rawlins/svgling/blob/master/svgling%20Manual.ipynb)
+* [Overview of the package](https://rawlins.github.io/svgling/)
+* [`svgling` diagram gallery](https://rawlins.github.io/svgling/gallery.html)
+* [Full manual for `svgling`](https://rawlins.github.io/svgling/manual.html)
+
+These three pages are directly rendered from notebooks in the [docs/]
+(https://github.com/rawlins/svgling/tree/master/docs) directory that you can
+also download and execute in Jupyter Lab (or another frontend, modulo some
+compatibility notes).
 
 ## Core design principles and goals
 

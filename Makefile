@@ -1,16 +1,23 @@
 SHELL:=/bin/bash
 
+testopts = "--ExecutePreprocessor.timeout=120"
+
+.PHONY: clear clean dist test-upload check-upload upload test_env test_install
+
 FORCE:
 
 demotree.svg: FORCE
 	python -m svgling '("S", ("NP", ("D", "the"), ("N", "elephant")), ("VP", ("V", "saw"), ("NP", ("D", "the"), ("N", "rhinoceros"))))' > demotree.svg
+
+clear:
+	for nb in docs/*.ipynb; do jupyter nbconvert --ClearOutputPreprocessor.enabled=True --inplace "$$nb" || exit 1; done
 
 clean:
 	rm -rf dist/ build/ svgling.egg-info/ test_env/
 
 dist: setup.py svgling/ svgling/__init__.py svgling/core.py
 	python setup.py sdist bdist_wheel
-	@echo -e "\\nDid you remember to increment versions, and tag?"
+	@echo -e "\\nDid you remember to increment versions, update the changelog, and tag?"
 
 test-upload:
 	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
