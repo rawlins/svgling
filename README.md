@@ -2,6 +2,8 @@
 
 **Author**: Kyle Rawlins, [kgr@jhu.edu](kgr@jhu.edu)
 
+**Website and documentation**: [https://rawlins.github.io/svgling/](https://rawlins.github.io/svgling/)
+
 **Dependencies**: [`svgwrite`](https://pypi.org/project/svgwrite/), python 3, (optional) [cairosvg](https://cairosvg.org/)
 
 **Repository**: [https://github.com/rawlins/svgling/](https://github.com/rawlins/svgling/)
