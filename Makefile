@@ -2,7 +2,7 @@ SHELL:=/bin/bash
 
 testopts = "--ExecutePreprocessor.timeout=120"
 
-.PHONY: clear clean dist test-upload check-upload upload test_env test_install
+.PHONY: clear clean dist test-upload check-upload upload test_env test_install render site
 
 FORCE:
 
@@ -12,8 +12,8 @@ demotree.svg: FORCE
 clear:
 	for nb in docs/*.ipynb; do jupyter nbconvert --ClearOutputPreprocessor.enabled=True --inplace "$$nb" || exit 1; done
 
-clean:
-	rm -rf dist/ build/ svgling.egg-info/ test_env/
+clean: clear
+	rm -rf dist/ build/ svgling.egg-info/ test_env/ docs/CHANGELOG.md docs/_site
 
 dist: setup.py svgling/ svgling/__init__.py svgling/core.py
 	python setup.py sdist bdist_wheel
@@ -34,3 +34,10 @@ test_env:
 
 test_install: test_env
 	source test_env/bin/activate && pip install svgwrite && pip install --index-url https://test.pypi.org/simple/ svgling
+
+# note: assumes `svgling` in pythonpath!
+# because of some weirdness in quarto, we run pre-render.py in advance and
+# ensure that the changelog gets copied
+site:
+	python docs/pre-render.py
+	quarto render docs/ --execute
