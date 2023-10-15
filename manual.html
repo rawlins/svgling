@@ -239,7 +239,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="overview-the-svgling-tree-drawing-package" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Overview: the <code>svgling</code> tree-drawing package</h1>
-<div class="cell" data-execution_count="37">
+<div class="cell" data-execution_count="2">
 <div class="cell-output cell-output-display">
 <p><strong><code>svgling</code> package version</strong>: 0.4.1-a1</p>
 </div>
@@ -267,11 +267,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>The tree description can be in one of two forms: (i) an indexable object (e.g.&nbsp;list, tuple) consisting of a head at index 0 and a possibly empty sequence of subtrees at indices <span class="math inline">\(1..n\)</span>, or (ii) an object implementing the <code>nltk.tree.Tree</code> api (including nltk <code>Tree</code> objects themselves); this api stores the head label in the function <code>.label()</code> and the daughter subtrees as indices on the object. See <code>t0</code> and <code>t1</code> above for examples of the indexable format, but this is pretty standard notation going back to lisp, and corresponds directly to linearized trees in linguistics notation.</p>
 <p>The package integrates with <code>nltk</code> if available, and by default, <code>nltk</code> will attempt to use <code>svgling</code> to render tree structures when displayed directly in the notebook. Rendering options for trees displayed this way can be adjusted by setting values on <code>svgling.core.default_options</code>, which is a <code>svgling.core.TreeOptions</code> instance. <code>nltk.tree.Tree</code> objects can also be passed directly to <code>draw_tree</code>. This leads to a third way to provide a tree description for rendering, by using the <code>Tree.fromstring</code> function:</p>
-<div class="cell" data-execution_count="38">
+<div class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> nltk</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>t2 <span class="op">=</span> nltk.Tree.fromstring(<span class="st">"(S (NP (D the) (A gray) (N elephant)) (VP (V saw) (NP (D the) (N rhinoceros))))"</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>t2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="38">
+<div class="cell-output cell-output-display" data-execution_count="5">
 <p><img src="manual_files/figure-html/cell-6-output-1.svg" class="img-fluid"></p>
 </div>
 </div>
@@ -612,28 +612,226 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>The <code>HorizSpacing.EVEN</code> option can be used, but usually looks huge for unbalanced trees. (With comparable node padding, for this option only the spacing is identical to <code>svgling.core</code>.)</p>
 <div class="cell" data-execution_count="31">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>svgling.html.draw_tree(<span class="st">"S"</span>, (<span class="st">"NP"</span>, (<span class="st">"D"</span>, <span class="st">"the"</span>), (<span class="st">"N"</span>, <span class="st">"elephant"</span>)), (<span class="st">"VP"</span>, (<span class="st">"V"</span>, <span class="st">"saw"</span>), (<span class="st">"NP"</span>, (<span class="st">"D"</span>, <span class="st">"the"</span>), (<span class="st">"N"</span>, <span class="st">"rhinoceros"</span>))), horiz_spacing<span class="op">=</span>svgling.core.HorizSpacing.EVEN)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>svgling.html.draw_tree(<span class="st">"S"</span>, (<span class="st">"NP"</span>, (<span class="st">"D"</span>, <span class="st">"the"</span>), (<span class="st">"N"</span>, <span class="st">"elephant"</span>)), (<span class="st">"VP"</span>, (<span class="st">"V"</span>, <span class="st">"saw"</span>), (<span class="st">"NP"</span>, (<span class="st">"D"</span>, <span class="st">"the"</span>), (<span class="st">"N"</span>, <span class="st">"rhinoceros"</span>))),</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>                       horiz_spacing<span class="op">=</span>svgling.core.HorizSpacing.EVEN)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="31">
 <div style="display:inline-grid;grid-template-columns: repeat(2, 1fr);align-items:start;border:none;font-family: times, serif; font-weight: normal; font-style: normal; font-size: 16px;" align="center"><div style="grid-column:1/3;grid-row:1;grid-gap:0px" align="center"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">S</span></div></div><div align="center" style="grid-column:1;grid-row:2;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div align="center" style="grid-column:2;grid-row:2;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:3;"><div style="display:inline-grid;grid-template-columns: repeat(2, 1fr);align-items:start;border:none;" align="center"><div style="grid-column:1/3;grid-row:1;grid-gap:0px" align="center"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">NP</span></div></div><div align="center" style="grid-column:1;grid-row:2;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div align="center" style="grid-column:2;grid-row:2;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:3;"><div align="center" style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column-1;grid-row:1;" align="center"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">D</span></div></div><div align="center" style="grid-column-1;grid-row:2;border:0;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="50" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column-1;grid-row:3;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">the</span></div></div></div></div><div style="grid-column:2;grid-row:3;"><div align="center" style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column-1;grid-row:1;" align="center"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">N</span></div></div><div align="center" style="grid-column-1;grid-row:2;border:0;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="50" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column-1;grid-row:3;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">elephant</span></div></div></div></div></div></div><div style="grid-column:2;grid-row:3;"><div style="display:inline-grid;grid-template-columns: repeat(2, 1fr);align-items:start;border:none;" align="center"><div style="grid-column:1/3;grid-row:1;grid-gap:0px" align="center"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">VP</span></div></div><div align="center" style="grid-column:1;grid-row:2;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div align="center" style="grid-column:2;grid-row:2;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:3;"><div align="center" style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column-1;grid-row:1;" align="center"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">V</span></div></div><div align="center" style="grid-column-1;grid-row:2;border:0;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="50" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column-1;grid-row:3;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">saw</span></div></div></div></div><div style="grid-column:2;grid-row:3;"><div style="display:inline-grid;grid-template-columns: repeat(2, 1fr);align-items:start;border:none;" align="center"><div style="grid-column:1/3;grid-row:1;grid-gap:0px" align="center"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">NP</span></div></div><div align="center" style="grid-column:1;grid-row:2;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div align="center" style="grid-column:2;grid-row:2;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:3;"><div align="center" style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column-1;grid-row:1;" align="center"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">D</span></div></div><div align="center" style="grid-column-1;grid-row:2;border:0;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="50" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column-1;grid-row:3;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">the</span></div></div></div></div><div style="grid-column:2;grid-row:3;"><div align="center" style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column-1;grid-row:1;" align="center"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">N</span></div></div><div align="center" style="grid-column-1;grid-row:2;border:0;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="50" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column-1;grid-row:3;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">rhinoceros</span></div></div></div></div></div></div></div></div></div>
 </div>
 </div>
 <p>The main immediate benefit for interactive use is the availability of MathJax in nodes. (<strong>caveat</strong>: latex rendering via HTML outputs will not work in Google Colab or VSCode.) Don’t forget to escape <code>\</code> characters (as <code>\\</code>) as needed, or use strings prefixed with <code>r</code> for “raw” mode:</p>
-<div class="cell" data-execution_count="32">
+<div class="cell" data-execution_count="33">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>svgling.html.draw_tree(<span class="st">"$</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{Saw}</span><span class="st">(</span><span class="ch">\\</span><span class="st">iota x_e{:\:}</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{Elephant}</span><span class="st">(x),</span><span class="ch">\\</span><span class="st">iota x_e{:\:}</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{Rhino}</span><span class="st">(x))$"</span>, (<span class="st">"$</span><span class="ch">\\</span><span class="st">iota x_e{:\:}</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{Elephant}</span><span class="st">(x)$"</span>, <span class="st">"$</span><span class="ch">\\</span><span class="st">lambda f_{</span><span class="ch">\\</span><span class="st">langle e,t </span><span class="ch">\\</span><span class="st">rangle }{:\:}</span><span class="ch">\\</span><span class="st">iota x_e{:\:}f(x)$"</span>, <span class="st">"$</span><span class="ch">\\</span><span class="st">lambda x_e{:\:}</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{Elephant}</span><span class="st">(x)$"</span>), (<span class="st">"$</span><span class="ch">\\</span><span class="st">lambda x_e{:\:}</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{Saw}</span><span class="st">(x,</span><span class="ch">\\</span><span class="st">iota x_e{:\:}</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{Rhino}</span><span class="st">(x))$"</span>, <span class="st">"$</span><span class="ch">\\</span><span class="st">lambda y_e{:\:}</span><span class="ch">\\</span><span class="st">lambda x_e{:\:}</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{Saw}</span><span class="st">(x,y)$"</span>, (<span class="st">"$</span><span class="ch">\\</span><span class="st">iota x_e{:\:}</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{Rhino}</span><span class="st">(x)$"</span>, <span class="st">"$</span><span class="ch">\\</span><span class="st">lambda f_{</span><span class="ch">\\</span><span class="st">langle e,t </span><span class="ch">\\</span><span class="st">rangle }{:\:}</span><span class="ch">\\</span><span class="st">iota x_e{:\:}f(x)$"</span>, <span class="st">"$</span><span class="ch">\\</span><span class="st">lambda x_e{:\:}</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{Rhino}</span><span class="st">(x)$"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="32">
-<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;font-family: times, serif; font-weight: normal; font-style: normal; font-size: 16px;"><div style="grid-row:1;grid-column:1;justify-self:right;width:0;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;float:right;transform:translate(50%);white-space:nowrap;"><span style="text-align:center;">$\text{Saw}(\iota x_e{:\:}\text{Elephant}(x),\iota x_e{:\:}\text{Rhino}(x))$</span></div></div><div style="grid-row:1;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">$\text{Saw}(\iota x_e{:\:}\text{Elephant}(x),\iota x_e{:\:}\text{Rhino}(x))$</span></div></div><div style="grid-column:1;grid-row:2;justify-self:right;"><div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;"><div style="grid-column:2;grid-row:1;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="100" x2="0" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-row:2;grid-column:1;justify-self:right;width:0;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;float:right;transform:translate(50%);white-space:nowrap;"><span style="text-align:center;">$\iota x_e{:\:}\text{Elephant}(x)$</span></div></div><div style="grid-row:2;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">$\iota x_e{:\:}\text{Elephant}(x)$</span></div></div><div style="grid-column:1;grid-row:3;justify-self:right;"><div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;" align="center"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:2;justify-self:center;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">$\lambda f_{\langle e,t \rangle }{:\:}\iota x_e{:\:}f(x)$</span></div></div></div></div><div style="grid-column:2;grid-row:3;"><div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;" align="center"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:2;justify-self:center;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">$\lambda x_e{:\:}\text{Elephant}(x)$</span></div></div></div></div></div></div><div style="grid-column:2;grid-row:2;"><div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="0" x2="100" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-row:2;grid-column:1;justify-self:right;width:0;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;float:right;transform:translate(50%);white-space:nowrap;"><span style="text-align:center;">$\lambda x_e{:\:}\text{Saw}(x,\iota x_e{:\:}\text{Rhino}(x))$</span></div></div><div style="grid-row:2;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">$\lambda x_e{:\:}\text{Saw}(x,\iota x_e{:\:}\text{Rhino}(x))$</span></div></div><div style="grid-column:1;grid-row:3;justify-self:right;"><div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;" align="center"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:2;justify-self:center;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">$\lambda y_e{:\:}\lambda x_e{:\:}\text{Saw}(x,y)$</span></div></div></div></div><div style="grid-column:2;grid-row:3;"><div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="0" x2="100" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-row:2;grid-column:1;justify-self:right;width:0;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;float:right;transform:translate(50%);white-space:nowrap;"><span style="text-align:center;">$\iota x_e{:\:}\text{Rhino}(x)$</span></div></div><div style="grid-row:2;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">$\iota x_e{:\:}\text{Rhino}(x)$</span></div></div><div style="grid-column:1;grid-row:3;justify-self:right;"><div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;" align="center"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:2;justify-self:center;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">$\lambda f_{\langle e,t \rangle }{:\:}\iota x_e{:\:}f(x)$</span></div></div></div></div><div style="grid-column:2;grid-row:3;"><div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;" align="center"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:2;justify-self:center;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">$\lambda x_e{:\:}\text{Rhino}(x)$</span></div></div></div></div></div></div></div></div></div>
+<div class="cell-output cell-output-display" data-execution_count="33">
+<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;font-family: times, serif; font-weight: normal; font-style: normal; font-size: 16px;">
+<div style="grid-row:1;grid-column:1;justify-self:right;width:0;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;float:right;transform:translate(50%);white-space:nowrap;">
+<span style="text-align:center;"><span class="math inline">\(\text{Saw}(\iota x_e{:\:}\text{Elephant}(x),\iota x_e{:\:}\text{Rhino}(x))\)</span></span>
+</div>
+</div>
+<div style="grid-row:1;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;"><span class="math inline">\(\text{Saw}(\iota x_e{:\:}\text{Elephant}(x),\iota x_e{:\:}\text{Rhino}(x))\)</span></span>
+</div>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:right;">
+<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;">
+<div style="grid-column:2;grid-row:1;height:32px;">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="100" x2="0" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-row:2;grid-column:1;justify-self:right;width:0;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;float:right;transform:translate(50%);white-space:nowrap;">
+<span style="text-align:center;"><span class="math inline">\(\iota x_e{:\:}\text{Elephant}(x)\)</span></span>
+</div>
+</div>
+<div style="grid-row:2;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;"><span class="math inline">\(\iota x_e{:\:}\text{Elephant}(x)\)</span></span>
+</div>
+</div>
+<div style="grid-column:1;grid-row:3;justify-self:right;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;"><span class="math inline">\(\lambda f_{\langle e,t \rangle }{:\:}\iota x_e{:\:}f(x)\)</span></span>
+</div>
+</div>
+</div>
+</div>
+<div style="grid-column:2;grid-row:3;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;"><span class="math inline">\(\lambda x_e{:\:}\text{Elephant}(x)\)</span></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div style="grid-column:2;grid-row:2;">
+<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="0" x2="100" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-row:2;grid-column:1;justify-self:right;width:0;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;float:right;transform:translate(50%);white-space:nowrap;">
+<span style="text-align:center;"><span class="math inline">\(\lambda x_e{:\:}\text{Saw}(x,\iota x_e{:\:}\text{Rhino}(x))\)</span></span>
+</div>
+</div>
+<div style="grid-row:2;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;"><span class="math inline">\(\lambda x_e{:\:}\text{Saw}(x,\iota x_e{:\:}\text{Rhino}(x))\)</span></span>
+</div>
+</div>
+<div style="grid-column:1;grid-row:3;justify-self:right;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;"><span class="math inline">\(\lambda y_e{:\:}\lambda x_e{:\:}\text{Saw}(x,y)\)</span></span>
+</div>
+</div>
+</div>
+</div>
+<div style="grid-column:2;grid-row:3;">
+<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="0" x2="100" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-row:2;grid-column:1;justify-self:right;width:0;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;float:right;transform:translate(50%);white-space:nowrap;">
+<span style="text-align:center;"><span class="math inline">\(\iota x_e{:\:}\text{Rhino}(x)\)</span></span>
+</div>
+</div>
+<div style="grid-row:2;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;"><span class="math inline">\(\iota x_e{:\:}\text{Rhino}(x)\)</span></span>
+</div>
+</div>
+<div style="grid-column:1;grid-row:3;justify-self:right;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;"><span class="math inline">\(\lambda f_{\langle e,t \rangle }{:\:}\iota x_e{:\:}f(x)\)</span></span>
+</div>
+</div>
+</div>
+</div>
+<div style="grid-column:2;grid-row:3;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;"><span class="math inline">\(\lambda x_e{:\:}\text{Rhino}(x)\)</span></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 <p>The recommended method of drawing multi-line nodes when using hybrid rendering is to use the html <code>&lt;br /&gt;</code> tag. In some versions of MathJax, using <code>\\</code> in math mode may work, though it will not center text. To simplify this, the package provides a convenience function <code>multiline_text</code> that uses HTML to do the linebreaks. (See the gallery for the full example rendered using this technique.)</p>
-<div class="cell" data-execution_count="33">
+<div class="cell" data-execution_count="34">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> svgling.html</span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> svgling.html <span class="im">import</span> multiline_text <span class="im">as</span> ml</span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>svgling.html.draw_tree(</span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    ml(<span class="vs">r"$\iota x_e{:\:}\text</span><span class="sc">{Elephant}</span><span class="vs">(x)$"</span>, <span class="st">"$</span><span class="ch">\t</span><span class="st">ext</span><span class="sc">{Type: }</span><span class="st">e$"</span>),</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    ml(<span class="vs">r"$\iota x_e{:\:}\text</span><span class="sc">{Elephant}</span><span class="vs">(x)$"</span>, <span class="vs">r"$\text</span><span class="sc">{Type: }</span><span class="vs">e$"</span>),</span>
 <span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>        ml(<span class="vs">r"$\lambda f_{\langle e,t \rangle }{:\:}\iota x_e{:\:}f(x)$"</span>, <span class="vs">r"$\text</span><span class="sc">{Type: }</span><span class="vs">\langle \langle e,t\rangle ,e\rangle$"</span>),</span>
 <span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>        ml(<span class="vs">r"$\lambda x_e{:\:}\text</span><span class="sc">{Elephant}</span><span class="vs">(x)$"</span>, <span class="vs">r"$\text</span><span class="sc">{Type: }</span><span class="vs">\langle e,t\rangle$"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="33">
-<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;font-family: times, serif; font-weight: normal; font-style: normal; font-size: 16px;"><div style="grid-row:1;grid-column:1;justify-self:right;width:0;"><div style="display:grid;grid-template-columns:auto;float:right;transform:translate(50%);white-space:nowrap;"><div style="padding-left:0.75em;padding-right:0.75em;text-align:center;"><span>$\iota x_e{:\:}\text{Elephant}(x)$</span></div><div style="padding-left:0.75em;padding-right:0.75em;text-align:center;"><span>$   ext{Type: }e$</span></div></div></div><div style="grid-row:1;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;"><div style="display:grid;grid-template-columns:auto;"><div style="padding-left:0.75em;padding-right:0.75em;text-align:center;"><span>$\iota x_e{:\:}\text{Elephant}(x)$</span></div><div style="padding-left:0.75em;padding-right:0.75em;text-align:center;"><span>$ ext{Type: }e$</span></div></div></div><div style="grid-column:1;grid-row:2;justify-self:right;"><div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;" align="center"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:2;justify-self:center;"><div style="display:grid;grid-template-columns:auto;"><div style="padding-left:0.75em;padding-right:0.75em;text-align:center;"><span>$\lambda f_{\langle e,t \rangle }{:\:}\iota x_e{:\:}f(x)$</span></div><div style="padding-left:0.75em;padding-right:0.75em;text-align:center;"><span>$\text{Type: }\langle \langle e,t\rangle ,e\rangle$</span></div></div></div></div></div><div style="grid-column:2;grid-row:2;"><div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;" align="center"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:2;justify-self:center;"><div style="display:grid;grid-template-columns:auto;"><div style="padding-left:0.75em;padding-right:0.75em;text-align:center;"><span>$\lambda x_e{:\:}\text{Elephant}(x)$</span></div><div style="padding-left:0.75em;padding-right:0.75em;text-align:center;"><span>$\text{Type: }\langle e,t\rangle$</span></div></div></div></div></div></div>
+<div class="cell-output cell-output-display" data-execution_count="34">
+<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;font-family: times, serif; font-weight: normal; font-style: normal; font-size: 16px;">
+<div style="grid-row:1;grid-column:1;justify-self:right;width:0;">
+<div style="display:grid;grid-template-columns:auto;float:right;transform:translate(50%);white-space:nowrap;">
+<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span><span class="math inline">\(\iota x_e{:\:}\text{Elephant}(x)\)</span></span>
+</div>
+<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span><span class="math inline">\(\text{Type: }e\)</span></span>
+</div>
+</div>
+</div>
+<div style="grid-row:1;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;">
+<div style="display:grid;grid-template-columns:auto;">
+<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span><span class="math inline">\(\iota x_e{:\:}\text{Elephant}(x)\)</span></span>
+</div>
+<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span><span class="math inline">\(\text{Type: }e\)</span></span>
+</div>
+</div>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:right;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:grid;grid-template-columns:auto;">
+<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span><span class="math inline">\(\lambda f_{\langle e,t \rangle }{:\:}\iota x_e{:\:}f(x)\)</span></span>
+</div>
+<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span><span class="math inline">\(\text{Type: }\langle \langle e,t\rangle ,e\rangle\)</span></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div style="grid-column:2;grid-row:2;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:grid;grid-template-columns:auto;">
+<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span><span class="math inline">\(\lambda x_e{:\:}\text{Elephant}(x)\)</span></span>
+</div>
+<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span><span class="math inline">\(\text{Type: }\langle e,t\rangle\)</span></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 <p>A more advanced technique to accomplish linebreaks, as well as many other things, would be to use an HTML node directly. More generally, there are several kinds of objects that can be used as nodes in <code>svgling.html</code>, which is much more flexible than <code>svgling.core</code> in this respect (see <code>svgling.html.to_html</code> for the conversion algorithm):</p>
@@ -646,24 +844,103 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
 <p>If you want to use HTML text interactively, one quick way to get an object that can be used as a node is to use <code>IPython.display.HTML</code> to turn an HTML string into an object that implements <code>_repr_html_()</code>.</p>
 <p>You can mix all of these node types in a single tree, as in the following example:</p>
-<div class="cell" data-execution_count="34">
+<div class="cell" data-execution_count="44">
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> HTML</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="co"># mathjax notes: using $ as the delimiter here in the B node in recent versions</span></span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="co"># forces mathjax to use a "fullwidth" class that renders poorly. Also, for some</span></span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co"># reason the \[ delimiters force a linebreak after the equation. </span></span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>svgling.html.draw_tree(<span class="st">"X"</span>,</span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    (HTML(<span class="st">"&lt;span&gt;Y&lt;br /&gt;Y2&lt;/span&gt;"</span>), <span class="st">'Z'</span>, <span class="st">'$Z</span><span class="ch">\'</span><span class="st">$'</span>),</span>
-<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'A'</span>, HTML(<span class="st">"&lt;div style=</span><span class="ch">\"</span><span class="st">text-align:center;border:1px dashed;background-color:lightgray;</span><span class="ch">\"</span><span class="st">&gt;&lt;span&gt;B&lt;br /&gt;</span><span class="ch">\\</span><span class="st">[</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{some}</span><span class="st">^{</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{mathjax}</span><span class="st">^</span><span class="ch">\\</span><span class="st">text{!!!</span><span class="sc">}}</span><span class="ch">\\</span><span class="st">]B3&lt;/span&gt;&lt;/div&gt;"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="34">
-<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;font-family: times, serif; font-weight: normal; font-style: normal; font-size: 16px;"><div style="grid-row:1;grid-column:1;justify-self:right;width:0;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;float:right;transform:translate(50%);white-space:nowrap;"><span style="text-align:center;">X</span></div></div><div style="grid-row:1;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">X</span></div></div><div style="grid-column:1;grid-row:2;justify-self:right;"><div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;"><div style="grid-column:2;grid-row:1;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="100" x2="0" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-row:2;grid-column:1;justify-self:right;width:0;"><span style="float:right;transform:translate(50%);white-space:nowrap;">Y<br>Y2</span></div><div style="grid-row:2;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;"><span>Y<br>Y2</span></div><div style="grid-column:1;grid-row:3;justify-self:right;"><div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;" align="center"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:2;justify-self:center;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">Z</span></div></div></div></div><div style="grid-column:2;grid-row:3;"><div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;" align="center"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:2;justify-self:center;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">$Z'$</span></div></div></div></div></div></div><div style="grid-column:2;grid-row:2;"><div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;" align="center"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:2;justify-self:center;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">A</span></div></div><div style="grid-column:1;grid-row:3;justify-self:center;"><div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;" align="center"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="50" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:2;justify-self:center;"><div style="text-align:center;border:1px dashed;background-color:lightgray;"><span>B<br>\[\text{some}^{\text{mathjax}^\text{!!!}}\]B3</span></div></div></div></div></div></div></div>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>svgling.html.draw_tree(<span class="st">"X"</span>,</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    (HTML(<span class="st">"&lt;span&gt;Y&lt;br /&gt;Y2&lt;/span&gt;"</span>), <span class="st">'Z'</span>, <span class="st">'$Z</span><span class="ch">\'</span><span class="st">$'</span>),</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'A'</span>, HTML(<span class="st">"&lt;div style=</span><span class="ch">\"</span><span class="st">text-align:center;border:1px dashed;background-color:lightgray;</span><span class="ch">\"</span><span class="st">&gt;&lt;span&gt;B&lt;br /&gt;$</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{some}</span><span class="st">^{</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{mathjax}</span><span class="st">^</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{here}</span><span class="st">}$&lt;br /&gt;B3&lt;/span&gt;&lt;/div&gt;"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="44">
+<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;font-family: times, serif; font-weight: normal; font-style: normal; font-size: 16px;">
+<div style="grid-row:1;grid-column:1;justify-self:right;width:0;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;float:right;transform:translate(50%);white-space:nowrap;">
+<span style="text-align:center;">X</span>
+</div>
+</div>
+<div style="grid-row:1;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;">X</span>
+</div>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:right;">
+<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;">
+<div style="grid-column:2;grid-row:1;height:32px;">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="100" x2="0" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-row:2;grid-column:1;justify-self:right;width:0;">
+<span style="float:right;transform:translate(50%);white-space:nowrap;">Y<br>Y2</span>
+</div>
+<div style="grid-row:2;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;">
+<span>Y<br>Y2</span>
+</div>
+<div style="grid-column:1;grid-row:3;justify-self:right;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;">Z</span>
+</div>
+</div>
+</div>
+</div>
+<div style="grid-column:2;grid-row:3;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;"><span class="math inline">\(Z'\)</span></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div style="grid-column:2;grid-row:2;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;">A</span>
+</div>
+</div>
+<div style="grid-column:1;grid-row:3;justify-self:center;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="50" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="text-align:center;border:1px dashed;background-color:lightgray;">
+<span>B<br><span class="math inline">\(\text{some}^{\text{mathjax}^\text{here}}\)</span><br>B3</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 <p>As some of the discussion above has implied, the primary target for <code>svgling.html</code> is not interactive tree diagram construction per se, but rather programmatic use in packages that will generate complex HTML from structured python objects, for example the <a href="https://github.com/rawlins/lambda-notebook">Lambda Notebook</a>.</p>
 <section id="hybrid-diagram-compatibility" class="level2" data-number="7.1">
 <h2 data-number="7.1" class="anchored" data-anchor-id="hybrid-diagram-compatibility"><span class="header-section-number">7.1</span> Hybrid diagram compatibility</h2>
-<p>Hybrid rendering introduces some compatibility quirks, and Latex rendering in nodes in particular may vary across frontends. It is known not to work entirely in colab and VSCode. In some frontends, it may be useful to enable the markdown compatibility mode, which embeds tree rendering in <code>IPython.display.Markdown</code>-style objects, rather than regular HTML/Latex. In particular, this mode will enable <a href="https://quarto.org/">quarto</a> rendering of the examples in this section. To enable this, use:</p>
+<p>Hybrid rendering introduces some compatibility quirks, and Latex rendering in nodes in particular may vary across frontends. It is known not to work entirely in colab and VSCode. In some frontends, it may be useful to enable the markdown compatibility mode, which embeds tree rendering in <code>IPython.display.Markdown</code>-style objects, rather than regular HTML/Latex. In particular, this mode will enable <a href="https://quarto.org/">quarto</a> rendering of the MathJax examples in this section. To enable this, use:</p>
 <div class="sourceCode" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>svgling.html.compat(svgling.html.Compat.USE_MARKDOWN)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Note that because Markdown in block-level HTML elements is not supported by the relevant markdown standards, using this mode should not have an effect on how trees or defined (and unfortunately does not allow embedding markdown in tree nodes).</p>
+<p>Note that because Markdown in block-level HTML elements is not supported by the relevant markdown standards, using this mode should not have an effect on how trees or defined (and unfortunately does not allow embedding markdown in tree nodes). It will, however, interfere with the use of <code>\(..\)</code> and <code>\[..\]</code> as MathJax delimiters, and isn’t compatible with all tree layout settings.</p>
 <p><strong>Limitations and quirks of <code>svgling.html</code></strong>:</p>
 <ul>
 <li>Branching can be at most binary.</li>
@@ -696,7 +973,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="file-output" class="level2" data-number="8.1">
 <h2 data-number="8.1" class="anchored" data-anchor-id="file-output"><span class="header-section-number">8.1</span> File output</h2>
 <p>To save SVG output to a file, see the <a href="https://svgwrite.readthedocs.io/en/stable/classes/drawing.html">svgwrite.Drawing api</a>; any object returned by <code>draw_tree(...).get_svg()</code> is <code>Drawing</code> object. For convenience, <code>svgling</code> classes also pass through <code>saveas</code>. For example:</p>
-<div class="cell" data-execution_count="35">
+<div class="cell" data-execution_count="36">
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># # uncomment to write to `demotree.svg` with human-readable formatting</span></span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="co"># demo_tree = ("S", ("NP", ("D", "the"), ("N", "elephant")), ("VP", ("V", "saw"), ("NP", ("D", "the"), ("N", "rhinoceros"))))</span></span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="co"># svgling.draw_tree(demo_tree).saveas("demotree.svg", pretty=True)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -714,15 +991,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>See the <a href="https://cairosvg.org/documentation/">cairosvg documentation</a> for details on other named parameters that these functions accept.</li>
 <li><strong>Warning:</strong> one point of SVG images is that they are vector images, and therefore will appear as crisp as possible at all resolutions. This is not true of raster images! It’s recommended that you render to raster at a high enough resolution that the DPI can match whatever display device is intended. For embedding in other vector formats, for example PDF via LaTeX, conversion using <code>svg2pdf</code> may be more appropriate than raster conversion.</li>
 </ul>
-<div class="cell" data-execution_count="36">
+<div class="cell" data-execution_count="37">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> svgling.utils, svgling.semantics, nltk</span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Image</span>
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> svgling.semantics.DoubleBrackets(nltk.Tree.fromstring(<span class="st">"(S (NP (D the) (N elephant)) (VP (V saw) (NP (D the) (N rhinoceros))))"</span>))</span>
 <span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>Image(svgling.utils.svg2png(t, scale<span class="op">=</span><span class="fl">1.5</span>))</span>
 <span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="co"># or, to generate a file, uncomment:</span></span>
 <span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a><span class="co"># svgling.utils.svg2png(t, scale=2, write_to="elephant.png")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="36">
-<p><img src="manual_files/figure-html/cell-37-output-1.png" class="img-fluid"></p>
+<div class="cell-output cell-output-display" data-execution_count="37">
+<p><img src="manual_files/figure-html/cell-38-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 
