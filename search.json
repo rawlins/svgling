@@ -53,14 +53,14 @@
     "href": "about.html#about-the-author",
     "title": "About svgling",
     "section": "About the author",
-    "text": "About the author\nThe svgling package is developed by Kyle Rawlins. I’m a faculty member in the [Cognitive Science] (https://cogsci.jhu.edu/) department at JHU; my research areas are in theoretical and computational linguistics, focusing on semantics and pragmatics. This package originally came about as a side project of my interest in [scientific computing for linguistics] (https://github.com/rawlins/lambda-notebook) in Jupyter and Python, and has since taken on a life of its own."
+    "text": "About the author\nThe svgling package is developed by Kyle Rawlins. I’m a faculty member in the Cognitive Science department at JHU; my research areas are in theoretical and computational linguistics, focusing on semantics and pragmatics. This package originally came about as a side project of my interest in scientific computing for linguistics in Jupyter and Python, and has since taken on a life of its own."
   },
   {
     "objectID": "about.html#about-the-website",
     "href": "about.html#about-the-website",
     "title": "About svgling",
     "section": "About the website",
-    "text": "About the website\nThis website is rendered from runnable Jupyter notebooks using[quarto] (https://quarto.org/). The source notebooks and page generation code can be found at: [https://github.com/rawlins/svgling/tree/master/docs] (https://github.com/rawlins/svgling/tree/master/docs)."
+    "text": "About the website\nThis website is rendered from runnable Jupyter notebooks using quarto. The source notebooks and page generation code can be found at: https://github.com/rawlins/svgling/tree/master/docs."
   },
   {
     "objectID": "gallery.html",
