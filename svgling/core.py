@@ -429,10 +429,15 @@ class TreeLayout(object):
         self.max_width = 1
         self.extra_y = 0.5
         self.depth = 0
-        self.tree = t
+        # behavior of t is a tree: copy the structure and nothing else.
+        # (Maybe more sensible to copy or merge options too?)
+        if isinstance(t, TreeLayout):
+            self.tree = t.tree
+        else:
+            self.tree = t
         self.annotations = list() # list of svgwrite objects
         self.layout = None
-        self._do_layout(t) # initializes self.layout
+        self._do_layout(self.tree) # initializes self.layout
 
     def __str__(self):
         return str(self.tree)
@@ -1008,10 +1013,18 @@ def draw_tree(*t, options=None, **opts):
             options = default_options
     if len(t) == 1:
         t = t[0]
+    # If `t` is already a tree, this is equivalent to calling `reset` on that
+    # tree with the provided options
     return TreeLayout(t, options=options)
 
 def tree2svg(*t, options=None, **opts):
-    """Convert a tree `t` into SVG output."""
+    """Convert a tree `t` into SVG output. If `t` is an already rendered tree,
+    and no options are provided, get that tree's SVG."""
+
+    # special case: if *just* a TreeLayout is provided, give that layout's SVG
+    # back. If any options are provided, this will rerender.
+    if len(t) == 1 and isinstance(t[0], TreeLayout) and options is None and len(opts) == 0:
+        return t[0]._repr_svg_()
     return draw_tree(*t, options=options, **opts)._repr_svg_()
 
 # no longer needed for current nltk, but here for backwards compatibility
