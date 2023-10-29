@@ -23,7 +23,7 @@ def treelet_split_nltk(t):
     try:
         h = t.label()
         return (h, list(t))
-    except:
+    except AttributeError:
         return None
 
 def treelet_split_list(t):
@@ -42,6 +42,15 @@ def treelet_split_fallback(t):
     # fallback to str(). TODO: enhance, or remove?
     return (str(t), tuple())
 
+def probtree_split(t):
+    """A tree split function for `nltk.tree.probabilistic.ProbabilisticTree`.
+    Note that this isn't used by default, but can be supplied via
+    TreeOptions.tree_split in order to show probabilities as well as labels."""
+    try:
+        return (f"{t.label()} [p={t.prob()}]", list(t))
+    except AttributeError:
+        return None
+
 def tree_split(t, fallback=treelet_split_fallback):
     """Splits `t` into a parent and an iterable of children, possibly empty."""
     if isinstance(t, ElementTree.Element):
@@ -59,36 +68,36 @@ def tree_split(t, fallback=treelet_split_fallback):
         return split
     return fallback(t)   
 
-def tree_cxr(t, i):
-    return tree_split(t)[i]
+def tree_cxr(t, i, split=tree_split):
+    return split(t)[i]
 
-def tree_car(t):
+def tree_car(t, split=tree_split):
     """What is the parent of a tree-like object `t`?
     Try to adapt to various possibilities, including nltk.Tree."""
-    return tree_cxr(t, 0)
+    return tree_cxr(t, 0, split=split)
 
-def tree_cdr(t):
+def tree_cdr(t, split=tree_split):
     """What are the children of a tree-like object `t`?
     Try to adapt to various possibilities, including nltk.Tree."""
-    return tree_cxr(t, 1)
+    return tree_cxr(t, 1, split=split)
 
-def is_leaf(t):
-    return len(tree_cdr(t)) == 0
+def is_leaf(t, split=tree_split):
+    return len(tree_cdr(t, split=split)) == 0
 
-def tree_depth(t):
+def tree_depth(t, split=tree_split):
     """What is the max depth of t?"""
     # n.b. car is always length 1 the way trees are currently parsed
     subdepth = 0
-    for subtree in tree_cdr(t):
-        subdepth = max(subdepth, tree_depth(subtree))
+    for subtree in tree_cdr(t, split=split):
+        subdepth = max(subdepth, tree_depth(subtree, split=split))
     return subdepth + 1
 
-def leaf_iter(t):
-    parent, children = tree_split(t)
+def leaf_iter(t, split=tree_split):
+    parent, children = split(t)
     if len(children) == 0:
         yield parent
     for c in children:
-        yield from leaf_iter(c)
+        yield from leaf_iter(c, split=split)
 
 def common_parent(path1, path2):
     for i in range(min(len(path1), len(path2))):
@@ -173,7 +182,8 @@ _opt_defaults = dict(
     relative_units=False,
     font_size = 16,
     text_color = "",
-    text_stroke = "")
+    text_stroke = "",
+    tree_split = None)
 
 class TreeOptions(collections.abc.MutableMapping):
     def __init__(self, global_font_style=None, **opts):
@@ -237,11 +247,20 @@ class TreeOptions(collections.abc.MutableMapping):
     def label_width(self, label):
         return (len(str(label)) + self.leaf_padding) / self.average_glyph_width
 
+    def split(self, t):
+        if self.tree_split:
+            # try custom tree_split option
+            r = self.tree_split(t)
+            if r is not None:
+                return r
+        # use global function
+        return tree_split(t)
+
     def tree_height(self, t):
         """Calculate tree height, in ems. Takes into account multi-line leaf
         nodes."""
         # TODO: generalize to multi-line nodes of all kinds.
-        parent, children = tree_split(t)
+        parent, children = self.tree_split(t)
         if len(children) == 0:
             return len(parent.split("\n"))
         subheight = 0
@@ -265,7 +284,7 @@ def leaf_nodecount(t, options=None):
     """How many nodes wide are all the leafs? Will add padding."""
     if options is None:
         options=TreeOptions()
-    parent, children = tree_split(t)
+    parent, children = options.split(t)
     if len(children) == 0:
         return 1 + options.leaf_padding
     subwidth = 0
@@ -636,6 +655,9 @@ class TreeLayout(object):
                 yield from df(c)
         return df(root)
 
+    def leaf_iter(self, t):
+        return leaf_iter(t, split=self.options.split)
+
     def leaf_span_iter(self, path1, path2):
         """Iterate over a potentially non-constituent sequences of leaves
         delimited by path1 and path2. Includes any leaves under the paths, and
@@ -646,9 +668,9 @@ class TreeLayout(object):
         # the complication comes in here because the path bounds might not
         # specify a constituent (in fact they typically won't unless they are
         # equal).
-        constituent_leaves = list(leaf_iter(self.sublayout(branch)))
-        path1_leaves = list(leaf_iter(self.sublayout(path1)))
-        path2_leaves = list(leaf_iter(self.sublayout(path2)))
+        constituent_leaves = list(self.leaf_iter(self.sublayout(branch)))
+        path1_leaves = list(self.leaf_iter(self.sublayout(path1)))
+        path2_leaves = list(self.leaf_iter(self.sublayout(path2)))
         for i in range(len(constituent_leaves)):
             if constituent_leaves[i] == path1_leaves[0]:
                 path1_i = i
@@ -710,7 +732,7 @@ class TreeLayout(object):
         in percentages, and Y values are in ems. The values are relative to the
         outermost svg."""
         parent = self.sublayout(path)
-        deepest = max([l.depth for l in leaf_iter(parent)])
+        deepest = max([l.depth for l in self.leaf_iter(parent)])
         left_path = self.leftmost_path(path)
         right_path = self.rightmost_path(path)
         x = self.node_x_vals(left_path)[0]
@@ -740,7 +762,7 @@ class TreeLayout(object):
         if len(path) == 0: # there are no edges to the top node
             return
         path_to_parent = path[:-1]
-        parent, children = tree_split(self.sublayout(path_to_parent))
+        parent, children = self.options.split(self.sublayout(path_to_parent))
         daughter = path[-1]
         if daughter >= len(children):
             raise AttributeError("Invalid daughter index %d" % daughter)
@@ -763,7 +785,7 @@ class TreeLayout(object):
         # Maybe: disallow font_size if relative_units = True?
         if any(k not in allowed for k in opts.keys()):
             raise TypeError(f"Allowed subtree option keys: {', '.join(allowed)}")
-        for l in leaf_iter(self.layout):
+        for l in self.leaf_iter(self.layout):
             l.options.update(**opts)
         self.relayout()
         return self
@@ -785,7 +807,7 @@ class TreeLayout(object):
     def _do_layout(self, t):
         self.level_heights = dict()
         self.level_ys = dict({0: 0})
-        self.depth =  tree_depth(t) - 1
+        self.depth =  tree_depth(t, split=self.options.split) - 1
         for i in range(self.depth + 1):
             self.level_heights[i] = 0
         parsed = self._build_initial_layout(t, self.layout)
@@ -805,7 +827,7 @@ class TreeLayout(object):
         # initialize raw widths and node heights, both in em at this point.
         # also initialize level_heights for all levels, and depth values for
         # nodes.
-        parent, children = tree_split(t)
+        parent, children = self.options.split(t)
         if old_layout:
             node_options = old_layout[0].options
             old_child_layout = old_layout[1:]

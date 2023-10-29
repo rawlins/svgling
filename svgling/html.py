@@ -30,6 +30,26 @@ def tree_split(t):
     else:
         return svgling.core.tree_split(t, fallback=html_split_fallback)
 
+class DivTreeOptions(TreeOptions):
+    def __init__(self, other=None, **opts):
+        # note: don't bother with superclass handling of deprecated
+        # `global_font_style`
+        if other is not None:
+            newopts = dict(other)
+            newopts.update(opts)
+            opts = newopts
+        super().__init__(**opts)
+
+    def split(self, t):
+        if self.tree_split:
+            # try custom tree_split option
+            r = self.tree_split(t)
+            if r is not None:
+                return r
+        # use html.tree_split, overriding TreeOptions.split
+        return tree_split(t)
+
+
 def element_with_text(name, text="", **kwargs):
     e = Element(name, **kwargs)
     e.text = text
@@ -87,11 +107,17 @@ def to_html(x, debug=False):
     elif isinstance(x, Element):
         return x
     try:
+        # TODO: html5 entity handling here is quite broken.
         return ElementTree.fromstring(x._repr_html_())
-    except:
+    except ElementTree.ParseError as e:
+        # for whatever reason, this isn't set normally
+        e.text = x._repr_html_()
+        raise e
+    except AttributeError:
+        # we currently leave html parse errors to be raised...
         try:
             return html_text_wrap(x._repr_latex_())
-        except:
+        except AttributeError:
             return html_text_wrap(repr(x))
 
 def element_with_text(name, text="", **kwargs):
@@ -164,29 +190,48 @@ def line_svg(x1, x2):
         return line_svg_raw(x1,x2)
 
 
-class DivTreeLayout(object):
+class ToHTMLMixin(object):
+    def _to_html(self):
+        raise NotImplementedError()
+
+    def _repr_markdown_(self):
+        if compat_mode == Compat.USE_MARKDOWN:
+            return self._to_html()
+
+    def _repr_html_(self):
+        if compat_mode == Compat.DEFAULT:
+            return self._to_html()
+
+
+class DivTreeLayout(ToHTMLMixin):
     def __init__(self, t, options=None):
         if options is None:
-            options = TreeOptions()
+            options = DivTreeOptions()
+        else:
+            # ensure we are using the overridden class
+            options = DivTreeOptions(other=options)
         self.options = options
         self.tree = t
+        self.render(test=True)
 
-    def render(self, t=None, parent_dir=None):
+    def render(self, t=None, parent_dir=None, test=False):
         initial = (t is None)
         if initial:
             t = self.tree
-        parent, children = tree_split(t)
+        parent, children = self.options.split(t)
         if len(children) == 0:
             child_layouts = []
         elif len(children) == 1:
-            child_layouts = [self.render(children[0], 0)]
+            child_layouts = [self.render(children[0], 0, test=test)]
         elif len(children) == 2:
-            child_layouts = [self.render(children[0], 1),
-                             self.render(children[1], -1)]
+            child_layouts = [self.render(children[0], 1, test=test),
+                             self.render(children[1], -1, test=test)]
         else:
             raise NotImplementedError(
                 "Trees with >2 daughters are not supported by "
                 "html.DivTreeLayout")
+        if test:
+            return True
         result = self.node_layout(parent, *child_layouts, parent_dir=parent_dir)
         if initial:
             result.set("style",
@@ -197,13 +242,6 @@ class DivTreeLayout(object):
         return ElementTree.tostring(self.render(), encoding="unicode",
                                                    method="xml")
 
-    def _repr_markdown_(self):
-        if compat_mode == Compat.USE_MARKDOWN:
-            return self._to_html()
-
-    def _repr_html_(self):
-        if compat_mode == Compat.DEFAULT:
-            return self._to_html()
 
     def node_layout_unary_grid(self, label, daughter, parent_dir=None):
         if self.options.debug:
@@ -423,7 +461,7 @@ def draw_tree(*t, options=None, **opts):
     """Return an object that implements SVG tree rendering, for display
     in a Jupyter notebook."""
     if options is None:
-        options = TreeOptions(**opts)
+        options = DivTreeOptions(**opts)
     if len(t) == 1:
         t = t[0]
     return DivTreeLayout(t, options=options)
