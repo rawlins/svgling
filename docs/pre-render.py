@@ -4,7 +4,6 @@ def copy_changelog():
     here = os.path.dirname(os.path.realpath(__file__))
     there = os.path.join(here, "..", "CHANGELOG.md")
     target = os.path.join(here, "CHANGELOG.md")
-    print(here, there, target)
 
     # using copy2 here has very odd effects on quarto?
     if not os.path.exists(target) or os.stat(there).st_mtime - os.stat(target).st_mtime > 1:
