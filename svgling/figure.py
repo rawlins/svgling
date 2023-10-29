@@ -1,5 +1,7 @@
+from numbers import Number
+
 import svgwrite
-import svgling.core
+import svgling.core, svgling.html
 from svgling.core import em, perc, px
 
 ################
@@ -77,6 +79,52 @@ class SideBySide(object):
 
     def _repr_svg_(self):
         return self.get_svg().tostring()
+
+
+def figure_to_html(f):
+    # note: passing hybrid diagrams through html.to_html and related code will
+    # unfortunately wipe out the svg, so we just work with strings here.
+    try:
+        # first try the ToHTMLMixin api
+        result = f._to_html()
+        if result is not None:
+            return result
+    except AttributeError:
+        pass
+    try:
+        result = f._repr_html_()
+        if result is not None:
+            return result
+    except AttributeError:
+        pass
+    try:
+        return f"{f._repr_svg_()}"
+    except AttributeError:
+        return "<div><b>Figure error!</b></div>"
+
+
+class HTMLSideBySide(svgling.html.ToHTMLMixin):
+    def __init__(self, *args, padding=16):
+        self.elements = [a for a in args]
+        self.padding = padding
+
+    def get_padding(self):
+        if isinstance(self.padding, Number):
+            return f"{self.padding}px"
+        else:
+            # hopefully, a string that is sensible. Warning: errors here can
+            # lead to weird rendering artifacts, for reasons I haven't figured
+            # out...
+            return self.padding
+
+    def _html_container(self, e):
+        # flex-shrink: 0 is needed to prevent auto svg rescaling
+        return f"<div style=\"padding: 0px {self.get_padding()} 0px {self.get_padding()}; flex-shrink: 0;\">{figure_to_html(e)}</div>"
+
+    def _to_html(self):
+        row = "".join([self._html_container(e) for e in self.elements])
+        return f"<div style=\"display: flex; flex-direction: row;\">{row}</div>"
+
 
 class RowByRow(object):
     def __init__(self, *args, padding=16, gridify=True):
