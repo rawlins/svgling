@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+New features:
+- Support for handling of custom tree node classes, via the `TreeOptions`
+  option `tree_split`, as well as a pre-provided handler for nltk's
+  `ProbabilisticTree` class.
+- A figure class `HTMLSideBySide` that allows mixing hybrid HTML diagrams
+  with SVG diagrams.
+
 Documentation:
 
 - Major documentation improvements, convert docs to quarto
