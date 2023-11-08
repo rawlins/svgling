@@ -296,8 +296,38 @@ def leaf_nodecount(t, options=None):
 # Tree layout and SVG generation
 ################
 
+def multiline_text_to_node(text, options=None):
+    if options is None:
+        options = TreeOptions()
+
+    # some explicit handling for this case is helpful, because otherwise
+    # errors in this function on user mistakes are fairly cryptic.
+    if not isinstance(text, str):
+        raise ValueError(
+            f"`multiline_text_to_node` needs a string, got {text.__class__}: `{repr(text)}`")
+    svg_parent = svgwrite.container.SVG(x=0, y=0, width="100%")
+
+    height = 0
+    if len(text):
+        lines = text.split("\n")
+        for line in lines:
+            height += 1 # pre-increment to use as a y position
+            svg_parent.add(svgwrite.text.Text(line, insert=("50%", em(height, options)),
+                                                    text_anchor="middle",
+                                                    fill=options.text_color,
+                                                    stroke=options.text_stroke))
+        width = max([options.label_width(line) for line in lines])
+    else:
+        # slightly different behavior on a completely empty label: use height
+        # and width 0, and an empty parent (not a parent with an empty Text).
+        width=options.label_width("")
+
+    return NodePos(svg_parent, x=50, y=0, width=width, height=height,
+        options=options, text=text)
+
+
 class NodePos(object):
-    def __init__(self, svg, x, y, width, height, depth, options):
+    def __init__(self, svg, x=0, y=0, width=0, height=0, options=None, depth=0, text=None):
         self.x = x
         self.y = y
         self.width = max(width, 1) # avoid divide by 0 errors
@@ -306,8 +336,13 @@ class NodePos(object):
         self.inner_height = height
         self.depth = depth
         self.svg = svg
-        self.text = svg
+        if text is None:
+            text = svg
+        self.text = text
+        if options is None:
+            options = TreeOptions()
         self.options = options.copy()
+        self.custom = False
         self.clear_edge_styles()
 
     def set_edge_style(self, daughter, style):
@@ -339,20 +374,18 @@ class NodePos(object):
 
     @classmethod
     def from_label(cls, label, depth, options):
-        y = 1
-        svg_parent = svgwrite.container.SVG(x=0, y=0, width="100%")
-        if len(label) == 0:
-            return NodePos(svg_parent, 50, 0, options.label_width(""), 0, depth, options)
-        for line in label.split("\n"):
-            svg_parent.add(svgwrite.text.Text(line, insert=("50%", em(y, options)),
-                                                    text_anchor="middle",
-                                                    fill=options.text_color,
-                                                    stroke=options.text_stroke))
-            y += 1
-        width = max([options.label_width(line) for line in label.split("\n")])
-        result = NodePos(svg_parent, 50, 0, width, y-1, depth, options)
-        result.text = label
-        return result
+        if isinstance(label, NodePos):
+            # how/if to set width/height?
+            label.depth = depth
+            label.custom = True
+            label.options = options.copy() # do we actually want this?
+            # or, return a modified copy?
+            return label
+        else:
+            # default behavior: multiline text parsing.
+            result = multiline_text_to_node(label, options=options)
+            result.depth = depth
+            return result
 
 class EdgeStyle(object):
     def __init__(self, path=None, stroke="black", stroke_width=None):
@@ -596,7 +629,9 @@ class TreeLayout(object):
         same row. Returns a tuple of the top dodge, and the bottom dodge, as
         positive numbers."""
         if node is None:
-            node = NodePos(None, 0, 0, 0, 0, 0, self.options)
+            # dummy node to get default values...caller should supply either
+            # node or level, otherwise we'll get the calculation wrong
+            node = NodePos(None, options=self.options)
         if level is None:
             level = node.depth
         if height is None:
@@ -841,6 +876,8 @@ class TreeLayout(object):
         if len(children) == 0 and self.options.leaf_nodes_align:
             level = self.depth
         node = NodePos.from_label(parent, level, node_options)
+        # n.b. this doesn't fully make sense if a custom node overrides the
+        # font size...
         node.height = node.height * node_options.font_size / self.options.font_size
 
         real_node_height = node.height
