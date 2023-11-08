@@ -369,8 +369,11 @@ class NodePos(object):
         self.svg["y"] = em(self.y, options)
         return self.svg
 
-    def __repr__(self):
+    def __str__(self):
         return self.text
+
+    def __repr__(self):
+        return f"NodePos({repr(self.text)})"
 
     @classmethod
     def from_label(cls, label, depth, options):
