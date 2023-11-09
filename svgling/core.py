@@ -1,7 +1,8 @@
+import enum, math, functools
+import collections.abc
+
 from xml.etree import ElementTree
 import svgwrite
-import enum, math
-import collections.abc
 
 ################
 # Tree utility functions
@@ -12,7 +13,7 @@ import collections.abc
 
 def treelet_split_base(t):
     # treat strings or pre-constructed `NodePos`s as leaf nodes.
-    if isinstance(t, str) or isinstance(t, NodePos):
+    if isinstance(t, str) or isinstance(t, NodePos) or isinstance(t, DeferredNodePos):
         return (t, tuple())
     else:
         return None
@@ -196,6 +197,8 @@ class TreeOptions(collections.abc.MutableMapping):
         elif len(mismatch):
             raise TypeError(f"Unknown tree options: {', '.join(mismatch)}")
 
+        self.explicit = set(opts.keys())
+
         fullopts = _opt_defaults.copy()
         fullopts.update(opts)
         for k in fullopts:
@@ -216,12 +219,15 @@ class TreeOptions(collections.abc.MutableMapping):
         global _opt_defaults
         if k not in _opt_defaults:
             raise KeyError(k)
+        self.explicit.add(k)
         setattr(self, k, val)
 
     def __delitem__(self, k):
         # nonstandard: we don't want to delete, so reset to the default.
         global _opt_defaults
         self[k] = _opt_defaults[k]
+        if k in self.explicit:
+            self.explicit.remove(k)
 
     def __len__(self):
         global _opt_defaults
@@ -236,6 +242,10 @@ class TreeOptions(collections.abc.MutableMapping):
 
     def __str__(self):
         return str(dict(self))
+
+    def update_explicit(self, other):
+        for k in other.explicit:
+            self[k] = other[k]
 
     def _repr_pretty_(self, p, cycle):
         return p.pretty(dict(self))
@@ -308,7 +318,49 @@ def leaf_nodecount(t, options=None):
 # Tree layout and SVG generation
 ################
 
-def multiline_text_to_node(text, options=None):
+
+# this is implemented as a class, not just a function, in order to
+# allow for explicit typing
+class DeferredNodePos(object):
+    """Wrapper class that will finalize a node builder with an options object
+    supplied from a specific tree context."""
+    def __init__(self, f, options=None):
+        if not callable(f):
+            raise ValueError("DeferredNodePos needs a callable!")
+        self.f = f
+        self.outer_opts = options
+
+    def __call__(self, options=None):
+        if self.outer_opts is not None:
+            # any explicitly set options at the outer layer will be used at
+            # the inner layer. However, explicit options provided from the
+            # tree context on finalizing will still be used if not overridden.
+            # if the same option is set differently in both, the outer version
+            # will win (with no errors)
+            if options is None:
+                # make a copy to prevent side effects in case this object is
+                # reused
+                options = self.outer_opts.copy()
+            else:
+                # modify a copy only to prevent side-effects
+                options = options.copy()
+                options.update_explicit(self.outer_opts)
+        return self.f(options=options)
+
+    def _repr_svg_(self):
+        # debugging shortcut
+        return self()._repr_svg_()
+
+def node_builder(fun):
+    """Decorator for functions that build NodePos objects, so that filling in
+    options can be deferred until the tree is constructed."""
+    def wrapped(*args, **kwargs):
+        return DeferredNodePos(functools.partial(fun, *args, **kwargs), options=kwargs.get('options', None))
+    return wrapped
+
+@node_builder
+def multiline_node(text, options=None):
+    # XX may be a nicer interface to also allow kw opts here
     if options is None:
         options = TreeOptions()
 
@@ -338,14 +390,44 @@ def multiline_text_to_node(text, options=None):
         options=options, text=text)
 
 
+# default node builder
+node = multiline_node
+
+
+@node_builder
+def subscript_node(text, sub, scale=0.75, options=None):
+    if options is None:
+        options = TreeOptions()
+
+    # try to make this robust to mistakes
+    if not scale:
+        scale = 1
+
+    svg_parent = svgwrite.container.SVG(x=0, y=0, width="100%")
+    text_parent = svgwrite.text.Text("", insert=("50%", em(1, options)),
+                                                    text_anchor="middle",
+                                                    fill=options.text_color,
+                                                    stroke=options.text_stroke)
+    span1 = svgwrite.text.TSpan(text)
+
+    # XX setting a really large scale on this doesn't affect height, so there
+    # is clipping
+    span2 = svgwrite.text.TSpan(sub, dy=[em(0.25, options)],
+                                style=options.style_str(size_only=True, scale=scale))
+    width = options.label_width(text) + int(options.label_width(sub) * scale)
+    text_parent.add(span1)
+    text_parent.add(span2)
+    svg_parent.add(text_parent)
+    return NodePos(svg_parent, x=50, y=0, width=width, height=1.25, options=options, text=f"{text}_{{{sub}}}")
+
+
 class NodePos(object):
     def __init__(self, svg, x=0, y=0, width=0, height=0, options=None, depth=0, text=None):
         self.x = x
         self.y = y
-        self.width = max(width, 1) # avoid divide by 0 errors
-        self.inner_width = width
-        self.height = height
-        self.inner_height = height
+        self.orig_width = max(width, 1) # avoid divide by 0 errors
+        self.orig_height = height
+        self.reset_calcs()
         self.depth = depth
         self.svg = svg
         if text is None:
@@ -353,9 +435,17 @@ class NodePos(object):
         self.text = text
         if options is None:
             options = TreeOptions()
-        self.options = options.copy()
-        self.custom = False
+        else:
+            options = options.copy()
+        self.options = options
         self.clear_edge_styles()
+
+    def reset_calcs(self):
+        self.width = self.orig_width
+        self.inner_width = self.width
+        self.height = self.orig_height
+        self.inner_height = self.height
+        # depth?
 
     def set_edge_style(self, daughter, style):
         self.edge_styles[daughter] = style
@@ -402,18 +492,21 @@ class NodePos(object):
 
     @classmethod
     def from_label(cls, label, depth, options):
+        result = None
         if isinstance(label, NodePos):
-            # how/if to set width/height?
-            label.depth = depth
-            label.custom = True
-            label.options = options.copy() # do we actually want this?
-            # or, return a modified copy?
-            return label
+            # this is allowed, but non-ideal -- prefer using DeferredNodePos
+            # so that options work correctly.
+            result = label
+            result.reset_calcs()
+        elif isinstance(label, DeferredNodePos):
+            # finalize the label with the current options argument
+            result = label(options=options)
         else:
-            # default behavior: multiline text parsing.
-            result = multiline_text_to_node(label, options=options)
-            result.depth = depth
-            return result
+            # otherwise, call the default node builder with the current
+            # options argument
+            result = node(label)(options=options)
+        result.depth = depth
+        return result
 
 class EdgeStyle(object):
     def __init__(self, path=None, stroke="black", stroke_width=None):
@@ -910,7 +1003,7 @@ class TreeLayout(object):
         node = NodePos.from_label(parent, level, node_options)
         # n.b. this doesn't fully make sense if a custom node overrides the
         # font size...
-        node.height = node.height * node_options.font_size / self.options.font_size
+        node.height = node.height * node.options.font_size / self.options.font_size
 
         real_node_height = node.height
         # real_node_height = real_node_height * node_options.font_size / self.options.font_size
