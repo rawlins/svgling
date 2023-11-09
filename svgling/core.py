@@ -10,9 +10,9 @@ import collections.abc
 # passed to this module
 ################
 
-def treelet_split_str(t):
-    # treat strings as leaf nodes.
-    if isinstance(t, str):
+def treelet_split_base(t):
+    # treat strings or pre-constructed `NodePos`s as leaf nodes.
+    if isinstance(t, str) or isinstance(t, NodePos):
         return (t, tuple())
     else:
         return None
@@ -30,6 +30,8 @@ def treelet_split_list(t):
     # treat a list as a lisp-like tree structure, i.e. each subtree is a list
     # of the parent followed by any children.
     # A 0-length list is treated as an empty leaf node.
+    # No type checking of any kind is done here on t[0]. However, this object
+    # will be fed to NodePos.from_label, which enforces `str` or `NodePos`.
     try:
         if (len(t) == 0):
             return ("", tuple())
@@ -57,7 +59,7 @@ def tree_split(t, fallback=treelet_split_fallback):
         # we do this explcitly because otherwise it gets parsed as an iterable
         raise NotImplementedError(
             "svgling.core does not support trees constructed with ElementTree objects.")
-    split = treelet_split_str(t)
+    split = treelet_split_base(t)
     if split is not None:
         return split
     split = treelet_split_nltk(t)
@@ -823,7 +825,11 @@ class TreeLayout(object):
         if len(path) == 0: # there are no edges to the top node
             return
         path_to_parent = path[:-1]
-        parent, children = self.options.split(self.sublayout(path_to_parent))
+        # we use tree_split to traverse an already constructed tree; at this
+        # point, all nodes and leafs are regularized NodePos objects so there's
+        # no need to use options.split. The point of this is just to extract
+        # the parent node for the relevant path.
+        parent, children = tree_split(self.sublayout(path_to_parent))
         daughter = path[-1]
         if daughter >= len(children):
             raise AttributeError("Invalid daughter index %d" % daughter)
