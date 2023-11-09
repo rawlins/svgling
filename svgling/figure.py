@@ -80,6 +80,11 @@ class SideBySide(object):
     def _repr_svg_(self):
         return self.get_svg().tostring()
 
+    def __repr__(self):
+        # provide a repr for the sake of notebook diffs
+        # this is a bit minimal but at least shows the arity
+        return f"SideBySide({', '.join('..' for x in self.elements)})"
+
 
 def figure_to_html(f):
     # note: passing hybrid diagrams through html.to_html and related code will
@@ -124,6 +129,11 @@ class HTMLSideBySide(svgling.html.ToHTMLMixin):
     def _to_html(self):
         row = "".join([self._html_container(e) for e in self.elements])
         return f"<div style=\"display: flex; flex-direction: row;\">{row}</div>"
+
+    def __repr__(self):
+        # provide a repr for the sake of notebook diffs
+        # this is a bit minimal but at least shows the arity
+        return f"HTMLSideBySide({', '.join('..' for x in self.elements)})"
 
 
 class RowByRow(object):
@@ -182,6 +192,12 @@ class RowByRow(object):
     def _repr_svg_(self):
         return self.get_svg().tostring()
 
+    def __repr__(self):
+        # provide a repr for the sake of notebook diffs
+        # this is a bit minimal but at least shows the arity
+        return f"RowByRow({', '.join('..' for x in self.elements)})"
+
+
 class Caption(object):
     font_style = "font-family: times, serif; font-weight:normal; font-style: italic;"
     def __init__(self, fig, caption, font_size=13):
@@ -238,4 +254,8 @@ class Caption(object):
 
     def _repr_svg_(self):
         return self.get_svg().tostring()
+
+    def __repr__(self):
+        # provide a repr for the sake of notebook diffs
+        return f"Caption(.., {repr(self.caption)})"
 
