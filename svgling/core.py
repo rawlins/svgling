@@ -385,6 +385,19 @@ class NodePos(object):
     def __repr__(self):
         return f"NodePos({repr(self.text)})"
 
+    def _repr_svg_(self):
+        # this is basically a mock svg frame for debugging; it is simplified
+        # from svg_build_tree + _svg_add_subtree. Some code dup.
+        width = self.options.em_to_px(self.width)
+        height = self.options.em_to_px(self.height)
+        tree = svgwrite.Drawing(self.text,
+            (px(width), px(height)),
+            style=self.options.style_str())
+        tree.viewbox(minx=0, miny=0, width=width, height=height)
+        tree.fit()
+        tree.add(self.get_svg())
+        return tree.tostring()
+
     @classmethod
     def from_label(cls, label, depth, options):
         if isinstance(label, NodePos):
