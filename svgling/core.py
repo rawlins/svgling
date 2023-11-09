@@ -241,8 +241,18 @@ class TreeOptions(collections.abc.MutableMapping):
     def copy(self):
         return TreeOptions(**self)
 
-    def style_str(self):
-        return f"{self.font_style} font-size: {px(self.font_size)};"
+    def style_str(self, size_only=False, scale=None):
+        fs = self.font_size
+        if scale:
+            fs = int(fs * scale)
+        size = f"font-size: {px(fs)}"
+        # empty or None font_style is effectively inherit. This is risky on
+        # global values...
+        if size_only or not self.font_style:
+            return size
+        # XX: nothing checks syntax here so it's easy for the user to make
+        # mistakes if they don't use the factory functions...
+        return f"{self.font_style} {size}"
 
     def label_width(self, label):
         return (len(str(label)) + self.leaf_padding) / self.average_glyph_width
