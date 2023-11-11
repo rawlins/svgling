@@ -401,7 +401,9 @@ def subscript_node(text, sub, scale=0.75, options=None):
 
     # try to make this robust to mistakes
     if not scale:
-        scale = 1
+        scale = 1.0
+    # values outside this range will render poorly, so just limit it
+    scale = max(min(2.0, scale), 0.1)
 
     svg_parent = svgwrite.container.SVG(x=0, y=0, width="100%")
     text_parent = svgwrite.text.Text("", insert=("50%", em(1, options)),
@@ -410,24 +412,41 @@ def subscript_node(text, sub, scale=0.75, options=None):
                                                     stroke=options.text_stroke)
     span1 = svgwrite.text.TSpan(text)
 
-    # XX setting a really large scale on this doesn't affect height, so there
-    # is clipping
-    span2 = svgwrite.text.TSpan(sub, dy=[em(0.25, options)],
+    span2 = svgwrite.text.TSpan(sub, dy=[em(NodePos.descender, options)],
                                 style=options.style_str(size_only=True, scale=scale))
-    width = options.label_width(text) + int(options.label_width(sub) * scale)
+    text_width = options.label_width(text)
+    width = text_width + options.label_width(sub) * scale
+    # using a constant node height here doesn't look good for many cases: we
+    # want to adjust depending on how the subscript is positioned in the x
+    # dimension, which will tweak where the edge starts from. The basic issue
+    # is that enough height to allow for a subscript + descender looks bad
+    # if the subscript is not anywhere near the edge.
+    #
+    # So, if the midpoint of the node would fall in the subscript, add a bit of
+    # extra y height to compensate. This will be in addition to the regular
+    # NodePos.descender margin that gets added (which would be positioned
+    # exactly on the subscript baseline).
+    #
+    # Both 1.2 and 0.05 here are fairly heuristic. In general, 1.2 puts a
+    # subscript descender *just* above the lower edge.
+    if width / 2 > text_width - 0.05:
+        height = 1.2
+    else:
+        height = 1.0
     text_parent.add(span1)
     text_parent.add(span2)
     svg_parent.add(text_parent)
-    return NodePos(svg_parent, x=50, y=0, width=width, height=1.25, options=options, text=f"{text}_{{{sub}}}")
+    return NodePos(svg_parent, x=50, y=0, width=width, height=height, options=options, text=f"{text}_{{{sub}}}")
 
 
 class NodePos(object):
+    # in ems. (XX not ideal to hardcode)
+    descender = 0.25 # Tree-internal margin for descenders
+    lower_descender = 0.5 # Descender margin at the lower edge -- used for tree annotation positioning
     def __init__(self, svg, x=0, y=0, width=0, height=0, options=None, depth=0, text=None):
         self.x = x
         self.y = y
-        self.orig_width = max(width, 1) # avoid divide by 0 errors
-        self.orig_height = height
-        self.reset_calcs()
+        self.set_dimensions(width=width, height=height)
         self.depth = depth
         self.svg = svg
         if text is None:
@@ -439,6 +458,13 @@ class NodePos(object):
             options = options.copy()
         self.options = options
         self.clear_edge_styles()
+
+    def set_dimensions(self, width=None, height=None):
+        if width is not None:
+            self.orig_width = max(width, 1) # avoid divide by 0 errors
+        if height is not None:
+            self.orig_height = height
+        self.reset_calcs()
 
     def reset_calcs(self):
         self.width = self.orig_width
@@ -481,7 +507,7 @@ class NodePos(object):
         # this is basically a mock svg frame for debugging; it is simplified
         # from svg_build_tree + _svg_add_subtree. Some code dup.
         width = self.options.em_to_px(self.width)
-        height = self.options.em_to_px(self.height)
+        height = self.options.em_to_px(self.height + self.lower_descender)
         tree = svgwrite.Drawing(self.text,
             (px(width), px(height)),
             style=self.options.style_str())
@@ -531,7 +557,7 @@ class EdgeStyle(object):
     def draw(self, svg_parent, tree_layout, parent, child):
         line_start = parent.y + parent.height
         if parent.height > 0:
-            line_start += 0.2 # extra space for descenders
+            line_start += NodePos.descender # extra space for descenders
         box_y = tree_layout.y_distance(parent.depth, child.depth)
         y_target = em(box_y + child.y, tree_layout.options)
         x_target = perc(child.x + child.width / 2)
@@ -546,7 +572,7 @@ class IndirectDescent(EdgeStyle):
         if child.depth > parent.depth + 1:
             line_start = parent.y + parent.height
             if parent.height > 0:
-                line_start += 0.2 # extra space for descenders
+                line_start += NodePos.descender # extra space for descenders
             box_y = tree_layout.y_distance(parent.depth, child.depth)
             y_target = em(box_y + child.y, tree_layout.options)
             x_target = perc(child.x + child.width / 2)
@@ -570,7 +596,7 @@ class TriangleEdge(EdgeStyle):
     def draw(self, svg_parent, tree_layout, parent, child):
         line_start = parent.y + parent.height
         if parent.height > 0:
-            line_start += 0.2 # extra space for descenders
+            line_start += NodePos.descender # extra space for descenders
         box_y = tree_layout.y_distance(parent.depth, child.depth)
         y_target = em(box_y + child.y, tree_layout.options)
 
@@ -896,7 +922,7 @@ class TreeLayout(object):
         y = self.y_distance(0, parent[0].depth)
         height = (self.y_distance(parent[0].depth, deepest)
                   + self.level_heights[deepest]
-                  + 0.5) # add a little extra room for descenders
+                  + NodePos.lower_descender) # add a little extra room for descenders
         return (x, y, width, height)
 
     def subtree_bounds_user(self, path):
@@ -1106,6 +1132,9 @@ class TreeLayout(object):
                 child['style'] = style
 
             if parent.options.debug or c[0].options.debug:
+                # XX: for very unclear reasons, the lower edge of these rects
+                # are drawn out of frame. 100% in the y dimension must not
+                # mean what I think, but why?
                 child.add(svgwrite.shapes.Rect(insert=("0%","0%"),
                                                size=("100%", "100%"),
                                                fill="none", stroke="red"))
@@ -1129,7 +1158,7 @@ class TreeLayout(object):
         # very accurate in some limiting cases...but to do any better would need
         # either some way of simulating text rendering (inkscape?) or javascript
         # code that adjusts the tree spacing dynamically after the initial
-        # rendering. Here we try to do as good as possible with pure python =>
+        # rendering. Here we try to do as well as possible with pure python =>
         # SVG.
         width = self.width()
         height = self.height()
@@ -1154,7 +1183,9 @@ class TreeLayout(object):
                 tree.add(tree.line(start=(0, em(i, self.options)),
                                    end=("100%", em(i, self.options)),
                                    stroke="lightgray"))
+
         self._svg_add_subtree(tree, self.layout)
+
         for a in self.annotations:
             tree.add(a)
         return tree
