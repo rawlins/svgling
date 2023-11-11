@@ -359,7 +359,7 @@ def node_builder(fun):
     return wrapped
 
 @node_builder
-def multiline_node(text, options=None):
+def multiline_node(text, line_margin=0.0, options=None):
     # XX may be a nicer interface to also allow kw opts here
     if options is None:
         options = TreeOptions()
@@ -375,7 +375,7 @@ def multiline_node(text, options=None):
     if len(text):
         lines = text.split("\n")
         for line in lines:
-            height += 1.0 # pre-increment to use as a y position
+            height += 1.0 + line_margin # pre-increment to use as a y position
             svg_parent.add(svgwrite.text.Text(line, insert=("50%", em(height, options)),
                                                     text_anchor="middle",
                                                     fill=options.text_color,
