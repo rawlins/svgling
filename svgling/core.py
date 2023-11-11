@@ -371,16 +371,22 @@ def multiline_node(text, options=None):
             f"`multiline_text_to_node` needs a string, got {text.__class__}: `{repr(text)}`")
     svg_parent = svgwrite.container.SVG(x=0, y=0, width="100%")
 
-    height = 0
+    height = 0.0
     if len(text):
         lines = text.split("\n")
         for line in lines:
-            height += 1 # pre-increment to use as a y position
+            height += 1.0 # pre-increment to use as a y position
             svg_parent.add(svgwrite.text.Text(line, insert=("50%", em(height, options)),
                                                     text_anchor="middle",
                                                     fill=options.text_color,
                                                     stroke=options.text_stroke))
         width = max([options.label_width(line) for line in lines])
+        # # so far we have calculated baseline-to-baseline line height, which
+        # # correctly places descenders from prior lines (with a bit of padding
+        # # at the node top); now allow space for descenders from a final line.
+        # # (In principle, one could check if there are any, but it's overall
+        # # nicer just to do the same thing for nodes of the same height.)
+        # height += NodePos.descender
     else:
         # slightly different behavior on a completely empty label: use height
         # and width 0, and an empty parent (not a parent with an empty Text).
@@ -412,10 +418,17 @@ def subscript_node(text, sub, scale=0.75, options=None):
                                                     stroke=options.text_stroke)
     span1 = svgwrite.text.TSpan(text)
 
-    span2 = svgwrite.text.TSpan(sub, dy=[em(NodePos.descender, options)],
+    span2 = svgwrite.text.TSpan(sub, dy=[em(NodePos.descender_margin, options)],
                                 style=options.style_str(size_only=True, scale=scale))
     text_width = options.label_width(text)
     width = text_width + options.label_width(sub) * scale
+    # height: simply use 1em. The node margin already factors in enought space
+    # for a descender, and may be further adjusted below.
+    height = 1.0
+    text_parent.add(span1)
+    text_parent.add(span2)
+    svg_parent.add(text_parent)
+    n = NodePos(svg_parent, x=50, y=0, width=width, height=height, options=options, text=f"{text}_{{{sub}}}")
     # using a constant node height here doesn't look good for many cases: we
     # want to adjust depending on how the subscript is positioned in the x
     # dimension, which will tweak where the edge starts from. The basic issue
@@ -423,26 +436,20 @@ def subscript_node(text, sub, scale=0.75, options=None):
     # if the subscript is not anywhere near the edge.
     #
     # So, if the midpoint of the node would fall in the subscript, add a bit of
-    # extra y height to compensate. This will be in addition to the regular
-    # NodePos.descender margin that gets added (which would be positioned
-    # exactly on the subscript baseline).
+    # extra y height to the margin to compensate, on top of the default margin.
+    # Using the margin (instead of height) keeps nodes aligned.
     #
-    # Both 1.2 and 0.05 here are fairly heuristic. In general, 1.2 puts a
-    # subscript descender *just* above the lower edge.
+    # Both 0.2 and 0.05 here are fairly heuristic. In general, 0.2 puts a
+    # subscript descender *just* above the lower edge of the node
     if width / 2 > text_width - 0.05:
-        height = 1.2
-    else:
-        height = 1.0
-    text_parent.add(span1)
-    text_parent.add(span2)
-    svg_parent.add(text_parent)
-    return NodePos(svg_parent, x=50, y=0, width=width, height=height, options=options, text=f"{text}_{{{sub}}}")
+        n.descender_margin += 0.2
+    return n
 
 
 class NodePos(object):
     # in ems. (XX not ideal to hardcode)
-    descender = 0.25 # Tree-internal margin for descenders
-    lower_descender = 0.5 # Descender margin at the lower edge -- used for tree annotation positioning
+    descender_margin = 0.25 # Tree-internal margin for descenders
+    annotation_margin = 0.25 # margin at the lower edge -- used for tree annotation positioning
     def __init__(self, svg, x=0, y=0, width=0, height=0, options=None, depth=0, text=None):
         self.x = x
         self.y = y
@@ -485,8 +492,19 @@ class NodePos(object):
     def clear_edge_styles(self):
         self.edge_styles = dict() # no info about surrounding tree structure...
 
-    def em_height(self):
-        return self.height
+    def margin(self, full=False):
+        r = 0.0
+        if self.height > 0:
+            r += self.descender_margin
+        if full:
+            r += self.annotation_margin
+        return r
+
+    def em_height(self, margin=False, full=False):
+        r = self.height
+        if margin:
+            r += self.margin(full=full)
+        return r
 
     def get_svg(self, options=None):
         # TODO: generalize this / make it less hacky
@@ -507,7 +525,7 @@ class NodePos(object):
         # this is basically a mock svg frame for debugging; it is simplified
         # from svg_build_tree + _svg_add_subtree. Some code dup.
         width = self.options.em_to_px(self.width)
-        height = self.options.em_to_px(self.height + self.lower_descender)
+        height = self.options.em_to_px(self.em_height(margin=True, full=True))
         tree = svgwrite.Drawing(self.text,
             (px(width), px(height)),
             style=self.options.style_str())
@@ -555,9 +573,7 @@ class EdgeStyle(object):
         return opts
 
     def draw(self, svg_parent, tree_layout, parent, child):
-        line_start = parent.y + parent.height
-        if parent.height > 0:
-            line_start += NodePos.descender # extra space for descenders
+        line_start = parent.y + parent.em_height(True)
         box_y = tree_layout.y_distance(parent.depth, child.depth)
         y_target = em(box_y + child.y, tree_layout.options)
         x_target = perc(child.x + child.width / 2)
@@ -570,9 +586,7 @@ class IndirectDescent(EdgeStyle):
     def draw(self, svg_parent, tree_layout, parent, child):
         from svgwrite.shapes import Line
         if child.depth > parent.depth + 1:
-            line_start = parent.y + parent.height
-            if parent.height > 0:
-                line_start += NodePos.descender # extra space for descenders
+            line_start = parent.y + parent.em_height(True)
             box_y = tree_layout.y_distance(parent.depth, child.depth)
             y_target = em(box_y + child.y, tree_layout.options)
             x_target = perc(child.x + child.width / 2)
@@ -594,9 +608,7 @@ class IndirectDescent(EdgeStyle):
 
 class TriangleEdge(EdgeStyle):
     def draw(self, svg_parent, tree_layout, parent, child):
-        line_start = parent.y + parent.height
-        if parent.height > 0:
-            line_start += NodePos.descender # extra space for descenders
+        line_start = parent.y + parent.em_height(True)
         box_y = tree_layout.y_distance(parent.depth, child.depth)
         y_target = em(box_y + child.y, tree_layout.options)
 
@@ -922,7 +934,9 @@ class TreeLayout(object):
         y = self.y_distance(0, parent[0].depth)
         height = (self.y_distance(parent[0].depth, deepest)
                   + self.level_heights[deepest]
-                  + NodePos.lower_descender) # add a little extra room for descenders
+                  # XX this should check all leaf nodes, rather than using
+                  # the static values...
+                  + NodePos.descender_margin + NodePos.annotation_margin)
         return (x, y, width, height)
 
     def subtree_bounds_user(self, path):
