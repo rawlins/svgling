@@ -206,6 +206,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
+<div class="cell" data-execution_count="1">
+<div class="cell-output cell-output-display" data-execution_count="1">
+<p><img src="index_files/figure-html/cell-2-output-1.svg" class="img-fluid"></p>
+</div>
+</div>
 <section id="package-overview" class="level1 page-columns page-full" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Package overview</h1>
 <p>The <code>svgling</code> package is a pure python package for rendering linguistics-style (constituent) trees in SVG, a vector format well-suited for web use. It accepts trees defined in terms of lists of lists (really, anything indexable) and strings, as well as <code>nltk.Tree</code> objects (or anything with the same API), and is fully integrated with rich display in Jupyter notebooks. This document gives a quick tour of how to use it and some main features; see the full manual for more.</p>
@@ -221,34 +226,43 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Install from pypi via <code>pip install svgling</code>. On managed jupyter-based systems such as google colab, you can install by entering <code>!pip install svgling</code> into a notebook cell.</p>
 <p><code>svgling</code> can be installed from source via the github repository: <a href="https://github.com/rawlins/svgling">https://github.com/rawlins/svgling</a>. Please <strong>report bugs</strong> via <a href="https://github.com/rawlins/svgling/issues">the issue tracker on github</a> if you encounter any!</p>
 <p>Once it is installed, you can simply run:</p>
-<div class="cell">
+<div class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> svgling</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>If you would like to reset tree drawing options to the default on import, you can call:</p>
-<div class="cell">
+<div class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>svgling.core.reset_defaults()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="basic-usage" class="level2" data-number="1.2">
 <h2 data-number="1.2" class="anchored" data-anchor-id="basic-usage"><span class="header-section-number">1.2</span> Basic usage</h2>
 <p>For convenient use in Jupyter notebooks, the main function to try is <code>svgling.draw_tree</code>:</p>
-<div class="cell">
+<div class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>svgling.draw_tree((<span class="st">"S"</span>, <span class="st">"NP"</span>, <span class="st">"VP"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<p><img src="index_files/figure-html/cell-5-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p>As a shortcut, the outer bracketing here can be omitted:</p>
-<div class="cell">
+<div class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>svgling.draw_tree(<span class="st">"S"</span>, <span class="st">"NP"</span>, (<span class="st">"VP"</span>, <span class="st">"V"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<p><img src="index_files/figure-html/cell-6-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p>Multi-line nodes are generally possible. Simply provide the node as a string that includes <code>\n</code> where a linebreak is desired. The next example, a more complex tree with multi-line leaf nodes, also shows how to get the leaf nodes to be lined up with each other. (This tree is from Carnie 2013, <em>Syntax: a generative introduction (3rd ed.)</em>, p.&nbsp;93.)</p>
-<div class="cell">
+<div class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>svgling.draw_tree(<span class="st">"TP"</span>, (<span class="st">"NP"</span>, <span class="st">"D</span><span class="ch">\n</span><span class="st">The"</span>, (<span class="st">"AdjP"</span>, (<span class="st">"AdvP"</span>, <span class="st">"Adv</span><span class="ch">\n</span><span class="st">very"</span>), <span class="st">"Adj</span><span class="ch">\n</span><span class="st">small"</span>), <span class="st">"N</span><span class="ch">\n</span><span class="st">boy"</span>), (<span class="st">"VP"</span>, <span class="st">"V</span><span class="ch">\n</span><span class="st">kissed"</span>, (<span class="st">"NP"</span>, <span class="st">"D</span><span class="ch">\n</span><span class="st">the"</span>, <span class="st">"N</span><span class="ch">\n</span><span class="st">platypus"</span>)), leaf_nodes_align<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<p><img src="index_files/figure-html/cell-7-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 </section>
 <section id="more-advanced-tricks" class="level2 page-columns page-full" data-number="1.3">
 <h2 data-number="1.3" class="anchored" data-anchor-id="more-advanced-tricks"><span class="header-section-number">1.3</span> More advanced tricks</h2>
 <p>The <code>svgling</code> package supports a wide range of complex formatting as well as “tree annotations” like movement arrows. The following example provides a quick illustration; see the full package manual for a complete list of possible formatting options.</p>
 <div class="page-columns page-full"><p>This example illustrates a typical tree for Quantifier Raising in the Heim &amp; Kratzer 1998 (“Semantics in Generative Grammar”) style, illustrating movement arrows and tree annotation from the <code>svgling.figure</code> module. </p><div class="no-row-height column-margin column-container"><span class="">See <a href="https://rawlins.github.io/svgling/gallery.html">the diagram gallery</a> for an even more elaborate variant of this example.</span></div></div>
-<div class="cell">
+<div class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>t2 <span class="op">=</span> (<span class="st">"TP"</span>, (<span class="st">"DP"</span>, (<span class="st">"D"</span>, <span class="st">"every"</span>), (<span class="st">"NP"</span>, (<span class="st">"N"</span>, <span class="st">"cat"</span>))),</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>           (<span class="st">"TP"</span>, <span class="st">"1"</span>, (<span class="st">"TP"</span>, (<span class="st">"DP"</span>, (<span class="st">"D"</span>, <span class="st">"some"</span>), (<span class="st">"NP"</span>, (<span class="st">"N"</span>, <span class="st">"dog"</span>))),</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                     (<span class="st">"TP"</span>, <span class="st">"3"</span>, (<span class="st">"TP"</span>, (<span class="st">"DP"</span>, svgling.core.subscript_node(<span class="st">"t"</span>, <span class="st">"1"</span>)),</span>
@@ -270,6 +284,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    .underline_constituent((<span class="dv">0</span>,))</span>
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    .movement_arrow((<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>), (<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>))</span>
 <span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    .underline_constituent((<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<p><img src="index_files/figure-html/cell-8-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 </section>
 </section>
@@ -279,29 +296,38 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="integration-with-nltk" class="level2" data-number="2.1">
 <h2 data-number="2.1" class="anchored" data-anchor-id="integration-with-nltk"><span class="header-section-number">2.1</span> Integration with NLTK</h2>
 <p>The <code>svgling</code> package is well-integrated with the <code>nltk</code> (https://www.nltk.org/) package. This package uses <code>svgling</code> for rendering of <code>nltk.tree.Tree</code> objects in Jupyter by default (using it to implement a <code>_repr_svg_()</code>, and <code>svgling</code> supports <code>nltk.tree.Tree</code> objects in any context where a tree can be provided.</p>
-<div class="cell">
+<div class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> nltk</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>t3 <span class="op">=</span> nltk.Tree.fromstring(<span class="st">"(S (NP (D the) (N elephant)) (VP (V saw) (NP (D the) (N rhinoceros))))"</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>t3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<p><img src="index_files/figure-html/cell-9-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p>Options available as named parameters can also be set on a global basis by modifying the options object at <code>svgling.core.default_options</code>, and this provides a quick way to change settings for nltk trees. For example, to change font size for all rendered trees:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>svgling.core.default_options.font_size <span class="op">=</span> <span class="dv">20</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Global defaults can be reset via <code>svgling.core.reset_defaults()</code>.</p>
 <p>For more complex styling of nltk trees, including tree annotations, you can directly supply a <code>nltk.tree.Tree</code> object to <code>svgling.draw_tree</code>:</p>
-<div class="cell">
+<div class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>svgling.draw_tree(t3, leaf_nodes_align<span class="op">=</span><span class="va">True</span>).box_constituent((<span class="dv">0</span>,))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<p><img src="index_files/figure-html/cell-10-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p>Other parts of <code>svgling</code> support <code>Tree</code>s as well, in particular, the <code>svgling.figure</code> utility classes.</p>
 </section>
 <section id="exporting-to-raster-formats" class="level2" data-number="2.2">
 <h2 data-number="2.2" class="anchored" data-anchor-id="exporting-to-raster-formats"><span class="header-section-number">2.2</span> Exporting to raster formats</h2>
 <p>The <code>svgling</code> packages supports exporting to raster formats via <code>cairosvg</code>. Convenience wrappers are provided via <code>svgling.util</code>, and the full <code>cairosvg</code> api can be used as well. See the manual for more details, but here is an example of one of <code>t3</code> as a png:</p>
-<div class="cell">
+<div class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> cairosvg <span class="co"># this cell needs cairosvg in order to run</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> svgling.utils, svgling.semantics</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Image</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> svgling.semantics.DoubleBrackets(t3)</span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>Image(svgling.utils.svg2png(t, scale<span class="op">=</span><span class="fl">1.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<p><img src="index_files/figure-html/cell-11-output-1.png" class="img-fluid"></p>
+</div>
 </div>
 </section>
 </section>

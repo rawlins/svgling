@@ -95,6 +95,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -229,7 +232,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<div class="cell">
+<div class="cell" data-execution_count="1">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> svgling, svgling.html, svgling.figure</span>
@@ -238,6 +241,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="overview-the-svgling-tree-drawing-package" class="level1" data-number="1">
 <h1 data-number="1"><span class="header-section-number">1</span> Overview: the <code>svgling</code> tree-drawing package</h1>
+<div class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display">
+<p><strong><code>svgling</code> package version</strong>: 0.4.1-a1</p>
+</div>
+</div>
 <p>This document is a detailed guide to using the <code>svgling</code> package; <code>svgling</code> is primarily a python tree-drawing package, aimed at linguists and computer scientists who want to draw constituent trees. It is tailored specifically towards rendering trees in Jupyter, but can be used for programmatically generating SVG and HTML tree diagrams in general – one major external interface for doing this is via the <a href="https://www.nltk.org/">nltk package</a>. Beyond SVG constituent trees, <code>svgling</code> additionally supports a number of other diagram features useful to linguists, and it supports easy exporting to raster images.</p>
 </section>
 <section id="core-interface-and-tree-specification" class="level1" data-number="2">
@@ -247,22 +255,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>For non-Jupyter uses, the function <code>svgling.tree2svg</code> has the same API as <code>draw_tree</code>, but directly returns the converted SVG as a string. If <code>tree2svg</code> is provided an already rendered tree constructed from <code>draw_tree</code>, it will return that tree’s SVG.</li>
 </ul>
 <p>Here are two examples of how to specify a tree structure, together with how that tree structure will render:</p>
-<div class="cell">
+<div class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>t0 <span class="op">=</span> (<span class="st">"S"</span>, (<span class="st">"NP"</span>, <span class="st">"D"</span>, <span class="st">"N"</span>), (<span class="st">"VP"</span>, <span class="st">"V"</span>, (<span class="st">"NP"</span>, <span class="st">"D"</span>, <span class="st">"A"</span>, <span class="st">"N"</span>)))</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>svgling.draw_tree(t0)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<p><img src="manual_files/figure-html/cell-4-output-1.svg" class="img-fluid"></p>
 </div>
-<div class="cell">
+</div>
+<div class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>t1 <span class="op">=</span> (<span class="st">"S"</span>, (<span class="st">"NP"</span>, (<span class="st">"D"</span>, <span class="st">"the"</span>), (<span class="st">"N"</span>, <span class="st">"rhinoceros"</span>)),</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>           (<span class="st">"VP"</span>, (<span class="st">"V"</span>, <span class="st">"saw"</span>),</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                  (<span class="st">"NP"</span>, (<span class="st">"D"</span>, <span class="st">"the"</span>), (<span class="st">"A"</span>, <span class="st">"gray"</span>), (<span class="st">"N"</span>, <span class="st">"elephant"</span>))))</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>svgling.draw_tree(t1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<p><img src="manual_files/figure-html/cell-5-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p>The tree description can be in one of two forms: (i) an indexable object (e.g.&nbsp;list, tuple) consisting of a head at index 0 and a possibly empty sequence of subtrees at indices <span class="math inline">\(1..n\)</span>, or (ii) an object implementing the <code>nltk.tree.Tree</code> api (including nltk <code>Tree</code> objects themselves); this api stores the head label in the function <code>.label()</code> and the daughter subtrees as indices on the object. See <code>t0</code> and <code>t1</code> above for examples of the indexable format, but this is pretty standard notation going back to lisp, and corresponds directly to linearized trees in linguistics notation.</p>
 <p>The package integrates with <code>nltk</code> if available, and by default, <code>nltk</code> will attempt to use <code>svgling</code> to render tree structures when displayed directly in the notebook. Rendering options for trees displayed this way can be adjusted by setting values on <code>svgling.core.default_options</code>, which is a <code>svgling.core.TreeOptions</code> instance. <code>nltk.tree.Tree</code> objects can also be passed directly to <code>draw_tree</code>. This leads to a third way to provide a tree description for rendering, by using the <code>Tree.fromstring</code> function:</p>
-<div class="cell">
+<div class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> nltk</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>t2 <span class="op">=</span> nltk.Tree.fromstring(<span class="st">"(S (NP (D the) (A gray) (N elephant)) (VP (V saw) (NP (D the) (N rhinoceros))))"</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>t2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<p><img src="manual_files/figure-html/cell-6-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p>NLTK integration is discussed in more detail below in the section <a href="#NLTK-integration">NLTK integration</a>.</p>
 <section id="background-svg-formatting" class="level2" data-number="2.1">
@@ -285,34 +302,46 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>The output of a node-builder function</li>
 </ol>
 <p>A string node may span multiple lines, which are separated by <code>\n</code>. For example: <code>"N\ncat"</code> gives a two-line node with <code>N</code> as the first line and <code>cat</code> as the second. Within a node, multiple lines are anchored at the middle (leading to centering). A label consisting of the empty string <code>""</code> is considered empty, and will not render at all – the lines will be joined in the middle of the row height. If you want a blank label, any sequence of whitespace will work, e.g.&nbsp;<code>" "</code>.</p>
-<div class="cell">
+<div class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>svgling.draw_tree(<span class="st">"DP"</span>, <span class="st">"D</span><span class="ch">\n</span><span class="st">the"</span>, (<span class="st">"AP"</span>, <span class="st">"A</span><span class="ch">\n</span><span class="st">gray"</span>), (<span class="st">"NP"</span>, <span class="st">"N</span><span class="ch">\n</span><span class="st">cat"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<p><img src="manual_files/figure-html/cell-7-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p>Node builder functions may be used to write custom node rendering (see <a href="#sec-custom-nodes">Section&nbsp;4.8</a> for more on this). At the moment, two are provided by default: <code>multiline_node</code> implements the default multiline string handling, and <code>subscript_node</code> implements a node with subscripting. <code>node</code> may be used as a shortcut to the default (and changing it will change the default behavior).</p>
 <p>So for example, the following is equivalent to the simpler invocation in the previous cell, but explicitly parses the nodes:</p>
-<div class="cell">
+<div class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> svgling.core <span class="im">import</span> node</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>svgling.draw_tree(node(<span class="st">"DP"</span>), node(<span class="st">"D</span><span class="ch">\n</span><span class="st">the"</span>), (node(<span class="st">"AP"</span>), node(<span class="st">"A</span><span class="ch">\n</span><span class="st">gray"</span>)), (node(<span class="st">"NP"</span>), node(<span class="st">"N</span><span class="ch">\n</span><span class="st">cat"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<p><img src="manual_files/figure-html/cell-8-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p>The following example illustrates using the subscript node buiilder. Currently, the subscript builder does not support newlines.</p>
-<div class="cell">
+<div class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>svgling.draw_tree(<span class="st">"CP"</span>,</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                  (<span class="st">"DP"</span>, svgling.core.subscript_node(<span class="st">"who"</span>, <span class="st">"i"</span>)),</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                  (<span class="st">"TP"</span>, (<span class="st">"DP"</span>, svgling.core.subscript_node(<span class="st">"t"</span>, <span class="st">"i"</span>)),</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                         (<span class="st">"VP"</span>, <span class="st">"danced"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<p><img src="manual_files/figure-html/cell-9-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p><strong>Selecting nodes and constituents</strong>: For various purposes discussed throughout this manual, you can select particular parts of a tree (usually nodes or constituents) for formatting. To do this, you use what is sometimes called a <strong>tree path</strong>. These are sequences of indices that traverse the tree from the root node by choosing a daughter in left-to-right order. Indices begin at 0.</p>
 <p>So for example, the path <code>(0,1,1)</code> gives the second daughter of the second daughter of the first daughter of the root node. The empty path <code>()</code> gives the subtree headed at the root. As this example illustrates, a path needn’t be complete, and for annotation purposes will typically be interpreted as selecting an entire constituent, though for some purposes it may select a node. As a reminder, a length 1 path written as a tuple will require a comma so that python can disambiguate it from just a regular number in parenthesis, e.g.&nbsp;<code>(0,)</code>. A path that selects a daughter node whose index is greater than the number of daughters at that point in the tree is invalid. Using negative indices is possible, and these will be interpreted like negative indices in python: e.g.&nbsp;<code>-1</code> selects the rightmost node, etc.</p>
 <p>The following diagram illustrates some example valid tree paths as python tuples.</p>
-<div class="cell">
+<div class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>svgling.draw_tree((<span class="st">"()"</span>, (<span class="st">"(0,)"</span>, (<span class="st">"(0,0)"</span>, <span class="st">"(0,0,0)"</span>), (<span class="st">"(0,1)"</span>, <span class="st">"(0,1,0)"</span>, <span class="st">"(0,1,1)"</span>)),</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                         (<span class="st">"(1,)"</span>, <span class="st">"(1,0)"</span>, (<span class="st">"(1,1)"</span>, <span class="st">"(1,1,0)"</span>), (<span class="st">"(1,2)"</span>, <span class="st">"(1,2,0)"</span>, (<span class="st">"(1,2,1)"</span>, <span class="st">"(1,2,1,0)"</span>)))),</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                 font_style<span class="op">=</span>svgling.core.MONO, average_glyph_width<span class="op">=</span><span class="fl">1.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<p><img src="manual_files/figure-html/cell-10-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p>Relative to the above tree, the paths <code>(2,)</code> and <code>(1,0,0)</code> would (for example) be invalid. The paths <code>(-1,-1,-1)</code> and <code>(-1,2,-2)</code> (for example) would select the subtree identified by <code>(1,2,1)</code> and <code>(1,2,0)</code> respectively.</p>
 <p>An invalid path will result in an <code>IndexError</code> exception.</p>
 <p><strong>Custom tree class handling</strong>: In order to handle custom tree classes, you can define a function to convert arbitrary node classes into strings and provide it via the <code>tree_split</code> options parameter. This function should, given an argument <code>t</code>, return a tuple consisting of a node label in the first element, and a possibly empty sequence of subtrees in the second element. It may return <code>None</code> to indicate that the node class isn’t handled by the function (in which case, built in conversion will be used.) As a simple example, here is a split function for objects using the <code>nltk.Tree</code> api – a version of this function is built in and automatically used when needed, but the API for custom functions is exactly the same.</p>
-<div class="cell">
+<div class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> split_nltk(t):</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>        <span class="co"># a Tree object stores the node label on `label()`, and child nodes as a list.</span></span>
@@ -326,38 +355,56 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="nltk-integration" class="level1" data-number="3">
 <h1 data-number="3"><span class="header-section-number">3</span> NLTK integration</h1>
 <p>The <code>svgling.draw_tree</code> function can handle <code>nltk.Tree</code> objects (or any object using the same API) transparently. By default, the <code>nltk</code> package on recent versions also implements <code>_repr_svg_()</code> using <code>svgling</code>, and so nltk Trees will render using this package.</p>
-<div class="cell">
+<div class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> nltk</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># repeated from earlier:</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>t2 <span class="op">=</span> nltk.Tree.fromstring(<span class="st">"(S (NP (D the) (N elephant)) (VP (V saw) (NP (D the) (N rhinoceros))))"</span>)</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>t2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<p><img src="manual_files/figure-html/cell-12-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p>You can also supply <code>Tree</code> objects directly to <code>draw_tree</code>, which allows you to style them in more complex ways:</p>
-<div class="cell">
+<div class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>svgling.draw_tree(t2, leaf_nodes_align<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<p><img src="manual_files/figure-html/cell-13-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p>n.b.&nbsp;I’m not aware of any way to get <code>fromstring</code> to allow multi-line leafs, so if you want to do this in <code>nltk</code>, you’ll need to construct the tree more directly. (You can supply options for trees drawn this way as usual.)</p>
-<div class="cell">
+<div class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> nltk <span class="im">import</span> Tree</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>svgling.draw_tree(Tree(<span class="st">'DP'</span>, [<span class="st">'D</span><span class="ch">\n</span><span class="st">the'</span>, Tree(<span class="st">'NP'</span>, [<span class="st">'N</span><span class="ch">\n</span><span class="st">cat'</span>])]), leaf_nodes_align<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="13">
+<p><img src="manual_files/figure-html/cell-14-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p>The rendering options for trees rendered this way can be customized via <code>svgling.core.default_options</code>. This object is created as a default <code>svgling.core.TreeOptions()</code>, so accepts all the options documented in this manual.</p>
-<div class="cell">
+<div class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>svgling.core.default_options.leaf_nodes_align <span class="op">=</span> <span class="va">True</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>t2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<p><img src="manual_files/figure-html/cell-15-output-1.svg" class="img-fluid"></p>
 </div>
-<div class="cell">
+</div>
+<div class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>svgling.core.reset_defaults()</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>t2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="15">
+<p><img src="manual_files/figure-html/cell-16-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p>The <code>svgling.figure</code> utility classes documented in the section <a href="#Complex-figures">Complex figures</a> support nltk <code>Tree</code>s directly, and supports mixing of these objects and <code>svgling</code> renderable objects:</p>
-<div class="cell">
+<div class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> svgling.figure</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>svgling.figure.Caption(svgling.figure.SideBySide(svgling.draw_tree(t0), t1, padding<span class="op">=</span><span class="dv">32</span>),</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"Fig 1: Skeleton and instantiated tree"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="16">
+<p><img src="manual_files/figure-html/cell-17-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p><strong>Probabilistic trees</strong>. NLTK implements several tree subclasses; by default all of these will render identically (because they implement the same core API with a node label stored on <code>label()</code>). In some cases, it may be desireable to show further custom info on these trees, with the primary case being probabilistic trees (class <a href="https://www.nltk.org/api/nltk.tree.probabilistic.html"><code>nltk.tree.probabilistic.ProbabilisticTree</code></a>); for these, the inside probability of a parse is stored separately from the label itself, on the <code>prob()</code> function. This probability can be shown by using the custom node rendering API, and in fact a split function for these trees that accomplishes this is built in as <code>svgling.core.probtree_split</code>. The following example demonstrates rendering a probabilistic tree; note that in this nltk class leaf nodes are normally still stored as strings.</p>
-<div class="cell">
+<div class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> nltk.tree.probabilistic <span class="im">import</span> ProbabilisticTree</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co"># a simple example; typically these probabilities would be set by a parser, not by hand. See the figure gallery</span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># for a more realistic example.</span></span>
@@ -366,6 +413,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>x[<span class="dv">0</span>].set_prob(<span class="fl">0.2</span>)</span>
 <span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co"># default rendering, and rendering with probabilities.</span></span>
 <span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>SideBySide(x, svgling.draw_tree(x, tree_split<span class="op">=</span>svgling.core.probtree_split))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="17">
+<p><img src="manual_files/figure-html/cell-18-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 </section>
 <section id="tree-layout-and-display-options" class="level1" data-number="4">
@@ -380,12 +430,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="debug-and-compatibility-options" class="level2" data-number="4.2">
 <h2 data-number="4.2" class="anchored" data-anchor-id="debug-and-compatibility-options"><span class="header-section-number">4.2</span> Debug and compatibility options</h2>
 <p><strong><code>debug</code></strong>: When this option is set to <code>True</code>, the rendered will show a <code>1em</code> grid, as well as a red box for every subtree. This can be useful if something isn’t doing what you expect. Several of the documentation examples below use this to illustrate various spacing options.</p>
-<div class="cell">
+<div class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>svgling.draw_tree(t1, debug<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="18">
+<p><img src="manual_files/figure-html/cell-19-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p><strong><code>relative_units</code></strong>: When this option is set to <code>False</code>, do not use relative units in the generated svg (e.g.&nbsp;no <code>em</code>s). This will instead use <code>px</code> values generated from the local font options. This is not guaranteed to work in general, but it should at least work with standard cases where there is no complicated font manipulation. This option is designed for compatibility with Inkscape.</p>
-<div class="cell">
+<div class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>svgling.draw_tree(t1, relative_units<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="19">
+<p><img src="manual_files/figure-html/cell-20-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 </section>
 <section id="overall-layout-options" class="level2" data-number="4.3">
@@ -393,7 +449,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The following are <code>TreeOptions</code> parameters that affect layout.</p>
 <p><strong><code>horiz_spacing</code></strong>: This parameter determines how daughter nodes are spaced horizontally relative to the parent. Possible values are <code>svgling.core.HorizSpacing.TEXT</code> (default; space proportionally based on estimated text width), <code>svgling.core.HorizSpacing.EVEN</code> (space evenly based on number of immediate daughters), and <code>svgling.core.HorizSpacing.NODES</code> (space proportionally to the number of leaf nodes in the subtrees).</p>
 <p>Usually <code>TEXT</code> looks best, but the other two may be preferable for abstract trees where label widths are all similar. Without manual adjustment, the two other options will deal poorly with long labels.</p>
-<div class="cell">
+<div class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>examples <span class="op">=</span> <span class="bu">list</span>()</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>demo_trees <span class="op">=</span> [t0, t1]</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> opt <span class="kw">in</span> svgling.core.HorizSpacing:</span>
@@ -404,17 +460,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    examples.append(SideBySide(<span class="op">*</span>row))</span>
 <span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>RowByRow(<span class="op">*</span>examples)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="20">
+<p><img src="manual_files/figure-html/cell-21-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p><strong><code>average_glyph_width</code></strong>: A heuristic factor used to calculate text widths; basically, a divisor in <em>em</em>s. Defaults to <code>2.0</code>. Does not generally need to be adjusted for default settings (which try to just use Times), but may be worth adjusting for custom fonts.</p>
 <p><strong><code>leaf_padding</code></strong>: An amount to pad each leaf by, in glyphs. Will be divided by <code>average_glyph_width</code>. Default is 2. Negative values are possible, but will usually result in text being cut off. Leaf padding is applied as a constant to the overall canvas size regardless of the value of <code>horiz_spacing</code> (i.e.&nbsp;the canvas size is always determined by the sum of node widths plus leaf padding at every widest subtree), so will impact spacing to some degree for any setting of this option, but is only applied directly to each leaf for <code>HorizSpacing.TEXT</code>.</p>
-<div class="cell">
+<div class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>examples <span class="op">=</span> <span class="bu">list</span>()</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> (<span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">5</span>, <span class="op">-</span><span class="dv">2</span>):</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    examples.append(Caption(svgling.draw_tree(t1, leaf_padding<span class="op">=</span>i), <span class="st">"Example t1 with leaf_padding=</span><span class="sc">%g</span><span class="st">"</span> <span class="op">%</span> i))</span>
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>RowByRow(<span class="op">*</span>examples)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="21">
+<p><img src="manual_files/figure-html/cell-22-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p><strong><code>vert_align</code></strong>: How row alignment when there are multi-line labels should be calculated. If all labels in a row have the same height, this has no impact, but if there are differences, it controls the position of the shorter node labels vertically. Default is centered. For empty labels, this affects the position of the line join. The values <code>TOP</code>, <code>CENTER</code>, and <code>BOTTOM</code> are self-explanatory. <code>svgling.VertAlign.EVEN</code> causes all nodes to be treated as the same height (relative to their row) regardless of text contents, even empty nodes.</p>
-<div class="cell">
+<div class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>t4 <span class="op">=</span> (<span class="st">"X"</span>, (<span class="st">"multiline</span><span class="ch">\n</span><span class="st">label"</span>, <span class="st">"Y"</span>), (<span class="st">""</span>, <span class="st">"Z</span><span class="ch">\n</span><span class="st">A"</span>), (<span class="st">"A"</span>, <span class="st">"B"</span>), <span class="st">"C"</span>)</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>examples <span class="op">=</span> <span class="bu">list</span>()</span>
@@ -422,30 +484,42 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    examples.append(Caption(svgling.draw_tree(t4, vert_align<span class="op">=</span>opt), <span class="st">"Example t4 with vert_align=</span><span class="sc">%s</span><span class="st">"</span> <span class="op">%</span> <span class="bu">str</span>(opt)))</span>
 <span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>RowByRow(<span class="op">*</span>examples)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="22">
+<p><img src="manual_files/figure-html/cell-23-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p><strong><code>distance_to_daughter</code></strong>: The distance between rows in <em>em</em>s – that is, distance from the bottom of one row to the top of another. Values less than about 0.5 are not recommended and will usually result in rendering oddities. Note that line starts are 0.2<em>em</em>s below a node label, so 0.2 will give completely horizontal lines (not 0.0).</p>
 <p>Default is 2.</p>
-<div class="cell">
+<div class="cell" data-execution_count="23">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>examples <span class="op">=</span> <span class="bu">list</span>()</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> (<span class="fl">0.5</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="fl">0.2</span>):</span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    examples.append(Caption(svgling.draw_tree(t1, distance_to_daughter<span class="op">=</span>i), <span class="st">"Example t1 with distance_to_daughter=</span><span class="sc">%g</span><span class="st">"</span> <span class="op">%</span> i))</span>
 <span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>RowByRow(<span class="op">*</span>examples)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="23">
+<p><img src="manual_files/figure-html/cell-24-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 </section>
 <section id="line-and-node-positioning-options" class="level2" data-number="4.4">
 <h2 data-number="4.4" class="anchored" data-anchor-id="line-and-node-positioning-options"><span class="header-section-number">4.4</span> Line and node positioning options</h2>
 <p><strong><code>leaf_nodes_align</code></strong>: if true, will align all leaf nodes with the lowest depth leaf nodes in the tree.</p>
-<div class="cell">
+<div class="cell" data-execution_count="24">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>SideBySide(svgling.draw_tree(t1, leaf_nodes_align<span class="op">=</span><span class="va">True</span>), svgling.draw_tree(<span class="st">"DP"</span>, <span class="st">"D</span><span class="ch">\n</span><span class="st">the"</span>, (<span class="st">"AP"</span>, <span class="st">"A</span><span class="ch">\n</span><span class="st">gray"</span>), (<span class="st">"NP"</span>, <span class="st">"N</span><span class="ch">\n</span><span class="st">cat"</span>), leaf_nodes_align<span class="op">=</span><span class="va">True</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="24">
+<p><img src="manual_files/figure-html/cell-25-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p><strong><code>descend_direct</code></strong>: When an edge skips levels (currently only possible for leaf nodes, when <code>leaf_nodes_align=True</code>), should the line go directly from the parent to the daughter? If <code>False</code>, the line will go to the position that the daughter would have been at as if there is an empty node there, and descend vertically. This can be useful for very deep trees where a <code>True</code> value results in overlapping, and also just look better. However, it doesn’t allow distinguishing empty nodes visually in the tree. As with empty nodes, the positioning of the line join is affected by <code>vert_align</code>. Defaults to <code>True</code>.</p>
 <p>The following example shows a tree that renders quite badly without this option set to <code>True</code>, because of the asymmetry between leaf node widths.</p>
-<div class="cell">
+<div class="cell" data-execution_count="25">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>t4 <span class="op">=</span> (<span class="st">"A"</span>, <span class="st">"B"</span>, (<span class="st">"C"</span>, (<span class="st">"D"</span>, <span class="st">"middle leaf"</span>), <span class="st">"H"</span>), (<span class="st">"E"</span>, <span class="st">"long leaf"</span>, <span class="st">"G"</span>))</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>examples <span class="op">=</span> <span class="bu">list</span>()</span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> opt <span class="kw">in</span> (<span class="va">True</span>, <span class="va">False</span>):</span>
 <span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    examples.append(Caption(svgling.draw_tree(t4, leaf_nodes_align<span class="op">=</span><span class="va">True</span>, descend_direct<span class="op">=</span>opt), <span class="st">"Example t4 with descend_direct=</span><span class="sc">%s</span><span class="st">"</span> <span class="op">%</span> <span class="bu">str</span>(opt)))</span>
 <span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>SideBySide(<span class="op">*</span>examples)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="25">
+<p><img src="manual_files/figure-html/cell-26-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 </section>
 <section id="edge-styles" class="level2" data-number="4.5">
@@ -453,7 +527,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Custom styles can be applied to specific edges. The main application for this is drawing so-called “triangles of laziness”, but it does also allow you to change the color of particular edges and other related things. There is currently no way to change the edge styles for a tree as a whole (I’ll implement such a thing if there’s demand for it). Be aware that non-direct descents are implemented as an edge style, so if you apply a style to a leaf node with <code>leaf_nodes_align=True</code>, then it can override the indirect descent style; use the <code>IndirectDescent</code> class to avoid this.</p>
 <p>There are three classes that encapsulate edge styles: * <code>svgling.core.EdgeStyle</code> is the default edge style. It allows two svg parameters: <code>stroke</code> and <code>stroke_width</code>. * <code>svgling.core.IndirectDescent</code> implements indirect descents for nodes that skip levels. It inherits the svg parameters of <code>EdgeStyle</code>. * <code>svgling.core.TriangleEdge</code> draws a triangle with points at the center of the parent, and the left and right bounds of the daughter text. (Note that, as usual, text width is calculated heuristically.) This class also inherits the svg parameters of <code>EdgeStyle</code>.</p>
 <p>To set an edge style, call <code>set_edge_style</code> on the layout object with a path and one of the above objects. This function (and most that annotate or modify the style of a tree) modifies a tree object in place, but it also returns <code>self</code> in order to allow repeated styling calls, as in the following example:</p>
-<div class="cell">
+<div class="cell" data-execution_count="26">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>t5 <span class="op">=</span> (<span class="st">"S"</span>, (<span class="st">"NP"</span>, <span class="st">"The subject of this sentence"</span>), (<span class="st">"VP"</span>, <span class="st">"is collapsed"</span>))</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="co"># repeated styling calls without an intermediate assignment:</span></span>
@@ -465,10 +539,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>out.set_edge_style((<span class="dv">0</span>,), svgling.core.EdgeStyle(stroke_width<span class="op">=</span><span class="dv">4</span>, stroke<span class="op">=</span><span class="st">"red"</span>))</span>
 <span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>out.set_edge_style((<span class="dv">1</span>,), svgling.core.EdgeStyle(stroke_width<span class="op">=</span><span class="dv">4</span>))</span>
 <span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>out</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="26">
+<p><img src="manual_files/figure-html/cell-27-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p>Given a tree object with arbitrary styling, you can obtain a default-styled instance of the tree by calling <code>reset()</code>. This function returns a copy, and does not modify the original.</p>
-<div class="cell">
+<div class="cell" data-execution_count="27">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>out.reset()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="27">
+<p><img src="manual_files/figure-html/cell-28-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 </section>
 <section id="text-options" class="level2" data-number="4.6">
@@ -477,7 +557,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>A convenience function, <code>svgling.core.cssfont</code> takes a family and an optional named <code>weight</code> and <code>style</code> parameter and produces these strings. In addition, <code>svgling.core.SERIF</code> (the default), <code>svgling.core.SANS</code>, and <code>svgling.core.MONO</code> provide some useful presets.</p>
 <p><strong><code>font_size</code></strong>: a numeric value, to be interpreted in user units, for the font size. At the default sizing, <code>1</code> user unit corresponds to <code>1px</code>; SVG diagrams may be resized arbitrarily so changing the font size does not in general guarantee a bigger diagram, but it usually does. The default is <code>16</code> (which corresponds to <code>12pt</code> at the default scaling).</p>
 <p><strong><code>text_color</code></strong>: change the color of text in a tree. This option takes css color values. See <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color_value">css documentation</a> for more on what the valid options are.</p>
-<div class="cell">
+<div class="cell" data-execution_count="28">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>t1 <span class="op">=</span> (<span class="st">"S"</span>, (<span class="st">"NP"</span>, (<span class="st">"D"</span>, <span class="st">"the"</span>), (<span class="st">"N"</span>, <span class="st">"rhinoceros"</span>)), (<span class="st">"VP"</span>, (<span class="st">"V"</span>, <span class="st">"saw"</span>), (<span class="st">"NP"</span>, (<span class="st">"D"</span>, <span class="st">"the"</span>), (<span class="st">"A"</span>, <span class="st">"gray"</span>), (<span class="st">"N"</span>, <span class="st">"elephant"</span>))))</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>styles <span class="op">=</span> ((<span class="st">"font-family: georgia, times, serif; font-weight:normal; font-style: normal;"</span>, <span class="dv">26</span>, <span class="st">"black"</span>),</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>          (<span class="st">"font-family: sans-serif; font-weight:normal; font-style: normal;"</span>, <span class="dv">16</span>, <span class="st">"red"</span>),</span>
@@ -488,18 +568,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    examples.append(Caption(svgling.draw_tree(t1, font_style<span class="op">=</span>styles[i][<span class="dv">0</span>], font_size<span class="op">=</span>styles[i][<span class="dv">1</span>], text_color<span class="op">=</span>styles[i][<span class="dv">2</span>]),</span>
 <span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>                            <span class="st">"Example t1 with style </span><span class="sc">%d</span><span class="st">"</span> <span class="op">%</span> i))</span>
 <span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>RowByRow(<span class="op">*</span>examples)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="28">
+<p><img src="manual_files/figure-html/cell-29-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 </section>
 <section id="per-node-styling" class="level2" data-number="4.7">
 <h2 data-number="4.7" class="anchored" data-anchor-id="per-node-styling"><span class="header-section-number">4.7</span> Per-node styling</h2>
 <p>A limited amount of per-node styling is possible, via the functions <code>set_subtree_style</code>, <code>set_node_style</code>, and <code>set_leaf_style</code> on an existing tree. The first two of these take a tree path and some options, and the third just takes options. These currently allow changing only the font size, style, and color, and turning on debug mode for part of the tree.</p>
 <p>Caveats: * The tree layout is still primarily determined by the global font size. In particular, the <code>distance_to_daughter</code> option is always interpreted relative to that font size. So if you are changing many nodes, it can make sense to adjust the global tree font size as well. * Adding per-node styling will reset any existing tree annotations, so you will need to apply annotation calls after node styling calls.</p>
-<div class="cell">
+<div class="cell" data-execution_count="29">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> svgling.draw_tree(t1)</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>out.set_leaf_style(font_style <span class="op">=</span> svgling.core.cssfont(<span class="st">"impact, times, serif"</span>, style<span class="op">=</span><span class="st">"italic"</span>))</span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>out.set_node_style((<span class="dv">1</span>,<span class="dv">1</span>), font_size<span class="op">=</span><span class="dv">30</span>, text_color<span class="op">=</span><span class="st">"red"</span>)</span>
 <span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>out.set_subtree_style((<span class="dv">0</span>,), font_size<span class="op">=</span><span class="dv">10</span>, debug<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>out</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="29">
+<p><img src="manual_files/figure-html/cell-30-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 </section>
 <section id="sec-custom-nodes" class="level2" data-number="4.8">
@@ -516,7 +602,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Tips: use debug mode. Draw reference points when testing (e.g.&nbsp;<code>svgwrite.shapes.Circle((0,0), r=3, fill=options.text_color)</code>).</li>
 </ul>
 <p>The following cell provides a small example of implementing a node builder. As you can see, the svg standard is the limit in what you can draw here, but dealing with positioning is overall not entirely trivial. A good node builder will also be responsive to the options provided from a tree context, illustrated in the text settings below.</p>
-<div class="cell">
+<div class="cell" data-execution_count="30">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> svgwrite</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="at">@svgling.core.node_builder</span></span>
@@ -547,11 +633,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> svgling.core.NodePos(svg_parent, x<span class="op">=</span><span class="dv">50</span>, y<span class="op">=</span><span class="dv">0</span>, width<span class="op">=</span>width, height<span class="op">=</span><span class="fl">1.0</span>, options<span class="op">=</span>options, text<span class="op">=</span><span class="ss">f"flip_node(</span><span class="sc">{</span>text<span class="sc">}</span><span class="ss">)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>For debugging purposes, the return value of one of these objects can be inspected directly (though note that exceptions will not be shown unless you manually call <code>_repr_svg_</code>):</p>
-<div class="cell">
+<div class="cell" data-execution_count="31">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>flip_node(<span class="st">"Table"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="31">
+<p><img src="manual_files/figure-html/cell-32-output-1.svg" class="img-fluid"></p>
 </div>
-<div class="cell">
+</div>
+<div class="cell" data-execution_count="32">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>svgling.draw_tree(<span class="st">"Emoji"</span>, <span class="st">"(╯°□°)╯"</span>, flip_node(<span class="st">"("</span>, sideways<span class="op">=</span><span class="va">True</span>), flip_node(<span class="st">"Table"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="32">
+<p><img src="manual_files/figure-html/cell-33-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 </section>
 </section>
@@ -561,17 +653,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="annotating-constituents" class="level2" data-number="5.1">
 <h2 data-number="5.1" class="anchored" data-anchor-id="annotating-constituents"><span class="header-section-number">5.1</span> Annotating constituents</h2>
 <p>If you want to highlight a specific constituent, you can draw a box around it, and/or underline it.</p>
-<div class="cell">
+<div class="cell" data-execution_count="33">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>(svgling.draw_tree(t1)</span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>     .underline_constituent((<span class="dv">0</span>,))</span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>     .underline_constituent((<span class="dv">1</span>,<span class="dv">1</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="33">
+<p><img src="manual_files/figure-html/cell-34-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 <p>Both of these functions accept a number of extra svg arguments determining the details of the annotation. For <code>box_constituent</code>, you can pass <code>stroke</code>, <code>stroke_width</code>, <code>fill</code>, <code>fill_opacity</code>, and <code>rounding</code>. For <code>underline_constituent</code> you can pass <code>stroke</code>, <code>stroke_width</code>, and <code>stroke_opacity</code>. As can be seen above, boxes default to light non-opaque gray with rounded edges, and no stroke.</p>
 </section>
 <section id="movement-arrows" class="level2" data-number="5.2">
 <h2 data-number="5.2" class="anchored" data-anchor-id="movement-arrows"><span class="header-section-number">5.2</span> Movement arrows</h2>
 <p>Movement arrows can be drawn between arbitrary constituents; <code>svgling</code> will attempt to keep them from overlapping with each other or with the tree. The arrow always starts below the center of the first constituent, descends, moves horizontally, and attaches vertically to the center of the second constituent. It can be convenient to combine arrows with some kind of constituent-grouping annotation, for complex constituents. The following example illustrates movement arrows in a typical case of Quantifier Raising.</p>
-<div class="cell">
+<div class="cell" data-execution_count="34">
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>t4 <span class="op">=</span> (<span class="st">"TP"</span>, (<span class="st">"DP"</span>, (<span class="st">"D"</span>, <span class="st">"every"</span>), (<span class="st">"NP"</span>, (<span class="st">"N"</span>, <span class="st">"cat"</span>))),</span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>           (<span class="st">"TP"</span>, <span class="st">"1"</span>, (<span class="st">"TP"</span>, (<span class="st">"DP"</span>, (<span class="st">"D"</span>, <span class="st">"some"</span>), (<span class="st">"NP"</span>, (<span class="st">"N"</span>, <span class="st">"dog"</span>))),</span>
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>                     (<span class="st">"TP"</span>, <span class="st">"3"</span>, (<span class="st">"TP"</span>, (<span class="st">"DP"</span>, svgling.core.subscript_node(<span class="st">"t"</span>, <span class="st">"1"</span>)),</span>
@@ -581,6 +676,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>    .underline_constituent((<span class="dv">0</span>,))</span>
 <span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>    .movement_arrow((<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>), (<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>), stroke_width<span class="op">=</span><span class="dv">1</span>, stroke<span class="op">=</span><span class="st">"black"</span>)</span>
 <span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>    .underline_constituent((<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="34">
+<p><img src="manual_files/figure-html/cell-35-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 </section>
 </section>
@@ -598,14 +696,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong><code>SideBySide</code></strong>: This places a list of svg drawings in a row. Construct with <code>SideBySide(fig1, fig2, ..., fign, padding=x)</code>, where <code>padding</code> gives a padding in pixels to be applied between subfigures and in the left and right margin.</p>
 <p><strong><code>RowByRow</code></strong>: This places a list of svg drawings in a column. Construct with <code>RowByRow(fig1, fig2, ..., fign, padding=x)</code>, where <code>padding</code> gives a padding pixels to be applied between subfigures and in the top and bottom margin. By default, if the rows are themselves <code>SideBySide</code> objects, this will adjust the widths so that individual diagrams form a grid. To disable this, pass <code>gridify=False</code> to the constructor.</p>
 <p><strong><code>svgling.semantics.DoubleBrackets</code></strong>: There is so far one linguistics-specific complex figure class, which produces semantics-style double brackets around a tree. Simply call this with a tree layout object to get decent results. You can also adjust <code>padding</code> (including negatively) and <code>bracket_width</code>. Here’s an example from Heim and Kratzer 1998, ch.&nbsp;2:</p>
-<div class="cell">
+<div class="cell" data-execution_count="35">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> svgling.semantics</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>svgling.semantics.DoubleBrackets(svgling.draw_tree(<span class="st">"S"</span>, (<span class="st">"NP"</span>, (<span class="st">"N"</span>, <span class="st">"Ann"</span>)), (<span class="st">"VP"</span>, (<span class="st">"V"</span>, <span class="st">"smokes"</span>))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="35">
+<p><img src="manual_files/figure-html/cell-36-output-1.svg" class="img-fluid"></p>
 </div>
-<div class="cell">
+</div>
+<div class="cell" data-execution_count="36">
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> nltk</span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="co"># illustrate direct use of an nltk.Tree object</span></span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>svgling.semantics.DoubleBrackets(nltk.Tree.fromstring(<span class="st">"(S (NP (D the) (N elephant)) (VP (V saw) (NP (D the) (N rhinoceros))))"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="36">
+<p><img src="manual_files/figure-html/cell-37-output-1.svg" class="img-fluid"></p>
+</div>
 </div>
 </section>
 <section id="hybrid-htmlsvg-diagrams" class="level1" data-number="7">
@@ -613,16 +717,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>This package provides limited support for tree diagrams that mix HTML/CSS and SVG, using the former for layout and the latter for line drawing, via the <code>svgling.html</code> module. These have a number of limitations relative to pure SVG diagrams, with two main advantages: (i) the nodes can consist of arbitrary HTML/CSS, including mathjax, <code>xml.etree.ElementTree</code> objects, and more and (ii) sizing of the overall tree diagrams is fully automatic based on leaf node sizes. The limitations are detailed below, but the main one to know about is that these trees do not support branching greater than binary. As with the rest of this package, the hybrid layout techniques are single-pass and make do without any javascript. The rendering techniques require up-to-date and recent browsers. At the moment, these trees are less intended for direct instantiation and more intended for programmatic use.</p>
 <p>The module interface is similar, with <code>svgling.html.draw_tree</code> as the main interface function, and <code>svgling.html.DivTreeLayout</code> as the main class parallel to <code>svgling.core.TreeLayout</code>, and <code>svgling.core.TreeOptions</code> used to configure the tree (though see below for supported parameters). After the following examples, I will give a precise list of the limitations relative to SVG diagrams and the supported options.</p>
 <p>First, an example of the default output for one of our standard examples:</p>
-<div class="cell">
+<div class="cell" data-execution_count="37">
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>svgling.html.draw_tree(<span class="st">"S"</span>, (<span class="st">"NP"</span>, (<span class="st">"D"</span>, <span class="st">"the"</span>), (<span class="st">"N"</span>, <span class="st">"elephant"</span>)), (<span class="st">"VP"</span>, (<span class="st">"V"</span>, <span class="st">"saw"</span>), (<span class="st">"NP"</span>, (<span class="st">"D"</span>, <span class="st">"the"</span>), (<span class="st">"N"</span>, <span class="st">"rhinoceros"</span>))), horiz_spacing<span class="op">=</span>svgling.core.HorizSpacing.TEXT)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="37">
+<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;font-family: times, serif; font-weight: normal; font-style: normal; font-size: 16px"><div style="grid-row:1;grid-column:1;justify-self:right;width:0;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;float:right;transform:translate(50%);white-space:nowrap;"><span style="text-align:center;">S</span></div></div><div style="grid-row:1;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">S</span></div></div><div style="grid-column:1;grid-row:2;justify-self:right;"><div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;"><div style="grid-column:2;grid-row:1;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="100" x2="0" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-row:2;grid-column:1;justify-self:right;width:0;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;float:right;transform:translate(50%);white-space:nowrap;"><span style="text-align:center;">NP</span></div></div><div style="grid-row:2;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">NP</span></div></div><div style="grid-column:1;grid-row:3;justify-self:right;"><div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;" align="center"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:2;justify-self:center;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">D</span></div></div><div style="grid-column:1;grid-row:3;justify-self:center;"><div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;" align="center"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="50" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:2;justify-self:center;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">the</span></div></div></div></div></div></div><div style="grid-column:2;grid-row:3;"><div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;" align="center"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:2;justify-self:center;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">N</span></div></div><div style="grid-column:1;grid-row:3;justify-self:center;"><div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;" align="center"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="50" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:2;justify-self:center;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">elephant</span></div></div></div></div></div></div></div></div><div style="grid-column:2;grid-row:2;"><div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="0" x2="100" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-row:2;grid-column:1;justify-self:right;width:0;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;float:right;transform:translate(50%);white-space:nowrap;"><span style="text-align:center;">VP</span></div></div><div style="grid-row:2;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">VP</span></div></div><div style="grid-column:1;grid-row:3;justify-self:right;"><div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;" align="center"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:2;justify-self:center;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">V</span></div></div><div style="grid-column:1;grid-row:3;justify-self:center;"><div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;" align="center"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="50" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:2;justify-self:center;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">saw</span></div></div></div></div></div></div><div style="grid-column:2;grid-row:3;"><div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="0" x2="100" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-row:2;grid-column:1;justify-self:right;width:0;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;float:right;transform:translate(50%);white-space:nowrap;"><span style="text-align:center;">NP</span></div></div><div style="grid-row:2;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">NP</span></div></div><div style="grid-column:1;grid-row:3;justify-self:right;"><div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;" align="center"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:2;justify-self:center;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">D</span></div></div><div style="grid-column:1;grid-row:3;justify-self:center;"><div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;" align="center"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="50" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:2;justify-self:center;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">the</span></div></div></div></div></div></div><div style="grid-column:2;grid-row:3;"><div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;" align="center"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:2;justify-self:center;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">N</span></div></div><div style="grid-column:1;grid-row:3;justify-self:center;"><div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column:1;grid-row:1;height:32px;" align="center"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="50" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:2;justify-self:center;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">rhinoceros</span></div></div></div></div></div></div></div></div></div></div></div>
+</div>
 </div>
 <p>The <code>HorizSpacing.EVEN</code> option can be used, but usually looks huge for unbalanced trees. (With comparable node padding, for this option only the spacing is identical to <code>svgling.core</code>.)</p>
-<div class="cell">
+<div class="cell" data-execution_count="38">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>svgling.html.draw_tree(<span class="st">"S"</span>, (<span class="st">"NP"</span>, (<span class="st">"D"</span>, <span class="st">"the"</span>), (<span class="st">"N"</span>, <span class="st">"elephant"</span>)), (<span class="st">"VP"</span>, (<span class="st">"V"</span>, <span class="st">"saw"</span>), (<span class="st">"NP"</span>, (<span class="st">"D"</span>, <span class="st">"the"</span>), (<span class="st">"N"</span>, <span class="st">"rhinoceros"</span>))),</span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>                       horiz_spacing<span class="op">=</span>svgling.core.HorizSpacing.EVEN)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="38">
+<div style="display:inline-grid;grid-template-columns: repeat(2, 1fr);align-items:start;border:none;font-family: times, serif; font-weight: normal; font-style: normal; font-size: 16px" align="center"><div style="grid-column:1/3;grid-row:1;grid-gap:0px" align="center"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">S</span></div></div><div align="center" style="grid-column:1;grid-row:2;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div align="center" style="grid-column:2;grid-row:2;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:3;"><div style="display:inline-grid;grid-template-columns: repeat(2, 1fr);align-items:start;border:none;" align="center"><div style="grid-column:1/3;grid-row:1;grid-gap:0px" align="center"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">NP</span></div></div><div align="center" style="grid-column:1;grid-row:2;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div align="center" style="grid-column:2;grid-row:2;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:3;"><div align="center" style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column-1;grid-row:1;" align="center"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">D</span></div></div><div align="center" style="grid-column-1;grid-row:2;border:0;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="50" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column-1;grid-row:3;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">the</span></div></div></div></div><div style="grid-column:2;grid-row:3;"><div align="center" style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column-1;grid-row:1;" align="center"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">N</span></div></div><div align="center" style="grid-column-1;grid-row:2;border:0;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="50" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column-1;grid-row:3;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">elephant</span></div></div></div></div></div></div><div style="grid-column:2;grid-row:3;"><div style="display:inline-grid;grid-template-columns: repeat(2, 1fr);align-items:start;border:none;" align="center"><div style="grid-column:1/3;grid-row:1;grid-gap:0px" align="center"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">VP</span></div></div><div align="center" style="grid-column:1;grid-row:2;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div align="center" style="grid-column:2;grid-row:2;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:3;"><div align="center" style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column-1;grid-row:1;" align="center"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">V</span></div></div><div align="center" style="grid-column-1;grid-row:2;border:0;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="50" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column-1;grid-row:3;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">saw</span></div></div></div></div><div style="grid-column:2;grid-row:3;"><div style="display:inline-grid;grid-template-columns: repeat(2, 1fr);align-items:start;border:none;" align="center"><div style="grid-column:1/3;grid-row:1;grid-gap:0px" align="center"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">NP</span></div></div><div align="center" style="grid-column:1;grid-row:2;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div align="center" style="grid-column:2;grid-row:2;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column:1;grid-row:3;"><div align="center" style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column-1;grid-row:1;" align="center"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">D</span></div></div><div align="center" style="grid-column-1;grid-row:2;border:0;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="50" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column-1;grid-row:3;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">the</span></div></div></div></div><div style="grid-column:2;grid-row:3;"><div align="center" style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;"><div style="grid-column-1;grid-row:1;" align="center"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">N</span></div></div><div align="center" style="grid-column-1;grid-row:2;border:0;height:32px;"><svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink"><defs></defs><line stroke="black" x1="50" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line></svg></div><div style="grid-column-1;grid-row:3;"><div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;"><span style="text-align:center;">rhinoceros</span></div></div></div></div></div></div></div></div></div>
+</div>
 </div>
 <p>The main immediate benefit for interactive use is the availability of MathJax in nodes. (<strong>caveat</strong>: latex rendering via HTML outputs will not work in Google Colab or VSCode.) Don’t forget to escape <code>\</code> characters (as <code>\\</code>) as needed, or use strings prefixed with <code>r</code> for “raw” mode. Here is an example illustrating the use of MathJax to show semantics representations:</p>
-<div class="cell">
+<div class="cell" data-execution_count="40">
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>svgling.html.draw_tree(</span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"$</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{Saw}</span><span class="st">(</span><span class="ch">\\</span><span class="st">iota x_e{:</span><span class="ch">\\</span><span class="st">:}</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{Elephant}</span><span class="st">(x),</span><span class="ch">\\</span><span class="st">iota x_e{:</span><span class="ch">\\</span><span class="st">:}</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{Rhino}</span><span class="st">(x))$"</span>,</span>
 <span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"$</span><span class="ch">\\</span><span class="st">iota x_e{:</span><span class="ch">\\</span><span class="st">:}</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{Elephant}</span><span class="st">(x)$"</span>,</span>
@@ -633,15 +743,218 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>        (<span class="st">"$</span><span class="ch">\\</span><span class="st">iota x_e{:</span><span class="ch">\\</span><span class="st">:}</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{Rhino}</span><span class="st">(x)$"</span>,</span>
 <span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">"$</span><span class="ch">\\</span><span class="st">lambda f_{</span><span class="ch">\\</span><span class="st">langle e,t </span><span class="ch">\\</span><span class="st">rangle }{:</span><span class="ch">\\</span><span class="st">:}</span><span class="ch">\\</span><span class="st">iota x_e{:</span><span class="ch">\\</span><span class="st">:}f(x)$"</span>,</span>
 <span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">"$</span><span class="ch">\\</span><span class="st">lambda x_e{:</span><span class="ch">\\</span><span class="st">:}</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{Rhino}</span><span class="st">(x)$"</span>))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="40">
+<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;font-family: times, serif; font-weight: normal; font-style: normal; font-size: 16px">
+<div style="grid-row:1;grid-column:1;justify-self:right;width:0;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;float:right;transform:translate(50%);white-space:nowrap;">
+<span style="text-align:center;"><span class="math inline">\(\text{Saw}(\iota x_e{:\:}\text{Elephant}(x),\iota x_e{:\:}\text{Rhino}(x))\)</span></span>
+</div>
+</div>
+<div style="grid-row:1;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;"><span class="math inline">\(\text{Saw}(\iota x_e{:\:}\text{Elephant}(x),\iota x_e{:\:}\text{Rhino}(x))\)</span></span>
+</div>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:right;">
+<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;">
+<div style="grid-column:2;grid-row:1;height:32px;">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="100" x2="0" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-row:2;grid-column:1;justify-self:right;width:0;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;float:right;transform:translate(50%);white-space:nowrap;">
+<span style="text-align:center;"><span class="math inline">\(\iota x_e{:\:}\text{Elephant}(x)\)</span></span>
+</div>
+</div>
+<div style="grid-row:2;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;"><span class="math inline">\(\iota x_e{:\:}\text{Elephant}(x)\)</span></span>
+</div>
+</div>
+<div style="grid-column:1;grid-row:3;justify-self:right;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;"><span class="math inline">\(\lambda f_{\langle e,t \rangle }{:\:}\iota x_e{:\:}f(x)\)</span></span>
+</div>
+</div>
+</div>
+</div>
+<div style="grid-column:2;grid-row:3;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;"><span class="math inline">\(\lambda x_e{:\:}\text{Elephant}(x)\)</span></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div style="grid-column:2;grid-row:2;">
+<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="0" x2="100" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-row:2;grid-column:1;justify-self:right;width:0;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;float:right;transform:translate(50%);white-space:nowrap;">
+<span style="text-align:center;"><span class="math inline">\(\lambda x_e{:\:}\text{Saw}(x,\iota x_e{:\:}\text{Rhino}(x))\)</span></span>
+</div>
+</div>
+<div style="grid-row:2;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;"><span class="math inline">\(\lambda x_e{:\:}\text{Saw}(x,\iota x_e{:\:}\text{Rhino}(x))\)</span></span>
+</div>
+</div>
+<div style="grid-column:1;grid-row:3;justify-self:right;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;"><span class="math inline">\(\lambda y_e{:\:}\lambda x_e{:\:}\text{Saw}(x,y)\)</span></span>
+</div>
+</div>
+</div>
+</div>
+<div style="grid-column:2;grid-row:3;">
+<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="0" x2="100" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-row:2;grid-column:1;justify-self:right;width:0;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;float:right;transform:translate(50%);white-space:nowrap;">
+<span style="text-align:center;"><span class="math inline">\(\iota x_e{:\:}\text{Rhino}(x)\)</span></span>
+</div>
+</div>
+<div style="grid-row:2;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;"><span class="math inline">\(\iota x_e{:\:}\text{Rhino}(x)\)</span></span>
+</div>
+</div>
+<div style="grid-column:1;grid-row:3;justify-self:right;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;"><span class="math inline">\(\lambda f_{\langle e,t \rangle }{:\:}\iota x_e{:\:}f(x)\)</span></span>
+</div>
+</div>
+</div>
+</div>
+<div style="grid-column:2;grid-row:3;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;"><span class="math inline">\(\lambda x_e{:\:}\text{Rhino}(x)\)</span></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <p>The recommended method of drawing multi-line nodes when using hybrid rendering is to use the html <code>&lt;br /&gt;</code> tag. In some versions of MathJax, using <code>\\</code> in math mode may work, though it will not center text. To simplify this, the module provides a convenience function <code>multiline_text</code> that uses HTML to do the linebreaks. See the gallery for a full example rendered using this technique; here is a fragment:</p>
-<div class="cell">
+<div class="cell" data-execution_count="41">
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> svgling.html</span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> svgling.html <span class="im">import</span> multiline_text <span class="im">as</span> ml</span>
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>svgling.html.draw_tree(</span>
 <span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>    ml(<span class="vs">r"$\iota x_e{:\:}\text</span><span class="sc">{Elephant}</span><span class="vs">(x)$"</span>, <span class="vs">r"$\text</span><span class="sc">{Type: }</span><span class="vs">e$"</span>),</span>
 <span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>        ml(<span class="vs">r"$\lambda f_{\langle e,t \rangle }{:\:}\iota x_e{:\:}f(x)$"</span>, <span class="vs">r"$\text</span><span class="sc">{Type: }</span><span class="vs">\langle \langle e,t\rangle ,e\rangle$"</span>),</span>
 <span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>        ml(<span class="vs">r"$\lambda x_e{:\:}\text</span><span class="sc">{Elephant}</span><span class="vs">(x)$"</span>, <span class="vs">r"$\text</span><span class="sc">{Type: }</span><span class="vs">\langle e,t\rangle$"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="41">
+<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;font-family: times, serif; font-weight: normal; font-style: normal; font-size: 16px">
+<div style="grid-row:1;grid-column:1;justify-self:right;width:0;">
+<div style="display:grid;grid-template-columns:auto;float:right;transform:translate(50%);white-space:nowrap;">
+<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span><span class="math inline">\(\iota x_e{:\:}\text{Elephant}(x)\)</span></span>
+</div>
+<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span><span class="math inline">\(\text{Type: }e\)</span></span>
+</div>
+</div>
+</div>
+<div style="grid-row:1;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;">
+<div style="display:grid;grid-template-columns:auto;">
+<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span><span class="math inline">\(\iota x_e{:\:}\text{Elephant}(x)\)</span></span>
+</div>
+<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span><span class="math inline">\(\text{Type: }e\)</span></span>
+</div>
+</div>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:right;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:grid;grid-template-columns:auto;">
+<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span><span class="math inline">\(\lambda f_{\langle e,t \rangle }{:\:}\iota x_e{:\:}f(x)\)</span></span>
+</div>
+<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span><span class="math inline">\(\text{Type: }\langle \langle e,t\rangle ,e\rangle\)</span></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div style="grid-column:2;grid-row:2;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:grid;grid-template-columns:auto;">
+<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span><span class="math inline">\(\lambda x_e{:\:}\text{Elephant}(x)\)</span></span>
+</div>
+<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span><span class="math inline">\(\text{Type: }\langle e,t\rangle\)</span></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <p>A more advanced technique to accomplish linebreaks, as well as many other things, would be to use an HTML node directly. More generally, there are several kinds of objects that can be used as nodes in <code>svgling.html</code>, which is much more flexible than <code>svgling.core</code> in this respect (see <code>svgling.html.to_html</code> for the conversion algorithm):</p>
 <ul>
@@ -653,15 +966,100 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
 <p>If you want to use HTML text interactively, one quick way to get an object that can be used as a node is to use <code>IPython.display.HTML</code> to turn an HTML string into an object that implements <code>_repr_html_()</code>.</p>
 <p>You can mix all of these node types in a single tree, as in the following example, which demonstrates a hodgepodge of useful tricks:</p>
-<div class="cell">
+<div class="cell" data-execution_count="42">
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> HTML</span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>svgling.html.draw_tree(<span class="st">"X"</span>,</span>
 <span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>    (HTML(<span class="st">"&lt;span&gt;$</span><span class="ch">\\</span><span class="st">overline{</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{Y}</span><span class="st">}$&lt;br /&gt;Y2&lt;/span&gt;"</span>), <span class="st">'Z'</span>, <span class="st">'$Z</span><span class="ch">\'</span><span class="st">$'</span>),</span>
 <span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>    (<span class="st">'A'</span>, HTML(<span class="st">"&lt;div style=</span><span class="ch">\"</span><span class="st">text-align:center;border:1px dashed;background-color:lightgray;</span><span class="ch">\"</span><span class="st">&gt;&lt;span&gt;B&lt;br /&gt;$</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{some}</span><span class="st">^{</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{mathjax}</span><span class="st">^</span><span class="ch">\\</span><span class="st">text</span><span class="sc">{here}</span><span class="st">}$&lt;br /&gt;B3&lt;/span&gt;&lt;/div&gt;"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="42">
+<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;font-family: times, serif; font-weight: normal; font-style: normal; font-size: 16px">
+<div style="grid-row:1;grid-column:1;justify-self:right;width:0;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;float:right;transform:translate(50%);white-space:nowrap;">
+<span style="text-align:center;">X</span>
+</div>
+</div>
+<div style="grid-row:1;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;">X</span>
+</div>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:right;">
+<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;">
+<div style="grid-column:2;grid-row:1;height:32px;">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="100" x2="0" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-row:2;grid-column:1;justify-self:right;width:0;">
+<span style="float:right;transform:translate(50%);white-space:nowrap;"><span class="math inline">\(\overline{\text{Y}}\)</span><br>Y2</span>
+</div>
+<div style="grid-row:2;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;">
+<span><span class="math inline">\(\overline{\text{Y}}\)</span><br>Y2</span>
+</div>
+<div style="grid-column:1;grid-row:3;justify-self:right;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;">Z</span>
+</div>
+</div>
+</div>
+</div>
+<div style="grid-column:2;grid-row:3;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;"><span class="math inline">\(Z'\)</span></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div style="grid-column:2;grid-row:2;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;">A</span>
+</div>
+</div>
+<div style="grid-column:1;grid-row:3;justify-self:center;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="50" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="text-align:center;border:1px dashed;background-color:lightgray;">
+<span>B<br><span class="math inline">\(\text{some}^{\text{mathjax}^\text{here}}\)</span><br>B3</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <p>As some of the discussion above has implied, the primary target for <code>svgling.html</code> is not interactive tree diagram construction per se, but rather programmatic use in packages that will generate complex HTML from structured python objects, for example the <a href="https://github.com/rawlins/lambda-notebook">Lambda Notebook</a>.</p>
 <p>Trees in the <code>svgling.html</code> module support <code>tree_split</code>. The following extends the previous <code>ProbabilisticTree</code> example to show a custom split function for this class that generates HTML rather than SVG. It also demonstrates using the <code>svgling.figure.HTMLSideBySide</code> class to mix SVG and HTML diagrams.</p>
-<div class="cell">
+<div class="cell" data-execution_count="43">
 <div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> nltk.tree.probabilistic <span class="im">import</span> ProbabilisticTree</span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> ProbabilisticTree.fromstring(<span class="st">"(X (Y leaf) leaf)"</span>)</span>
 <span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>x.set_prob(<span class="fl">0.5</span>)</span>
@@ -683,6 +1081,92 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb41-19"><a href="#cb41-19" aria-hidden="true" tabindex="-1"></a>svgling.figure.HTMLSideBySide(x,</span>
 <span id="cb41-20"><a href="#cb41-20" aria-hidden="true" tabindex="-1"></a>                              svgling.draw_tree(x, tree_split<span class="op">=</span>svgling.core.probtree_split),</span>
 <span id="cb41-21"><a href="#cb41-21" aria-hidden="true" tabindex="-1"></a>                              svgling.html.draw_tree(x, tree_split<span class="op">=</span>ptree_split_html))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="43">
+<div style="display: flex; flex-direction: row;">
+<div style="padding: 0px 16px 0px 16px; flex-shrink: 0;">
+<svg baseprofile="full" height="120px" preserveaspectratio="xMidYMid meet" style="font-family: times, serif; font-weight: normal; font-style: normal; font-size: 16px" version="1.1" viewbox="0,0,96.0,120.0" width="96px" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><svg width="100%" x="0" y="0px"><defs></defs><text text-anchor="middle" x="50%" y="16px">X</text>
+</svg>
+<svg width="50%" x="0%" y="48px">
+<defs></defs><svg width="100%" x="0" y="0px"><defs></defs><text text-anchor="middle" x="50%" y="16px">Y</text>
+</svg>
+<svg width="100%" x="0%" y="48px">
+<defs></defs><svg width="100%" x="0" y="0px"><defs></defs><text text-anchor="middle" x="50%" y="16px">leaf</text>
+</svg>
+</svg>
+<line stroke="black" x1="50%" x2="50%" y1="20px" y2="48px"></line></svg><line stroke="black" x1="50%" x2="25%" y1="20px" y2="48px"></line><svg width="50%" x="50%" y="48px"><defs></defs><svg width="100%" x="0" y="0px"><defs></defs><text text-anchor="middle" x="50%" y="16px">leaf</text></svg></svg><line stroke="black" x1="50%" x2="75%" y1="20px" y2="48px"></line></svg>
+</div>
+<div style="padding: 0px 16px 0px 16px; flex-shrink: 0;">
+<svg baseprofile="full" height="120px" preserveaspectratio="xMidYMid meet" style="font-family: times, serif; font-weight: normal; font-style: normal; font-size: 16px" version="1.1" viewbox="0,0,136.0,120.0" width="136px" xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><svg width="100%" x="0" y="0px"><defs></defs><text text-anchor="middle" x="50%" y="16px">X [p=0.5]</text>
+</svg>
+<svg width="64.7059%" x="0%" y="48px">
+<defs></defs><svg width="100%" x="0" y="0px"><defs></defs><text text-anchor="middle" x="50%" y="16px">Y [p=0.2]</text>
+</svg>
+<svg width="100%" x="0%" y="48px">
+<defs></defs><svg width="100%" x="0" y="0px"><defs></defs><text text-anchor="middle" x="50%" y="16px">leaf</text>
+</svg>
+</svg>
+<line stroke="black" x1="50%" x2="50%" y1="20px" y2="48px"></line></svg><line stroke="black" x1="50%" x2="32.3529%" y1="20px" y2="48px"></line><svg width="35.2941%" x="64.7059%" y="48px"><defs></defs><svg width="100%" x="0" y="0px"><defs></defs><text text-anchor="middle" x="50%" y="16px">leaf</text></svg></svg><line stroke="black" x1="50%" x2="82.3529%" y1="20px" y2="48px"></line></svg>
+</div>
+<div style="padding: 0px 16px 0px 16px; flex-shrink: 0;">
+<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;font-family: times, serif; font-weight: normal; font-style: normal; font-size: 16px">
+<div style="grid-row:1;grid-column:1;justify-self:right;width:0;">
+<div style="text-align:center;background-color:lightgray;border:1px dashed;padding: 0px 20px 0px 20px;margin: 0px 10px 0px 10px;float:right;transform:translate(50%);white-space:nowrap;">
+<span>X</span><br><span style="font-size: small;"><span class="math inline">\(p=0.5\)</span></span>
+</div>
+</div>
+<div style="grid-row:1;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;">
+<div style="text-align:center;background-color:lightgray;border:1px dashed;padding: 0px 20px 0px 20px;margin: 0px 10px 0px 10px;">
+<span>X</span><br><span style="font-size: small;"><span class="math inline">\(p=0.5\)</span></span>
+</div>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:right;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="text-align:center;background-color:lightgray;border:1px dashed;padding: 0px 20px 0px 20px;margin: 0px 10px 0px 10px;">
+<span>Y</span><br><span style="font-size: small;"><span class="math inline">\(p=0.2\)</span></span>
+</div>
+</div>
+<div style="grid-column:1;grid-row:3;justify-self:center;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="50" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;">leaf</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div style="grid-column:2;grid-row:2;">
+<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
+<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
+<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
+<defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
+</svg>
+</div>
+<div style="grid-column:1;grid-row:2;justify-self:center;">
+<div style="display:inline-block;padding-left:0.75em;padding-right:0.75em;text-align:center;">
+<span style="text-align:center;">leaf</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 <section id="hybrid-diagram-compatibility" class="level2" data-number="7.1">
 <h2 data-number="7.1" class="anchored" data-anchor-id="hybrid-diagram-compatibility"><span class="header-section-number">7.1</span> Hybrid diagram compatibility</h2>
@@ -713,7 +1197,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="file-output" class="level2" data-number="8.1">
 <h2 data-number="8.1" class="anchored" data-anchor-id="file-output"><span class="header-section-number">8.1</span> File output</h2>
 <p>To save SVG output to a file, see the <a href="https://svgwrite.readthedocs.io/en/stable/classes/drawing.html">svgwrite.Drawing api</a>; any object returned by <code>draw_tree(...).get_svg()</code> is <code>Drawing</code> object. For convenience, <code>svgling</code> classes also pass through <code>saveas</code>. For example:</p>
-<div class="cell">
+<div class="cell" data-execution_count="44">
 <div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># # uncomment to write to `demotree.svg` with human-readable formatting</span></span>
 <span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="co"># demo_tree = ("S", ("NP", ("D", "the"), ("N", "elephant")), ("VP", ("V", "saw"), ("NP", ("D", "the"), ("N", "rhinoceros"))))</span></span>
 <span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="co"># svgling.draw_tree(demo_tree).saveas("demotree.svg", pretty=True)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -731,13 +1215,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>See the <a href="https://cairosvg.org/documentation/">cairosvg documentation</a> for details on other named parameters that these functions accept.</li>
 <li><strong>Warning:</strong> one point of SVG images is that they are vector images, and therefore will appear as crisp as possible at all resolutions. This is not true of raster images! It’s recommended that you render to raster at a high enough resolution that the DPI can match whatever display device is intended. For embedding in other vector formats, for example PDF via LaTeX, conversion using <code>svg2pdf</code> may be more appropriate than raster conversion.</li>
 </ul>
-<div class="cell">
+<div class="cell" data-execution_count="45">
 <div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> svgling.utils, svgling.semantics, nltk</span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Image</span>
 <span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> svgling.semantics.DoubleBrackets(nltk.Tree.fromstring(<span class="st">"(S (NP (D the) (N elephant)) (VP (V saw) (NP (D the) (N rhinoceros))))"</span>))</span>
 <span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>Image(svgling.utils.svg2png(t, scale<span class="op">=</span><span class="fl">1.5</span>))</span>
 <span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a><span class="co"># or, to generate a file, uncomment:</span></span>
 <span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a><span class="co"># svgling.utils.svg2png(t, scale=2, write_to="elephant.png")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="45">
+<p><img src="manual_files/figure-html/cell-46-output-1.png" class="img-fluid"></p>
+</div>
 </div>
 
 
