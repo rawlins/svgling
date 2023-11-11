@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Kyle Rawlins">
-<meta name="dcterms.date" content="2023-10-08">
+<meta name="dcterms.date" content="2023-11-11">
 
 <title>svgling - svgling diagram gallery</title>
 <style>
@@ -115,8 +115,6 @@ div.csl-indent {
   }
 }</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -199,7 +197,7 @@ div.csl-indent {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 8, 2023</p>
+      <p class="date">November 11, 2023</p>
     </div>
   </div>
   
@@ -209,48 +207,46 @@ div.csl-indent {
 
 </header>
 
-<div class="cell" data-tags="[]" data-execution_count="1">
+<div class="cell" data-tags="[]">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> svgling</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> svgling <span class="im">import</span> draw_tree</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> svgling.figure <span class="im">import</span> Caption, SideBySide, RowByRow</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> svgling.figure <span class="im">import</span> Caption, SideBySide, RowByRow</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> svgling.core <span class="im">import</span> subscript_node</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>This gallery provides several examples of relatively complex SVG tree diagrams rendering using the <a href="https://github.com/rawlins/svgling"><code>svgling</code> package</a>. To begin with, here is an example from <span class="citation" data-cites="Carnie12">Carnie (<a href="#ref-Carnie12" role="doc-biblioref">2012</a>)</span> that illustrates multiline nodes paired with aligned leaf nodes.</p>
 <div class="no-row-height column-margin column-container"><div id="ref-Carnie12" class="csl-entry" role="listitem">
 Carnie, Andrew. 2012. <em>Syntax: A Generative Introduction, 3rd Edition</em>. Wiley.
-</div></div><div class="cell" data-tags="[]" data-execution_count="2">
+</div></div><div class="cell" data-tags="[]">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>Caption(draw_tree(<span class="st">"TP"</span>, (<span class="st">"NP"</span>, <span class="st">"D</span><span class="ch">\n</span><span class="st">The"</span>, (<span class="st">"AdjP"</span>, (<span class="st">"AdvP"</span>, <span class="st">"Adv</span><span class="ch">\n</span><span class="st">very"</span>), <span class="st">"Adj</span><span class="ch">\n</span><span class="st">small"</span>), <span class="st">"N</span><span class="ch">\n</span><span class="st">boy"</span>), (<span class="st">"VP"</span>, <span class="st">"V</span><span class="ch">\n</span><span class="st">kissed"</span>, (<span class="st">"NP"</span>, <span class="st">"D</span><span class="ch">\n</span><span class="st">the"</span>, <span class="st">"N</span><span class="ch">\n</span><span class="st">platypus"</span>)),</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                  leaf_nodes_align<span class="op">=</span><span class="va">True</span>),</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Tree from Carnie 2012, p. 93"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="2">
-<p><img src="gallery_files/figure-html/cell-3-output-1.svg" class="img-fluid"></p>
-</div>
 </div>
 <p>The following example illustrates Quantifier Raising (QR) in the style of <span class="citation" data-cites="HeimKratzer98">Heim and Kratzer (<a href="#ref-HeimKratzer98" role="doc-biblioref">1998</a>)</span>, involving movement arrows, subfigures, and subtree highlighting.</p>
 <div class="no-row-height column-margin column-container"><div id="ref-HeimKratzer98" class="csl-entry" role="listitem">
 Heim, Irene, and Angelika Kratzer. 1998. <em>Semantics in Generative Grammar</em>. Blackwell.
-</div></div><div class="cell" data-tags="[]" data-execution_count="3">
+</div></div><div class="cell" data-tags="[]">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>qrtree0 <span class="op">=</span> (<span class="st">"TP"</span>, (<span class="st">"DP"</span>, (<span class="st">"D"</span>, <span class="st">"every"</span>), (<span class="st">"NP"</span>, (<span class="st">"N"</span>, <span class="st">"cat"</span>))),</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                                   (<span class="st">"VP"</span>, (<span class="st">"V"</span>, <span class="st">"likes"</span>), (<span class="st">"DP"</span>, (<span class="st">"D"</span>, <span class="st">"some"</span>), (<span class="st">"NP"</span>, (<span class="st">"N"</span>, <span class="st">"dog"</span>)))))</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>out0 <span class="op">=</span> Caption(draw_tree(qrtree0), <span class="st">"LF input (= Surface Structure)"</span>)</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>qrtree1 <span class="op">=</span> (<span class="st">"TP"</span>, (<span class="st">"DP(1)"</span>, (<span class="st">"D"</span>, <span class="st">"every"</span>), (<span class="st">"NP"</span>, (<span class="st">"N"</span>, <span class="st">"cat"</span>))),</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>                                   (<span class="st">"VP"</span>, (<span class="st">"V"</span>, <span class="st">"likes"</span>), (<span class="st">"DP(3)"</span>, (<span class="st">"D"</span>, <span class="st">"some"</span>), (<span class="st">"NP"</span>, (<span class="st">"N"</span>, <span class="st">"dog"</span>)))))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>qrtree1 <span class="op">=</span> (<span class="st">"TP"</span>, (subscript_node(<span class="st">"DP"</span>, <span class="st">"1"</span>), (<span class="st">"D"</span>, <span class="st">"every"</span>), (<span class="st">"NP"</span>, (<span class="st">"N"</span>, <span class="st">"cat"</span>))),</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>                                   (<span class="st">"VP"</span>, (<span class="st">"V"</span>, <span class="st">"likes"</span>), (subscript_node(<span class="st">"DP"</span>, <span class="st">"3"</span>), (<span class="st">"D"</span>, <span class="st">"some"</span>), (<span class="st">"NP"</span>, (<span class="st">"N"</span>, <span class="st">"dog"</span>)))))</span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>out1 <span class="op">=</span> draw_tree(qrtree1)</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>out1.box_constituent((<span class="dv">0</span>,))</span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>out1.box_constituent((<span class="dv">1</span>,<span class="dv">1</span>))</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>out1 <span class="op">=</span> Caption(out1, <span class="st">"Step 1: free indexing (1 of 2 indexings)"</span>)</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>qrtree2 <span class="op">=</span> (<span class="st">"TP"</span>, (<span class="st">"DP"</span>, (<span class="st">"D"</span>, <span class="st">"some"</span>), (<span class="st">"NP"</span>, (<span class="st">"N"</span>, <span class="st">"dog"</span>))),</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>                      (<span class="st">"TP"</span>, <span class="st">"3"</span>, (<span class="st">"TP"</span>, (<span class="st">"DP(1)"</span>, (<span class="st">"D"</span>, <span class="st">"every"</span>), (<span class="st">"NP"</span>, (<span class="st">"N"</span>, <span class="st">"cat"</span>))),</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>                                   (<span class="st">"VP"</span>, (<span class="st">"V"</span>, <span class="st">"likes"</span>), (<span class="st">"DP"</span>, <span class="st">"t(3)"</span>)))))</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>                      (<span class="st">"TP"</span>, <span class="st">"3"</span>, (<span class="st">"TP"</span>, (subscript_node(<span class="st">"DP"</span>, <span class="st">"1"</span>), (<span class="st">"D"</span>, <span class="st">"every"</span>), (<span class="st">"NP"</span>, (<span class="st">"N"</span>, <span class="st">"cat"</span>))),</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>                                   (<span class="st">"VP"</span>, (<span class="st">"V"</span>, <span class="st">"likes"</span>), (<span class="st">"DP"</span>, subscript_node(<span class="st">"t"</span>, <span class="st">"3"</span>))))))</span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>out2 <span class="op">=</span> draw_tree(qrtree2)</span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>out2.movement_arrow((<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>), (<span class="dv">0</span>,))</span>
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>out2.box_constituent((<span class="dv">0</span>,))</span>
@@ -259,7 +255,7 @@ Heim, Irene, and Angelika Kratzer. 1998. <em>Semantics in Generative Grammar</em
 <span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>qrtree3 <span class="op">=</span> (<span class="st">"TP"</span>, (<span class="st">"DP"</span>, (<span class="st">"D"</span>, <span class="st">"every"</span>), (<span class="st">"NP"</span>, (<span class="st">"N"</span>, <span class="st">"cat"</span>))),</span>
 <span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>           (<span class="st">"TP"</span>, <span class="st">"1"</span>, (<span class="st">"TP"</span>, (<span class="st">"DP"</span>, (<span class="st">"D"</span>, <span class="st">"some"</span>), (<span class="st">"NP"</span>, (<span class="st">"N"</span>, <span class="st">"dog"</span>))),</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>                     (<span class="st">"TP"</span>, <span class="st">"3"</span>, (<span class="st">"TP"</span>, (<span class="st">"DP"</span>, <span class="st">"t(1)"</span>), (<span class="st">"VP"</span>, (<span class="st">"V"</span>, <span class="st">"likes"</span>), (<span class="st">"DP"</span>, <span class="st">"t(3)"</span>)))))))</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>                     (<span class="st">"TP"</span>, <span class="st">"3"</span>, (<span class="st">"TP"</span>, (<span class="st">"DP"</span>, subscript_node(<span class="st">"t"</span>, <span class="st">"1"</span>)), (<span class="st">"VP"</span>, (<span class="st">"V"</span>, <span class="st">"likes"</span>), (<span class="st">"DP"</span>, subscript_node(<span class="st">"t"</span>, <span class="st">"3"</span>))))))))</span>
 <span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>out3 <span class="op">=</span> draw_tree(qrtree3)</span>
 <span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>out3.movement_arrow((<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>), (<span class="dv">0</span>,))</span>
 <span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>out3.box_constituent((<span class="dv">0</span>,))</span>
@@ -269,23 +265,20 @@ Heim, Irene, and Angelika Kratzer. 1998. <em>Semantics in Generative Grammar</em
 <span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>Caption(RowByRow(SideBySide(out0, out1), SideBySide(out2,out3)), <span class="st">"Trees illustrating a QR (Quantifier Raising) derivation in the Heim &amp; Kratzer 1998 style"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="3">
-<p><img src="gallery_files/figure-html/cell-4-output-1.svg" class="img-fluid"></p>
-</div>
 </div>
 <p>The following example, based on a tree from <span class="citation" data-cites="McCloskey00">McCloskey (<a href="#ref-McCloskey00" role="doc-biblioref">2000</a>)</span>, demonstrates multi-headed movement arrows.</p>
 <div class="no-row-height column-margin column-container"><div id="ref-McCloskey00" class="csl-entry" role="listitem">
 McCloskey, James. 2000. <span>“Quantifier Float and <em>Wh</em>-Movement in <span>Irish English</span>.”</span> <em>Linguistic Inquiry</em> 31: 57–84. <a href="https://doi.org/10.1162/002438900554299">https://doi.org/10.1162/002438900554299</a>.
-</div></div><div class="cell" data-tags="[]" data-execution_count="4">
+</div></div><div class="cell" data-tags="[]">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>mccloskey <span class="op">=</span> (<span class="st">"FP"</span>, (<span class="st">"F"</span>, (<span class="st">"V"</span>, <span class="st">"put"</span>)),</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>             (<span class="st">"AgrOP"</span>, (<span class="st">"DP(Obj)"</span>, <span class="st">"milk"</span>),</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>              (<span class="st">""</span>, (<span class="st">"AgrO"</span>, <span class="st">"t(V)"</span>),</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>               (<span class="st">"VP"</span>, <span class="st">"t(Subj)"</span>, (<span class="st">""</span>, <span class="st">"t(V)"</span>,</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                                  (<span class="st">"VP"</span>, (<span class="st">"PP"</span>, <span class="st">"in it"</span>), (<span class="st">""</span>, (<span class="st">"V"</span>, <span class="st">"t(V)"</span>), <span class="st">"t(Obj)"</span>)))))))</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>             (<span class="st">"AgrOP"</span>, (subscript_node(<span class="st">"DP"</span>, <span class="st">"Obj"</span>), <span class="st">"milk"</span>),</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>              (<span class="st">""</span>, (<span class="st">"AgrO"</span>, subscript_node(<span class="st">"t"</span>, <span class="st">"V"</span>)),</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>               (<span class="st">"VP"</span>, subscript_node(<span class="st">"t"</span>, <span class="st">"Subj"</span>), (<span class="st">""</span>, subscript_node(<span class="st">"t"</span>, <span class="st">"V"</span>),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                                  (<span class="st">"VP"</span>, (<span class="st">"PP"</span>, <span class="st">"in it"</span>), (<span class="st">""</span>, (<span class="st">"V"</span>, subscript_node(<span class="st">"t"</span>, <span class="st">"V"</span>)), subscript_node(<span class="st">"t"</span>, <span class="st">"Obj"</span>))))))))</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: the example in the paper actually uses even horizontal spacing across the whole tree, can I simulate this?</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: AgrOP should be set with a subscript O, currently not supported.</span></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> draw_tree(mccloskey)</span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>out.set_edge_style((<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>), svgling.core.TriangleEdge())</span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>out.set_edge_style((<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">0</span>), svgling.core.TriangleEdge())</span>
@@ -294,244 +287,78 @@ McCloskey, James. 2000. <span>“Quantifier Float and <em>Wh</em>-Movement in <s
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>out.movement_arrow((<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>), (<span class="dv">1</span>,<span class="dv">0</span>))</span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>Caption(out, <span class="st">"Tree after ex. 58 of McCloskey (2000)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="4">
-<p><img src="gallery_files/figure-html/cell-5-output-1.svg" class="img-fluid"></p>
 </div>
+<p>The following example, which is based on a PCFG example from the classic <span class="citation" data-cites="Hale01">Hale (<a href="#ref-Hale01" role="doc-biblioref">2001</a>)</span> account of garden path sentences, illustrates how to use a custom tree parsing function together with a non-default node renderer. An <code>nltk</code> probabilistic parser returns a subclass of tree that uses <code>label()</code> normally, but also has a probability value indicating the “inside probability” of the subtree given its constituents. There’s a provided function <code>svgling.core.ptree_split</code> that renders such trees in an ugly but functional way; this example improves on that a bit by using subscripts.</p>
+<div class="no-row-height column-margin column-container"><div id="ref-Hale01" class="csl-entry" role="listitem">
+Hale, John. 2001. <span>“A Probabilistic Earley Parser as a Psycholinguistic Model.”</span> In <em>Proceedings of the Second Meeting of the North American Chapter of the Association for Computational Linguistics on Language Technologies</em>, 1–8. NAACL ’01. USA: Association for Computational Linguistics. <a href="https://doi.org/10.3115/1073336.1073357">https://doi.org/10.3115/1073336.1073357</a>.
+</div></div><p>The example constructs a <code>nltk.grammar.PCFG</code> object based on an example in <span class="citation" data-cites="Hale01">Hale (<a href="#ref-Hale01" role="doc-biblioref">2001</a>)</span>, parses a sentence using that PCFG, and draws the resulting tree incorporating inside probabilities into the node labels.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> nltk, nltk.parse</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> nltk.grammar <span class="im">import</span> PCFG</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># note: this is a binarized version of an example grammar due to Hale in the cited paper.</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>hale1 <span class="op">=</span> PCFG.fromstring(<span class="st">"""</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="st">    S0 -&gt; S '.'     [1.0]</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="st">    S -&gt; NP VP     [1.0]</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="st">    NP -&gt; DT NN    [0.88]</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="st">    NP -&gt; NP VP    [0.12]</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="st">    PP -&gt; IN NP    [1.0]</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="st">    VP -&gt; VBD PP   [0.17]</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="st">    VP -&gt; VBN PP   [0.75]</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="st">    VP -&gt; VBD      [0.08]</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="st">    DT -&gt; 'the'    [1.0]</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="st">    NN -&gt; 'horse'  [0.5]</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="st">    NN -&gt; 'barn'   [0.5]</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="st">    VBD -&gt; 'fell'  [0.5]</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="st">    VBD -&gt; 'raced' [0.5]</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="st">    VBN -&gt; 'raced' [1.0]</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="st">    IN -&gt; 'past'   [1.0]</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="st">    """</span>)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co"># parse "The horse raced past the barn fell." using one of nltk's chart parsers:</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>hale1_parser <span class="op">=</span> nltk.parse.pchart.InsideChartParser(hale1)</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>parses <span class="op">=</span> <span class="bu">list</span>(hale1_parser.parse(<span class="st">"the horse raced past the barn fell ."</span>.split()))</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ptree_split2(t):</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> (svgling.core.subscript_node(<span class="ss">f"</span><span class="sc">{</span>t<span class="sc">.</span>label()<span class="sc">}</span><span class="ss">"</span>, <span class="ss">f"p=</span><span class="sc">{</span>t<span class="sc">.</span>prob()<span class="sc">}</span><span class="ss">"</span>, scale<span class="op">=</span><span class="fl">0.85</span>), <span class="bu">list</span>(t))</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">AttributeError</span>:</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># indicate that this function doesn't handle `t`. (Leaf nodes of this tree</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>        <span class="co"># class are `str` -- this leaves them to the default node parser.)</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">None</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>svgling.draw_tree(parses[<span class="dv">0</span>], tree_split<span class="op">=</span>ptree_split2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 <section id="hybrid-svghtml-diagram-examples" class="level2">
 <h2 class="anchored" data-anchor-id="hybrid-svghtml-diagram-examples">Hybrid svg/html diagram examples</h2>
 <p>The following tree is a typical example of how compositional semantics might be integrated into a tree structure in formal semantics. This tree is not pure SVG (which doesn’t support latex code), but is rendered using <code>svgling.html</code>.</p>
-<div class="cell" data-execution_count="5">
+<div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> svgling.html</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>svgling.html.compat(svgling.html.Compat.USE_MARKDOWN) <span class="co"># needed for quarto</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> svgling.html <span class="im">import</span> multiline_text <span class="im">as</span> ml</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> math(s):</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># note: we are in markdown mode, so using delimiters with backslashes becomes harder...</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f"$</span><span class="sc">{</span>s<span class="sc">}</span><span class="ss">$"</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>svgling.html.draw_tree(</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    ml(math(<span class="vs">r"\text</span><span class="sc">{Saw}</span><span class="vs">(\iota x_e{:\:}\text</span><span class="sc">{Elephant}</span><span class="vs">(x),\iota x_e{:\:}\text</span><span class="sc">{Rhino}</span><span class="vs">(x))"</span>), math(<span class="vs">r"\text</span><span class="sc">{Type: }</span><span class="vs">t"</span>)),</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    (ml(math(<span class="vs">r"\iota x_e{:\:}\text</span><span class="sc">{Elephant}</span><span class="vs">(x)"</span>), math(<span class="vs">r"\text</span><span class="sc">{Type: }</span><span class="vs">e"</span>)),</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>         ml(math(<span class="vs">r"\lambda f_{\langle e,t \rangle }{:\:}\iota x_e{:\:}f(x)"</span>),</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>            math(<span class="vs">r"\text</span><span class="sc">{Type: }</span><span class="vs">\langle \langle e,t\rangle ,e\rangle"</span>)),</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>         ml(math(<span class="vs">r"\lambda x_e{:\:}\text</span><span class="sc">{Elephant}</span><span class="vs">(x)"</span>), math(<span class="vs">r"\text</span><span class="sc">{Type: }</span><span class="vs">\langle e,t\rangle"</span>))),</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    (ml(math(<span class="vs">r"\lambda x_e{:\:}\text</span><span class="sc">{Saw}</span><span class="vs">(x,\iota x_e{:\:}\text</span><span class="sc">{Rhino}</span><span class="vs">(x))"</span>), math(<span class="vs">r"\text</span><span class="sc">{Type: }</span><span class="vs">\langle e,t\rangle"</span>)),</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>         ml(math(<span class="vs">r"\lambda y_e{:\:}\lambda x_e{:\:}\text</span><span class="sc">{Saw}</span><span class="vs">(x,y)"</span>),</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>            math(<span class="vs">r"\text</span><span class="sc">{Type: }</span><span class="vs">\langle e,\langle e,t\rangle\rangle"</span>)),</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>         (ml(math(<span class="vs">r"\iota x_e{:\:}\text</span><span class="sc">{Rhino}</span><span class="vs">(x)"</span>), math(<span class="vs">r"\text</span><span class="sc">{Type: }</span><span class="vs">e"</span>)),</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>              ml(math(<span class="vs">r"\lambda f_{\langle e,t \rangle }{:\:}\iota x_e{:\:}f(x)"</span>),</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>                 math(<span class="vs">r"\text</span><span class="sc">{Type: }</span><span class="vs">\langle \langle e,t\rangle ,e\rangle"</span>)),</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>              ml(math(<span class="vs">r"\lambda x_e{:\:}\text</span><span class="sc">{Rhino}</span><span class="vs">(x)"</span>), math(<span class="vs">r"\text</span><span class="sc">{Type: }</span><span class="vs">\langle e,t\rangle"</span>)))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> svgling.html</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>svgling.html.compat(svgling.html.Compat.USE_MARKDOWN) <span class="co"># needed for quarto</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> svgling.html <span class="im">import</span> multiline_text <span class="im">as</span> ml</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> math(s):</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># note: we are in markdown mode, so using delimiters with backslashes becomes harder...</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ss">f"$</span><span class="sc">{</span>s<span class="sc">}</span><span class="ss">$"</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>svgling.html.draw_tree(</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    ml(math(<span class="vs">r"\text</span><span class="sc">{Saw}</span><span class="vs">(\iota x_e{:\:}\text</span><span class="sc">{Elephant}</span><span class="vs">(x),\iota x_e{:\:}\text</span><span class="sc">{Rhino}</span><span class="vs">(x))"</span>), math(<span class="vs">r"\text</span><span class="sc">{Type: }</span><span class="vs">t"</span>)),</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    (ml(math(<span class="vs">r"\iota x_e{:\:}\text</span><span class="sc">{Elephant}</span><span class="vs">(x)"</span>), math(<span class="vs">r"\text</span><span class="sc">{Type: }</span><span class="vs">e"</span>)),</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>         ml(math(<span class="vs">r"\lambda f_{\langle e,t \rangle }{:\:}\iota x_e{:\:}f(x)"</span>),</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>            math(<span class="vs">r"\text</span><span class="sc">{Type: }</span><span class="vs">\langle \langle e,t\rangle ,e\rangle"</span>)),</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>         ml(math(<span class="vs">r"\lambda x_e{:\:}\text</span><span class="sc">{Elephant}</span><span class="vs">(x)"</span>), math(<span class="vs">r"\text</span><span class="sc">{Type: }</span><span class="vs">\langle e,t\rangle"</span>))),</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    (ml(math(<span class="vs">r"\lambda x_e{:\:}\text</span><span class="sc">{Saw}</span><span class="vs">(x,\iota x_e{:\:}\text</span><span class="sc">{Rhino}</span><span class="vs">(x))"</span>), math(<span class="vs">r"\text</span><span class="sc">{Type: }</span><span class="vs">\langle e,t\rangle"</span>)),</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>         ml(math(<span class="vs">r"\lambda y_e{:\:}\lambda x_e{:\:}\text</span><span class="sc">{Saw}</span><span class="vs">(x,y)"</span>),</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>            math(<span class="vs">r"\text</span><span class="sc">{Type: }</span><span class="vs">\langle e,\langle e,t\rangle\rangle"</span>)),</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>         (ml(math(<span class="vs">r"\iota x_e{:\:}\text</span><span class="sc">{Rhino}</span><span class="vs">(x)"</span>), math(<span class="vs">r"\text</span><span class="sc">{Type: }</span><span class="vs">e"</span>)),</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>              ml(math(<span class="vs">r"\lambda f_{\langle e,t \rangle }{:\:}\iota x_e{:\:}f(x)"</span>),</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>                 math(<span class="vs">r"\text</span><span class="sc">{Type: }</span><span class="vs">\langle \langle e,t\rangle ,e\rangle"</span>)),</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>              ml(math(<span class="vs">r"\lambda x_e{:\:}\text</span><span class="sc">{Rhino}</span><span class="vs">(x)"</span>), math(<span class="vs">r"\text</span><span class="sc">{Type: }</span><span class="vs">\langle e,t\rangle"</span>)))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output cell-output-display" data-execution_count="5">
-<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;font-family: times, serif; font-weight: normal; font-style: normal; font-size: 16px;">
-<div style="grid-row:1;grid-column:1;justify-self:right;width:0;">
-<div style="display:grid;grid-template-columns:auto;float:right;transform:translate(50%);white-space:nowrap;">
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\text{Saw}(\iota x_e{:\:}\text{Elephant}(x),\iota x_e{:\:}\text{Rhino}(x))\)</span></span>
-</div>
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\text{Type: }t\)</span></span>
-</div>
-</div>
-</div>
-<div style="grid-row:1;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;">
-<div style="display:grid;grid-template-columns:auto;">
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\text{Saw}(\iota x_e{:\:}\text{Elephant}(x),\iota x_e{:\:}\text{Rhino}(x))\)</span></span>
-</div>
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\text{Type: }t\)</span></span>
-</div>
-</div>
-</div>
-<div style="grid-column:1;grid-row:2;justify-self:right;">
-<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;">
-<div style="grid-column:2;grid-row:1;height:32px;">
-<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
-<defs></defs><line stroke="black" x1="100" x2="0" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
-</svg>
-</div>
-<div style="grid-row:2;grid-column:1;justify-self:right;width:0;">
-<div style="display:grid;grid-template-columns:auto;float:right;transform:translate(50%);white-space:nowrap;">
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\iota x_e{:\:}\text{Elephant}(x)\)</span></span>
-</div>
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\text{Type: }e\)</span></span>
-</div>
-</div>
-</div>
-<div style="grid-row:2;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;">
-<div style="display:grid;grid-template-columns:auto;">
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\iota x_e{:\:}\text{Elephant}(x)\)</span></span>
-</div>
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\text{Type: }e\)</span></span>
-</div>
-</div>
-</div>
-<div style="grid-column:1;grid-row:3;justify-self:right;">
-<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
-<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
-<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
-<defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
-</svg>
-</div>
-<div style="grid-column:1;grid-row:2;justify-self:center;">
-<div style="display:grid;grid-template-columns:auto;">
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\lambda f_{\langle e,t \rangle }{:\:}\iota x_e{:\:}f(x)\)</span></span>
-</div>
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\text{Type: }\langle \langle e,t\rangle ,e\rangle\)</span></span>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div style="grid-column:2;grid-row:3;">
-<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
-<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
-<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
-<defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
-</svg>
-</div>
-<div style="grid-column:1;grid-row:2;justify-self:center;">
-<div style="display:grid;grid-template-columns:auto;">
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\lambda x_e{:\:}\text{Elephant}(x)\)</span></span>
-</div>
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\text{Type: }\langle e,t\rangle\)</span></span>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div style="grid-column:2;grid-row:2;">
-<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;">
-<div style="grid-column:1;grid-row:1;height:32px;">
-<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
-<defs></defs><line stroke="black" x1="0" x2="100" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
-</svg>
-</div>
-<div style="grid-row:2;grid-column:1;justify-self:right;width:0;">
-<div style="display:grid;grid-template-columns:auto;float:right;transform:translate(50%);white-space:nowrap;">
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\lambda x_e{:\:}\text{Saw}(x,\iota x_e{:\:}\text{Rhino}(x))\)</span></span>
-</div>
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\text{Type: }\langle e,t\rangle\)</span></span>
-</div>
-</div>
-</div>
-<div style="grid-row:2;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;">
-<div style="display:grid;grid-template-columns:auto;">
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\lambda x_e{:\:}\text{Saw}(x,\iota x_e{:\:}\text{Rhino}(x))\)</span></span>
-</div>
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\text{Type: }\langle e,t\rangle\)</span></span>
-</div>
-</div>
-</div>
-<div style="grid-column:1;grid-row:3;justify-self:right;">
-<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
-<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
-<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
-<defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
-</svg>
-</div>
-<div style="grid-column:1;grid-row:2;justify-self:center;">
-<div style="display:grid;grid-template-columns:auto;">
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\lambda y_e{:\:}\lambda x_e{:\:}\text{Saw}(x,y)\)</span></span>
-</div>
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\text{Type: }\langle e,\langle e,t\rangle\rangle\)</span></span>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div style="grid-column:2;grid-row:3;">
-<div style="display:inline-grid;grid-template-columns: repeat(2, auto);align-items:start;border:none;">
-<div style="grid-column:1;grid-row:1;height:32px;">
-<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
-<defs></defs><line stroke="black" x1="0" x2="100" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
-</svg>
-</div>
-<div style="grid-row:2;grid-column:1;justify-self:right;width:0;">
-<div style="display:grid;grid-template-columns:auto;float:right;transform:translate(50%);white-space:nowrap;">
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\iota x_e{:\:}\text{Rhino}(x)\)</span></span>
-</div>
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\text{Type: }e\)</span></span>
-</div>
-</div>
-</div>
-<div style="grid-row:2;grid-column:1/3;justify-self:center;height:0;overflow:hidden;padding-right:1em;padding-left:1em;">
-<div style="display:grid;grid-template-columns:auto;">
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\iota x_e{:\:}\text{Rhino}(x)\)</span></span>
-</div>
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\text{Type: }e\)</span></span>
-</div>
-</div>
-</div>
-<div style="grid-column:1;grid-row:3;justify-self:right;">
-<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
-<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
-<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
-<defs></defs><line stroke="black" x1="100" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
-</svg>
-</div>
-<div style="grid-column:1;grid-row:2;justify-self:center;">
-<div style="display:grid;grid-template-columns:auto;">
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\lambda f_{\langle e,t \rangle }{:\:}\iota x_e{:\:}f(x)\)</span></span>
-</div>
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\text{Type: }\langle \langle e,t\rangle ,e\rangle\)</span></span>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div style="grid-column:2;grid-row:3;">
-<div style="display:inline-grid;grid-template-columns: 1fr;align-items:start;border:none;">
-<div style="grid-column:1;grid-row:1;height:32px;" data-align="center">
-<svg baseprofile="tiny" height="0" width="0" preserveaspectratio="none" version="1.2" viewbox="0,0,100,100" xmlns="http://www.w3.org/2000/svg" style="height:100%;width:100%;display:block;" xmlns:ev="http://www.w3.org/2001/xml-events" xlink="http://www.w3.org/1999/xlink">
-<defs></defs><line stroke="black" x1="0" x2="50" y1="2" y2="98" stroke_width="1px" vector-effect="non-scaling-stroke"></line>
-</svg>
-</div>
-<div style="grid-column:1;grid-row:2;justify-self:center;">
-<div style="display:grid;grid-template-columns:auto;">
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\lambda x_e{:\:}\text{Rhino}(x)\)</span></span>
-</div>
-<div style="padding-left:0.75em;padding-right:0.75em;text-align:center;">
-<span><span class="math inline">\(\text{Type: }\langle e,t\rangle\)</span></span>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
 </div>
 </section>
 <section id="more-diagrams" class="level2">

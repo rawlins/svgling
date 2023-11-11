@@ -145,10 +145,13 @@ ul.task-list li input[type="checkbox"] {
 <h1>Changelog for <code>svgling</code></h1>
 <section id="unreleased" class="level2">
 <h2 class="anchored" data-anchor-id="unreleased">Unreleased</h2>
+<p>This version is intended to be the last release that is marked as a beta / pre-1.0 version.</p>
 <p>New features:</p>
 <ul>
-<li>Support for handling of custom tree node classes, via the <code>TreeOptions</code> option <code>tree_split</code>, as well as a pre-provided handler for nltk’s <code>ProbabilisticTree</code> class.</li>
-<li>A figure class <code>HTMLSideBySide</code> that allows mixing hybrid HTML diagrams with SVG diagrams.</li>
+<li>Support for arbitrary SVG node contents, via the <code>node_builder</code> decorator</li>
+<li>Support for handling of custom tree node classes, via the <code>TreeOptions</code> option <code>tree_split</code>, as well as a pre-provided handler for nltk’s <code>ProbabilisticTree</code> class</li>
+<li>Built-in node builder (<code>svgling.core.subscript_node</code>) for nodes that have a subscript</li>
+<li>A figure class <code>HTMLSideBySide</code> that allows mixing hybrid HTML diagrams with SVG diagrams</li>
 </ul>
 <p>Documentation:</p>
 <ul>
@@ -160,6 +163,7 @@ ul.task-list li input[type="checkbox"] {
 <li>Improvements to the <code>draw_tree</code> and <code>tree2svg</code> APIs</li>
 <li>Fix for constituent underlines at the exact lower edge of a figure</li>
 <li>Compatibility mode for rendering (some) <code>svgling.html</code> diagrams in quarto</li>
+<li>Refactor of the node construction API that goes along with the <code>node_builder</code> change</li>
 <li>Build/install improvements</li>
 </ul>
 </section>
