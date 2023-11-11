@@ -22,7 +22,7 @@ extras_require["all"] = {
 
 setup(name='svgling',
     version='0.4.0',
-    description='SVG+Python based rendering of linguistics-style (constituent) trees',
+    description='Linguistic tree diagrams in python + svg',
     long_description=long_description,
     long_description_content_type="text/markdown",
     author='Kyle Rawlins',
@@ -41,10 +41,14 @@ setup(name='svgling',
         "License :: OSI Approved :: MIT License",
         "Intended Audience :: Science/Research",
         "Topic :: Multimedia :: Graphics",
+        "Topic :: Scientific/Engineering",
         "Topic :: Scientific/Engineering :: Visualization",
         "Topic :: Text Processing :: Linguistic",
         "Topic :: Text Processing :: Markup",
         "Topic :: Utilities",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
         "Framework :: Jupyter",
+        "Framework :: Jupyter :: JupyterLab",
         "Environment :: Web Environment"]
     )

@@ -1,4 +1,4 @@
-# `svgling`: syntax trees in python + svg
+# `svgling`: Linguistic tree diagrams in python + svg
 
 **Author**: Kyle Rawlins, [kgr@jhu.edu](kgr@jhu.edu)
 
@@ -15,10 +15,11 @@
 ## Overview
 
 The `svgling` package is a pure python package for doing single-pass rendering
-of linguistics-style constituent trees into SVG. It is primarily intended for
-integrating with Jupyter notebooks, but could be used to generate SVG diagrams
-for all sorts of other purposes. It involves no javascript and so will work
-in Jupyter without any plugins.
+of tree diagrams as used in Linguistics and NLP, in the [SVG (Scalable Vector
+Graphics)](https://www.w3.org/Graphics/SVG/) format. It is primarily intended
+for integrating with Jupyter notebooks, but can also be used to generate SVG
+diagrams for all sorts of other purposes. It involves no javascript and so
+will work in Jupyter without any plugins.
 
 The basic interface is pretty simple: pass a tree-describing object to
 `svgling.draw_tree` (e.g. a tuple consisting of a label and a sequence of
@@ -27,7 +28,7 @@ daughter nodes, which may themselves be trees).
     import svgling
     svgling.draw_tree(("S", ("NP", ("D", "the"), ("N", "elephant")), ("VP", ("V", "saw"), ("NP", ("D", "the"), ("N", "rhinoceros")))))
 
-This produces an SVG image like the following:
+In Jupyter, this code produces an SVG image like the following:
 
 ![example sentence](https://raw.githubusercontent.com/rawlins/svgling/master/demotree.svg?sanitize=true)
 
@@ -42,7 +43,7 @@ produces an identical tree diagram to the above example:
 
 On current versions of `nltk`, the support goes both ways: the default (and
 only) tree renderer in Jupyter is `svgling`. If the package is installed, nltk
-Trees will automatically render using svgling trees. For more control, you can
+`Tree`s will automatically render using svgling trees. For more control, you can
 also provide a tree directly to the `svgling.draw_tree` function, which allows
 you to use options:
 
