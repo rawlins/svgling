@@ -83,19 +83,18 @@ dependencies, just one package
 layer over the process of generating valid SVG text.
 
 Single-pass rendering also places limitations on what can be done. One of the
-challenges is that it mostly uses absolute position, and the exact position and
-width of text elements can't be determined without actually rendering to some
-device and seeing what happens. In addition, the exact details of rendering are
-in various ways at the mercy of the rendering device. This all means that
-`svgling` uses a bunch of tricks to estimate node size and width, and won't
-always be perfect on all devices. This situation also places some hard
-limitations on how far `svgling` can be extended without adding javascript or
-other multi-pass rendering techniques. For example, I would eventually like to
-allow mathjax in nodes, and allow nodes with complex / multi-line shapes, but at
-the moment this does not seem possible in pure SVG without javascript on the
-client side. The package does provide basic support for hybrid HTML/SVG tree
-diagrams that allow complex nodes, including MathJax, but with substantial
-limitations.
+challenges is that it mostly uses absolute position, and the exact position
+and width of text elements can't be determined without actually rendering to
+some device and seeing what happens. In addition, the exact details of
+rendering are in various ways at the mercy of the rendering device. This all
+means that `svgling` uses a bunch of tricks to estimate node size and width,
+and won't always be perfect on all devices. This situation also places some
+hard limitations on how far `svgling` can be extended without adding
+javascript or other multi-pass rendering techniques. For example, I would
+eventually like to allow mathjax in nodes, but at the moment this does not
+seem possible in pure SVG without javascript on the client side. The package
+does provide support for hybrid HTML/SVG tree diagrams that allows MathJax in
+nodes, but this rendering mode comes with certain limitations.
 
 There are many things that it might be nice to add to this package; if you find
 `svgling` useful, have any requests, or find any bugs, please let me know.

@@ -2,13 +2,20 @@
 
 ## Unreleased
 
+This version is intended to be the last release that is marked as
+a beta / pre-1.0 version.
+
 New features:
 
+- Support for arbitrary SVG node contents, via the `node_builder`
+  decorator
 - Support for handling of custom tree node classes, via the `TreeOptions`
   option `tree_split`, as well as a pre-provided handler for nltk's
-  `ProbabilisticTree` class.
+  `ProbabilisticTree` class
+- Built-in node builder (`svgling.core.subscript_node`) for nodes that
+  have a subscript
 - A figure class `HTMLSideBySide` that allows mixing hybrid HTML diagrams
-  with SVG diagrams.
+  with SVG diagrams
 
 Documentation:
 
@@ -20,6 +27,8 @@ Fixes, improvements, changes:
 - Improvements to the `draw_tree` and `tree2svg` APIs
 - Fix for constituent underlines at the exact lower edge of a figure
 - Compatibility mode for rendering (some) `svgling.html` diagrams in quarto
+- Refactor of the node construction API that goes along with the `node_builder`
+  change
 - Build/install improvements
 
 ## [0.4.0] - Node styling and compatibility - 2023-09-25
