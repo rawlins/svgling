@@ -381,12 +381,6 @@ def multiline_node(text, line_margin=0.0, options=None):
                                                     fill=options.text_color,
                                                     stroke=options.text_stroke))
         width = max([options.label_width(line) for line in lines])
-        # # so far we have calculated baseline-to-baseline line height, which
-        # # correctly places descenders from prior lines (with a bit of padding
-        # # at the node top); now allow space for descenders from a final line.
-        # # (In principle, one could check if there are any, but it's overall
-        # # nicer just to do the same thing for nodes of the same height.)
-        # height += NodePos.descender
     else:
         # slightly different behavior on a completely empty label: use height
         # and width 0, and an empty parent (not a parent with an empty Text).
