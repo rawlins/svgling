@@ -15,20 +15,11 @@ class Compat(enum.Enum):
 
 compat_mode = Compat.DEFAULT
 
+
 def compat(m):
     global compat_mode
     compat_mode = m
 
-def html_split_fallback(t):
-    return (to_html(t), tuple())
-
-# override core version because we want to handle Elements specially, at least
-# in principle. TODO: core just doesn't handle them at all.
-def tree_split(t):
-    if isinstance(t, ElementTree.Element):
-        return (t, tuple())
-    else:
-        return svgling.core.tree_split(t, fallback=html_split_fallback)
 
 class DivTreeOptions(TreeOptions):
     def __init__(self, other=None, **opts):
@@ -40,14 +31,8 @@ class DivTreeOptions(TreeOptions):
             opts = newopts
         super().__init__(**opts)
 
-    def split(self, t):
-        if self.tree_split:
-            # try custom tree_split option
-            r = self.tree_split(t)
-            if r is not None:
-                return r
-        # use html.tree_split, overriding TreeOptions.split
-        return tree_split(t)
+    def _base_tree_split(self, t):
+        return svgling.core.tree_split(t, node_fun=to_html)
 
 
 def element_with_text(name, text="", **kwargs):

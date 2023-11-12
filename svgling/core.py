@@ -4,6 +4,7 @@ import collections.abc
 from xml.etree import ElementTree
 import svgwrite
 
+
 ################
 # Tree utility functions
 #
@@ -11,98 +12,298 @@ import svgwrite
 # passed to this module
 ################
 
-def treelet_split_base(t):
-    # treat strings or pre-constructed `NodePos`s as leaf nodes.
-    if isinstance(t, str) or isinstance(t, NodePos) or isinstance(t, DeferredNodePos):
-        return (t, tuple())
-    else:
-        return None
 
 def treelet_split_nltk(t):
-    # nltk.Tree API: the parent is in label(). The children are elements of the
-    # object itself, which inherits from list.
+    """Given some tree representation `t`, attempt to split `t` using the
+    `nltk.Tree` API.
+
+    Parameters
+    ----------
+    t
+        A tree object to attempt to split. `t` will be handled by this function
+        if it implements ``t.label()`` and can be converted to `list`.
+
+    Returns
+    -------
+    Returns a tuple consisting of a `str` node label, and a (possibly empty)
+    list of children; or `None` if `t` does not implement the ``nltk.Tree`` api.
+    """
     try:
-        h = t.label()
-        return (h, list(t))
-    except AttributeError:
+        return (t.label(), list(t))
+    except (AttributeError, TypeError):
         return None
 
-def treelet_split_list(t):
-    # treat a list as a lisp-like tree structure, i.e. each subtree is a list
-    # of the parent followed by any children.
-    # A 0-length list is treated as an empty leaf node.
-    # No type checking of any kind is done here on t[0]. However, this object
-    # will be fed to NodePos.from_label, which enforces `str` or `NodePos`.
-    try:
-        if (len(t) == 0):
-            return ("", tuple())
-        else:
-            return (t[0], t[1:])
-    except:
-        return None
-
-def treelet_split_fallback(t):
-    # fallback to str(). TODO: enhance, or remove?
-    return (str(t), tuple())
 
 def probtree_split(t):
-    """A tree split function for `nltk.tree.probabilistic.ProbabilisticTree`.
-    Note that this isn't used by default, but can be supplied via
-    TreeOptions.tree_split in order to show probabilities as well as labels."""
+    """Given some tree representation `t`, attempt to split `t` using the
+    `nltk.tree.probabilistic.ProbabilisticTree` API, showing both the label
+    and the inside probability of the tree.
+
+    Parameters
+    ----------
+    t
+        A tree object to attempt to split. `t` will be handled by this function
+        if it implements both ``t.label()`` and ``t.prob()``  and can be
+        converted to `list`.
+
+    Returns
+    -------
+    Returns a tuple consisting of a `str` node label, and a (possibly empty)
+    list of children; or `None` if `t` does not implement the
+    `nltk.tree.probabilistic.ProbabilisticTree` api.
+
+    See also
+    --------
+    `treelet_split_nltk` : split a tree using the base `nltk.Tree` api. Note
+    that `ProbabilisticTree` is a subclass of `Tree`, and so the referenced
+    function will also work on `ProbabilisticTree` instances, but will not
+    show the probability value.
+    """
+
     try:
         return (f"{t.label()} [p={t.prob()}]", list(t))
-    except AttributeError:
+    except (AttributeError, TypeError):
         return None
 
-def tree_split(t, fallback=treelet_split_fallback):
-    """Splits `t` into a parent and an iterable of children, possibly empty."""
-    if isinstance(t, ElementTree.Element):
-        # we do this explcitly because otherwise it gets parsed as an iterable
-        raise NotImplementedError(
-            "svgling.core does not support trees constructed with ElementTree objects.")
-    split = treelet_split_base(t)
-    if split is not None:
-        return split
+
+def treelet_split_list(t):
+    """Given some tree representation `t`, attempt to split `t` by treating
+    it as a lisp-style sequence of a node followed by 0 or more child
+    subtrees. `t` is length 0, it is treated as an empty leaf node
+    returning ``("", ())``. This function does not enforce any type for the
+    node value.
+
+    Parameters
+    ----------
+    t
+        A tree object to attempt to split; `t` will be handled by this function
+        if it is a sequence that is not a `str`.
+
+    Returns
+    -------
+    Returns a 2-tuple consisting of a node, and a (possibly empty)
+    sequence of children, or `None` if t is either a `str` or a non-sequence.
+    """
+
+    if not isinstance(t, collections.abc.Sequence) or isinstance(t, str):
+        return None
+
+    if (len(t) == 0):
+        # empty leaf node
+        return ("", tuple())
+    else:
+        return (t[0], t[1:])
+
+
+def tree_split(t, node_fun=lambda x: x):
+    """Given some tree representation `t`, attempt to split `t` into a
+    a pair consisting of a node and a sequence of child subtrees. A leaf node
+    is indicated by an empty sequence in the second slot (so that
+    ``len(result[1])`` always gives the number of children.) This function
+    handles lisp-style trees, as well as ``nltk.Tree`` objects. It does not
+    in and of itself enforce anything about what the nodes are, but `node_fun`
+    can do this.
+
+    Parameters
+    ----------
+    t
+        A tree object to attempt to split
+
+    node_fun : Callable
+        A function that can handle the conversion from raw nodes into
+        representation-specific objects. The default value is the identity
+        function. `node_fun` must be able to at least handle `str` arguments.
+
+    Returns
+    -------
+    tuple
+        A 2-tuple consisting of a node, and a (possibly empty) sequence of
+        child subtrees.
+    """
+
+    # order nltk before general sequence handling: nltk.Tree subclasses `list`
     split = treelet_split_nltk(t)
     if split is not None:
-        return split
+        return (node_fun(split[0]), split[1])
     split = treelet_split_list(t)
     if split is not None:
-        return split
-    return fallback(t)   
+        return (node_fun(split[0]), split[1])
+    # treat `t` as a leaf node:
+    return (node_fun(t), ())
 
-def tree_cxr(t, i, split=tree_split):
+
+def tree_parse(t, node_fun=lambda x: x):
+    """Given some tree representation `t`, attempt to fully parse `t` using
+    the `tree_split` function and the provided node function into a lisp-style
+    tree representation. By default, if a tree is already parsed, this call
+    is a noop.
+
+    Parameters
+    ----------
+    t
+        A tree object to attempt to parse
+
+    node_fun : Callable
+        A function that can handle the conversion from raw nodes into
+        representation-specific objects. The default value is the identity
+        function.
+
+    Returns
+    -------
+    tuple
+        a lisp-style tree structure with a node in position 1, followed by
+        0 or more subtrees.
+    """
+    n, children = tree_split(t, node_fun=node_fun)
+    return (n,) + tuple(tree_parse(c, node_fun=node_fun) for c in children)
+
+
+def _tree_cxr(t, i, split=tree_split):
     return split(t)[i]
 
+
 def tree_car(t, split=tree_split):
-    """What is the parent of a tree-like object `t`?
-    Try to adapt to various possibilities, including nltk.Tree."""
-    return tree_cxr(t, 0, split=split)
+    """
+    What is the parent of a tree-like object `t`?
+
+    Parameters
+    ----------
+    t
+        A tree object of some kind; this code is flexible and will handle
+        a range of possibilities for `t`, including list-like structures, and
+        objects that implement the `nltk.Tree` api.
+
+    split : Callable
+        A tree split function for handling `t`. The default value is the
+        module-level `tree_split` function.
+
+    Returns
+    -------
+    Any
+        A node object of some kind
+    """
+    return _tree_cxr(t, 0, split=split)
+
 
 def tree_cdr(t, split=tree_split):
-    """What are the children of a tree-like object `t`?
-    Try to adapt to various possibilities, including nltk.Tree."""
-    return tree_cxr(t, 1, split=split)
+    """
+    What are the children of a tree-like object `t`?
+
+    Parameters
+    ----------
+    t
+        A tree object of some kind; this code is flexible and will handle
+        a range of possibilities for `t`, including list-like structures, and
+        objects that implement the `nltk.Tree` api.
+
+    split : Callable
+        A tree split function for handling `t`. The default value is the
+        module-level `tree_split` function.
+
+    Returns
+    -------
+    Sequence
+        A (possibly empty) sequence of subtrees in normalized form.
+    """
+    return _tree_cxr(t, 1, split=split)
+
 
 def is_leaf(t, split=tree_split):
+    """
+    Is tree-like object `t` a leaf node?
+
+    Parameters
+    ----------
+    t
+        A tree object of some kind; this code is flexible and will handle
+        a range of possibilities for `t`, including list-like structures, and
+        objects that implement the `nltk.Tree` api.
+
+    split : Callable
+        A tree split function for handling `t`. The default value is the
+        module-level `tree_split` function.
+
+    Returns
+    -------
+    bool
+        True iff `t` has 0 daughter nodes
+    """
     return len(tree_cdr(t, split=split)) == 0
 
+
 def tree_depth(t, split=tree_split):
-    """What is the max depth of t?"""
-    # n.b. car is always length 1 the way trees are currently parsed
+    """
+    What is the maximum (deepest) depth of tree-like object `t`?
+
+    Parameters
+    ----------
+    t
+        A tree object of some kind; this code is flexible and will handle
+        a range of possibilities for `t`, including list-like structures, and
+        objects that implement the `nltk.Tree` api.
+
+    split : Callable
+        A tree split function for handling `t`. The default value is the
+        module-level `tree_split` function.
+
+    Returns
+    -------
+    int
+        a non-negative depth value
+    """
     subdepth = 0
     for subtree in tree_cdr(t, split=split):
         subdepth = max(subdepth, tree_depth(subtree, split=split))
     return subdepth + 1
 
+
 def leaf_iter(t, split=tree_split):
+    """
+    What is the maximum (deepest) depth of tree-like object `t`?
+
+    Parameters
+    ----------
+    t
+        A tree object of some kind; this code is flexible and will handle
+        a range of possibilities for `t`, including list-like structures, and
+        objects that implement the `nltk.Tree` api.
+
+    split : Callable
+        A tree split function for handling `t`. The default value is the
+        module-level `tree_split` function.
+
+    Yields
+    ------
+    Any
+        Leaf nodes in `t`
+    """
+
     parent, children = split(t)
     if len(children) == 0:
         yield parent
     for c in children:
         yield from leaf_iter(c, split=split)
 
+
 def common_parent(path1, path2):
+    """
+    Find the longest common tree path between the two arguments, i.e. the
+    path to the deepest shared parent.
+
+    Parameters
+    ----------
+    path1 : Sequence[int]
+        A tree path
+
+    path2 : Sequence[int]
+        A tree path
+
+    Returns
+    -------
+    Sequence[int]
+        The longest common shared path for `path1` and `path2`
+    """
+
     for i in range(min(len(path1), len(path2))):
         if path1[i] != path2[i]:
             return tuple(path1[0:i])
@@ -110,6 +311,7 @@ def common_parent(path1, path2):
         return path1
     else:
         return path2
+
 
 ################
 # Tree layout options
@@ -269,14 +471,41 @@ class TreeOptions(collections.abc.MutableMapping):
     def label_width(self, label):
         return (len(str(label)) + self.leaf_padding) / self.average_glyph_width
 
+    def _base_tree_split(self, t):
+        # use module-level function
+        return tree_split(t, node_fun=NodePos.from_label)
+
     def split(self, t):
+        """
+        Given some tree representation `t`, produce a canonicalized form with
+        the nodes handled, etc. This will take into account a custom
+        ``tree_split`` function set as an option on this object.
+
+        Parameters
+        ----------
+        t
+            A tree representation to parse.
+
+        Returns
+        -------
+        Sequence
+            A sequence in canonicalized tree form
+
+        See also
+        --------
+        tree_split : the module-level function that does most of the work.
+        """
         if self.tree_split:
             # try custom tree_split option
             r = self.tree_split(t)
             if r is not None:
-                return r
-        # use global function
-        return tree_split(t)
+                node, children = r
+                # now, we use the base split function to canonicalize the
+                # return value of `tree_split`, including applying the
+                # appropriate node construction in case the custom tree_split
+                # has returned a `str` label
+                return self._base_tree_split((node,) + tuple(children))
+        return self._base_tree_split(t)
 
     def tree_height(self, t):
         """Calculate tree height, in ems. Takes into account multi-line leaf
@@ -324,7 +553,8 @@ def leaf_nodecount(t, options=None):
 class DeferredNodePos(object):
     """Wrapper class that will finalize a node builder with an options object
     supplied from a specific tree context."""
-    def __init__(self, f, options=None):
+    def __init__(self, f, text="", options=None):
+        self.text = text
         if not callable(f):
             raise ValueError("DeferredNodePos needs a callable!")
         self.f = f
@@ -347,6 +577,14 @@ class DeferredNodePos(object):
                 options.update_explicit(self.outer_opts)
         return self.f(options=options)
 
+    def __repr__(self):
+        if self.text:
+            return f"DeferredNodePos({repr(self.text)})"
+        else:
+            # kind of hacky, but instantiate this node and get the resulting
+            # text
+            return f"DeferredNodePos({self().text})"
+
     def _repr_svg_(self):
         # debugging shortcut
         return self()._repr_svg_()
@@ -367,7 +605,7 @@ def multiline_node(text, line_margin=0.0, options=None):
     # some explicit handling for this case is helpful, because otherwise
     # errors in this function on user mistakes are fairly cryptic.
     if not isinstance(text, str):
-        raise ValueError(
+        raise TypeError(
             f"`multiline_text_to_node` needs a string, got {text.__class__}: `{repr(text)}`")
     svg_parent = svgwrite.container.SVG(x=0, y=0, width="100%")
 
@@ -528,23 +766,84 @@ class NodePos(object):
         tree.add(self.get_svg())
         return tree.tostring()
 
+
     @classmethod
-    def from_label(cls, label, depth, options):
-        result = None
-        if isinstance(label, NodePos):
+    def in_context(cls, n, depth, options):
+        """
+        Given a node object of some kind, finalize it in its tree context with
+        the provided `depth` and `options`.
+
+        Parameters
+        ----------
+        n : Union[NodePos, DeferredNodePos, str]
+            A node representation. If this is a `DeferredNodePos`, it is
+            finalized to a `NodePos` with the provided options. If it is a
+            `NodePos`, its derived sizing is reset, but otherwise it is left
+            unchanged. If `n` is `str` (intended for debugging purposes), it
+            is parsed using the module default node builder and finalized.
+
+        depth : int
+            The tree depth at which this node appears
+
+        options : TreeOptions
+            The options from the tree context.
+
+        Returns
+        -------
+        NodePos
+            A finalized `NodePos` object that is ready for rendering.
+        """
+        if isinstance(n, NodePos):
             # this is allowed, but non-ideal -- prefer using DeferredNodePos
             # so that options work correctly.
-            result = label
+            result = n
             result.reset_calcs()
-        elif isinstance(label, DeferredNodePos):
+        elif isinstance(n, DeferredNodePos):
             # finalize the label with the current options argument
-            result = label(options=options)
+            result = n(options=options)
         else:
+            # intended for debugging only
             # otherwise, call the default node builder with the current
             # options argument
-            result = node(label)(options=options)
+            result = node(n)(options=options)
+
         result.depth = depth
         return result
+
+
+    @classmethod
+    def from_label(cls, label):
+        """Given an arbitrary label, produce an SVG container object for
+        that label.
+
+        Parameters
+        ----------
+        label
+            an element representing the node label. If this is an instance of
+            `NodePos` or `DeferredNodePos` this is returned unchanged;
+            otherwise it is passed to the default node builder as a string. The
+            default node builder is `multiline_node`, which parses strings with
+            newlines into centered rows of text in SVG format.
+
+        Returns
+        -------
+        Union[NodePos, DeferredNodePos]
+            A container object for a rendered SVG node. This is normally a
+            `DeferredNodePos`.
+        """
+        if isinstance(label, ElementTree.Element):
+            # explicit error message in case someone tries to mix svgling.core
+            # with svgling.html
+            raise ValueError(
+                "`svgling.core` does not support ElementTree objects.")
+
+        if isinstance(label, NodePos) or isinstance(label, DeferredNodePos):
+            # already handled
+            return label
+        else:
+            # use the module-default node-builder `node`
+            return node(str(label))
+
 
 class EdgeStyle(object):
     def __init__(self, path=None, stroke="black", stroke_width=None):
@@ -1034,7 +1333,7 @@ class TreeLayout(object):
         # deepest level, not their actual depth
         if len(children) == 0 and self.options.leaf_nodes_align:
             level = self.depth
-        node = NodePos.from_label(parent, level, node_options)
+        node = NodePos.in_context(parent, depth=level, options=node_options)
         # n.b. this doesn't fully make sense if a custom node overrides the
         # font size...
         node.height = node.height * node.options.font_size / self.options.font_size
