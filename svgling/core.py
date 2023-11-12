@@ -840,8 +840,10 @@ class NodePos(object):
         if isinstance(label, NodePos) or isinstance(label, DeferredNodePos):
             # already handled
             return label
+        elif isinstance(label, collections.abc.Sequence):
+            # this (by default) will error for all non-str Sequences
+            return node(label)
         else:
-            # use the module-default node-builder `node`
             return node(str(label))
 
 
