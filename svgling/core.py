@@ -318,6 +318,21 @@ def common_parent(path1, path2):
 ################
 
 def cssfont(family, weight="normal", style="normal"):
+    """A function that produces CSS font strings given some templatic info.
+    Note that for svgling purposes, the size is not included here -- it is
+    handled separately.
+
+    Parameters
+    ----------
+    family: str
+        a font family to choose, e.g. ``times``, ``Arial, Helvetica, sans-serif``, etc.
+
+    weight: str
+        The font's weight. E.g. ``normal``, ``bold``. Default: ``normal``.
+
+    style: str
+        The font style. E.g. ``normal``, ``italic``, ``oblique``. Default: ``normal``.
+    """
     return f"font-family: {family}; font-weight: {weight}; font-style: {style};"
 
 SERIF = cssfont("times, serif")
@@ -328,9 +343,15 @@ SANS = cssfont("Arial, Helvetica, sans-serif")
 # either EVEN or NODES usually looks best with abstract trees; TEXT usually
 # looks the best for trees with real node labels, and so it is the default.
 class HorizSpacing(enum.Enum):
-    TEXT = 0  # Space daughter nodes proportional to label width
-    EVEN = 1  # Space daughter nodes evenly
-    NODES = 2 # Space daughter nodes based on number of leaf nodes
+    """Settings for horizontal spacing in trees.
+
+    `TEXT`:  Space daughter nodes proportional to label width (default)
+    `EVEN`:  Space daughter nodes evenly
+    `NODES`: Space daughter nodes based on number of leaf nodes
+    """
+    TEXT = 0
+    EVEN = 1
+    NODES = 2
 
     # generate valid python repr (as long as enum class is imported)
     def __repr__(self):
@@ -339,29 +360,59 @@ class HorizSpacing(enum.Enum):
 HorizOptions = HorizSpacing # backwards compatibility
 
 class VertAlign(enum.Enum):
-    TOP = 0    # align nodes at the top of the level's height
-    CENTER = 1 # align nodes to the center of the level's height. Default.
-    BOTTOM = 2 # align nodes with the bottom of the level's height
-    FULL = 3   # all nodes take up the full level height. Currently, this aligns
-               # text to the top, maybe would be better if centered?
+    """
+    Settings for vertical node alignment. Nodes are aligned to a level.
+
+    `TOP`:    align nodes at the top of the level's height
+    `CENTER`: align nodes to the center of the level's height (default)
+    `BOTTOM`: align nodes with the bottom of the level's height
+    `FULL`:   all nodes take up full level height, with text aligned to the top
+    """
+    TOP = 0
+    CENTER = 1
+    BOTTOM = 2
+    FULL = 3
 
     # generate valid python repr (as long as enum class is imported)
     def __repr__(self):
         return f'{self.__class__.__name__}.{self.name}'
 
 def px(n):
-    return "%gpx" % n
+    """Given a numeric value, return a string with ``px`` units."""
+    return f"{n:g}px"
 
 def em(n, options=None):
+    """Given a numeric size in ``em`` units, produce an appropriate css string
+    in the context. If `options` is provided, this will typically convert to
+    ``px`` based on the current font size. (Generally, it is more reliable
+    for compatibility to convert to ``px`` this way rather than relying on the
+    svg renderer.)
+
+    Parameters
+    ----------
+    n : Number
+        a size value interpreted in ``em``s (i.e. 1.0 is the baseline to
+        baseline height of the current font)
+
+    options : TreeOptions
+        a tree options context, providing the current font size for unit
+        conversion
+
+    Returns
+    -------
+    str
+        A CSS size string in either ``em`` or ``px`` units.
+    """
     if options is None or options.relative_units:
-        return "%gem" % n
+        return f"{n:g}em"
     else:
         # convert into px using the font size specified in options. Per the
         # css spec, 1em is Xpx where X is the current font size.
         return px(options.em_to_px(n))
 
 def perc(n):
-    return "%g%%" % n
+    """Given a number `n`, convert to a css percentage string."""
+    return f"{n:g}%"
 
 crisp_perpendiculars = True
 
@@ -376,14 +427,7 @@ _opt_defaults = dict(
     font_style=SERIF,
     # 2.0 default value is a heuristic -- roughly, 2 chars per em
     average_glyph_width=2.0,
-    # for multi-level descents, do we just draw a direct (usually sharply
-    # angled) line, or do we draw an angled line one level, and a straight
-    # line for the rest? Node position is unaffected.
     descend_direct=True,
-    # if True, use em, if False, use px. In principle em is a little safer,
-    # because we don't need to keep explicit track of the current font size.
-    # But, compatibility for em is worse, and it causes problems with setting
-    # font size for subtrees.
     relative_units=False,
     font_size = 16,
     text_color = "",
@@ -391,6 +435,53 @@ _opt_defaults = dict(
     tree_split = None)
 
 class TreeOptions(collections.abc.MutableMapping):
+    """
+    An options container class for tree rendering. This class is a flexible
+    mapping class that accepts allowed options as named parameters to the
+    constructor, as attributes, or via a standard dict interface. All valid
+    options have a value on a `TreeOptions` object.
+
+    Allowed options:
+
+        ``horiz_spacing``:  a `HorizSpacing` value indicating horizontal tree spacing.
+                            default: `HorizSpacing.TEXT`
+        ``vert_align``:     a `VertAlign` value indicating vertical node alignment.
+                            default: `VertAlign.CENTER`
+        ``leaf_padding``:   a value indicating how much total extra padding in the x dimension
+                            to add around leaf nodes; this is interpreted as a glyph count,
+                            so is relative to ``average_glyph_width``. default: 2
+        ``distance_to_daughter``: a value in ``em``s indicating the spacing between
+                                  levels in the tree. default: 2
+        ``debug``:          if set to ``True``, renders a grid and node outlines. default: False
+        ``leaf_nodes_align``: if set to true, all leaf nodes will align at the lowest level
+                              of the tree. Otherwise, leaf nodes are just the normal distance
+                              from their parent node. default: False
+        ``font_style``:     a (size-less) CSS font string. It is recommended to construct these
+                            using `cssfont`. Default: `SERIF`
+        ``average_glyph_width``: because `svgling` doesn't (and essentially can't) know font
+                                 glyph info in the general case, it needs to heuristically
+                                 guess this for horizontal spacing purposes. This option is
+                                 a tweakable parameter in the unit of characters per ``em``,
+                                 that you can change if you use a wider or narrower font. It
+                                 is calibrated to look reasonable by default with standard
+                                 serif and sans serif options. Default: 2.0.
+        ``descend_direct``: For multi-level descents (if ``leaf_nodes_align`` is set to
+                            True), should the edge from parent to daughter descend directly
+                            or render a segmented line that is diagonal only at the current
+                            level? default: True
+        ``relative_units``: Whether the renderer will produce relative units (``em``s) or
+                            absolute units (``px``s) based on the current font size.
+                            Absolute units are better for compatibility, and this option
+                            is essentially a legacy option. Default: False
+        ``font_size``:      a CSS font size value, that will determine how many ``px`` are
+                            in ``1em``. Setting font size in any other way will most likely
+                            break svgling rendering. Default: 16.
+        ``text_color``:     A CSS color to use as the text color. Default: '' (inherit)
+        ``text_stroke``:    A CSS stroke value to use as the text stroke. Default: '' (inherit)
+        ``tree_split``:     A custom tree split function to use for parsing tree objects.
+                            see the manual for more details. Default: None
+        """
+
     def __init__(self, global_font_style=None, **opts):
         global _opt_defaults
         mismatch = [k for k in opts if k not in _opt_defaults]
@@ -401,8 +492,8 @@ class TreeOptions(collections.abc.MutableMapping):
 
         self.explicit = set(opts.keys())
 
-        fullopts = _opt_defaults.copy()
-        fullopts.update(opts)
+        fullopts = _opt_defaults.copy() # default values
+        fullopts.update(opts) # values from kwargs to constructor
         for k in fullopts:
             setattr(self, k, fullopts[k])
 
@@ -425,7 +516,9 @@ class TreeOptions(collections.abc.MutableMapping):
         setattr(self, k, val)
 
     def __delitem__(self, k):
-        # nonstandard: we don't want to delete, so reset to the default.
+        """Clear an option setting from this options object. Unlike a standard
+        ``dict`` object, this does not remove `k` from keys, but rather resets
+        ``self[k]`` to the default value."""
         global _opt_defaults
         self[k] = _opt_defaults[k]
         if k in self.explicit:
@@ -446,6 +539,14 @@ class TreeOptions(collections.abc.MutableMapping):
         return str(dict(self))
 
     def update_explicit(self, other):
+        """Update this options object with only the values explicitly set in
+        `TreeOptions` object `other`.
+
+        Parameters
+        ----------
+        other : TreeOptions
+            An options object to update from
+        """
         for k in other.explicit:
             self[k] = other[k]
 
@@ -453,9 +554,27 @@ class TreeOptions(collections.abc.MutableMapping):
         return p.pretty(dict(self))
 
     def copy(self):
-        return TreeOptions(**self)
+        """Return a copy of this TreeOptions object"""
+        new = TreeOptions()
+        new.update_explicit(self)
+        return new
+
 
     def style_str(self, size_only=False, scale=None):
+        """Given some options, produce a complete CSS style string, including
+        the font size value.
+
+        Parameters
+        ----------
+        size_only : bool
+            if set to True, produce only the size string. (If
+            ``self.font_style`` is None, that will also cause this behavior.)
+
+        scale : Union[int, None]
+            if set, multiply font size by some scale value. The result will
+            produce only integer font sizes.
+
+        """
         fs = self.font_size
         if scale:
             fs = int(fs * scale)
@@ -469,6 +588,8 @@ class TreeOptions(collections.abc.MutableMapping):
         return f"{self.font_style} {size}"
 
     def label_width(self, label):
+        """Get a label width in ``em``s given leaf padding, and the average
+        glyph width heuristic in the current context."""
         return (len(str(label)) + self.leaf_padding) / self.average_glyph_width
 
     def _base_tree_split(self, t):
@@ -511,6 +632,7 @@ class TreeOptions(collections.abc.MutableMapping):
         """Calculate tree height, in ems. Takes into account multi-line leaf
         nodes."""
         # TODO: generalize to multi-line nodes of all kinds.
+        # XX or remove -- this code is not currently used
         parent, children = self.tree_split(t)
         if len(children) == 0:
             return len(parent.split("\n"))
@@ -520,6 +642,8 @@ class TreeOptions(collections.abc.MutableMapping):
         return subheight + self.distance_to_daughter + 1
 
     def em_to_px(self, n):
+        """Convert an ``em`` value into (absolute) ``px``, given the current
+        font size."""
         return n * self.font_size
 
     # backwards compatibility:
