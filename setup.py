@@ -10,7 +10,7 @@ with open("README.md", "r") as fh:
 
 extras_require={
     "Conversion": ["cairosvg>=2.7.0"],
-},
+}
 
 # fix accidental uppercasing in v0.4.0
 extras_require["conversion"] = extras_require["Conversion"]
