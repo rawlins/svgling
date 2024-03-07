@@ -423,6 +423,7 @@ _opt_defaults = dict(
     leaf_padding=2,
     distance_to_daughter=2,
     debug=False,
+    leaf_edges=True,
     leaf_nodes_align=False,
     font_style=SERIF,
     # 2.0 default value is a heuristic -- roughly, 2 chars per em
@@ -453,6 +454,7 @@ class TreeOptions(collections.abc.MutableMapping):
         ``distance_to_daughter``: a value in ``em``s indicating the spacing between
                                   levels in the tree. default: 2
         ``debug``:          if set to ``True``, renders a grid and node outlines. default: False
+        ``leaf_edges``:     Whether the terminal edge line sections will be drawn to leaf nodes.
         ``leaf_nodes_align``: if set to true, all leaf nodes will align at the lowest level
                               of the tree. Otherwise, leaf nodes are just the normal distance
                               from their parent node. default: False
@@ -1556,7 +1558,15 @@ class TreeLayout(object):
         svg_parent.add(parent.get_svg(self.options))
         i = 0
         for c in children:
+
+            is_leaf_node = len(c) == 1
+
             box_y = self.y_distance(parent.depth, c[0].depth)
+
+            # Reduce distance to leaf if no edge is drawn
+            if is_leaf_node and not self.options.leaf_edges:
+                box_y -= self.options.distance_to_daughter / 2
+
             child = svgwrite.container.SVG(x=perc(c[0].x),
                                            y=em(box_y, self.options),
                                            width=perc(c[0].width))
@@ -1571,14 +1581,17 @@ class TreeLayout(object):
                 child.add(svgwrite.shapes.Rect(insert=("0%","0%"),
                                                size=("100%", "100%"),
                                                fill="none", stroke="red"))
+
             svg_parent.add(child)
-            if parent.has_edge_style(i):
-                edge = parent.get_edge_style(i)
-            elif parent.options.descend_direct:
-                edge = EdgeStyle()
-            else:
-                edge = IndirectDescent()
-            edge.draw(svg_parent, self, parent, c[0])
+            # Draw an edge, unless at a leaf and leaf_edges == False
+            if not (self.options.leaf_edges is False and is_leaf_node):
+                if parent.has_edge_style(i):
+                    edge = parent.get_edge_style(i)
+                elif parent.options.descend_direct:
+                    edge = EdgeStyle()
+                else:
+                    edge = IndirectDescent()
+                edge.draw(svg_parent, self, parent, c[0])
 
             self._svg_add_subtree(child, c)
             i += 1
