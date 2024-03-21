@@ -1003,6 +1003,23 @@ class EdgeStyle(object):
                             end=(x_target, y_target),
                             **self.svg_opts()))
 
+class EmptyEdge(EdgeStyle):
+    # set this for blanket changes. `leaf_edges=False` assumes this default
+    # is 0.0. Set to `None` for the equiv of auto_distance=True.
+    default_distance = 0.0
+
+    def __init__(self, distance=None, auto_distance=False):
+        if auto_distance:
+            # awkward interface, but this option tells the renderer to use
+            # the regular level distance
+            distance = None
+        elif distance is None:
+            distance = self.default_distance
+        self.distance = distance
+
+    def draw(self, svg_parent, tree_layout, parent, child):
+        pass
+
 class IndirectDescent(EdgeStyle):
     def draw(self, svg_parent, tree_layout, parent, child):
         from svgwrite.shapes import Line
@@ -1558,14 +1575,26 @@ class TreeLayout(object):
         svg_parent.add(parent.get_svg(self.options))
         i = 0
         for c in children:
+            if not self.options.leaf_edges and is_leaf(c):
+                edge = EmptyEdge()
+                if edge.distance is not None and c[0].depth - parent.depth > 0:
+                    # multi-level descent; we probably have `leaf_nodes_align`
+                    # set. One option might be to error, but this implements
+                    # a behavior where the leaf row is aligned immediately
+                    # below the prior level.
+                    edge.distance += self.y_distance(parent.depth, c[0].depth - 1)
+            elif parent.has_edge_style(i):
+                edge = parent.get_edge_style(i)
+            elif parent.options.descend_direct:
+                edge = EdgeStyle()
+            else:
+                edge = IndirectDescent()
 
-            is_leaf_node = len(c) == 1
-
-            box_y = self.y_distance(parent.depth, c[0].depth)
-
-            # Reduce distance to leaf if no edge is drawn
-            if is_leaf_node and not self.options.leaf_edges:
-                box_y -= self.options.distance_to_daughter / 2
+            if isinstance(edge, EmptyEdge) and edge.distance is not None:
+                # XX near code dup width edge rendering code
+                box_y = edge.distance + parent.y + parent.em_height(margin=False)
+            else:
+                box_y = self.y_distance(parent.depth, c[0].depth)
 
             child = svgwrite.container.SVG(x=perc(c[0].x),
                                            y=em(box_y, self.options),
@@ -1583,15 +1612,8 @@ class TreeLayout(object):
                                                fill="none", stroke="red"))
 
             svg_parent.add(child)
-            # Draw an edge, unless at a leaf and leaf_edges == False
-            if not (self.options.leaf_edges is False and is_leaf_node):
-                if parent.has_edge_style(i):
-                    edge = parent.get_edge_style(i)
-                elif parent.options.descend_direct:
-                    edge = EdgeStyle()
-                else:
-                    edge = IndirectDescent()
-                edge.draw(svg_parent, self, parent, c[0])
+
+            edge.draw(svg_parent, self, parent, c[0])
 
             self._svg_add_subtree(child, c)
             i += 1
