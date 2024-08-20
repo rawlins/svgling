@@ -1,6 +1,6 @@
 # Changelog for `svgling`
 
-## Unreleased
+## [0.5.0] - Documentation and node rendering - 2024-08-20
 
 This version is intended to be the last release that is marked as
 a beta / pre-1.0 version.
