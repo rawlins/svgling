@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Kyle Rawlins">
-<meta name="dcterms.date" content="2023-11-11">
+<meta name="dcterms.date" content="2024-08-20">
 
 <title>svgling - svgling Manual</title>
 <style>
@@ -222,7 +222,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 11, 2023</p>
+      <p class="date">August 20, 2024</p>
     </div>
   </div>
   
@@ -243,7 +243,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1 data-number="1"><span class="header-section-number">1</span> Overview: the <code>svgling</code> tree-drawing package</h1>
 <div class="cell" data-execution_count="2">
 <div class="cell-output cell-output-display">
-<p><strong><code>svgling</code> package version</strong>: 0.4.1-a1</p>
+<p><strong><code>svgling</code> package version</strong>: 0.5.0</p>
 </div>
 </div>
 <p>This document is a detailed guide to using the <code>svgling</code> package; <code>svgling</code> is primarily a python tree-drawing package, aimed at linguists and computer scientists who want to draw constituent trees. It is tailored specifically towards rendering trees in Jupyter, but can be used for programmatically generating SVG and HTML tree diagrams in general – one major external interface for doing this is via the <a href="https://www.nltk.org/">nltk package</a>. Beyond SVG constituent trees, <code>svgling</code> additionally supports a number of other diagram features useful to linguists, and it supports easy exporting to raster images.</p>
@@ -488,11 +488,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><img src="manual_files/figure-html/cell-23-output-1.svg" class="img-fluid"></p>
 </div>
 </div>
-<p><strong><code>distance_to_daughter</code></strong>: The distance between rows in <em>em</em>s – that is, distance from the bottom of one row to the top of another. Values less than about 0.5 are not recommended and will usually result in rendering oddities. Note that line starts are 0.2<em>em</em>s below a node label, so 0.2 will give completely horizontal lines (not 0.0).</p>
-<p>Default is 2.</p>
+<p><strong><code>distance_to_daughter</code></strong>: The distance between rows in <em>em</em>s – that is, distance from the bottom of one row to the top of another. Values less than about 0.5 are not recommended and will usually result in rendering oddities. Default is 2.</p>
+<p>Note that a margin for glyph descenders is included in the distance between levels (not in the node height), so a value of 0.25<em>em</em>s (by default) will give perfectly straight lines, rather than 0.0. This value can be accessed as <code>svgling.core.NodePos.descender_margin</code>.</p>
 <div class="cell" data-execution_count="23">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>examples <span class="op">=</span> <span class="bu">list</span>()</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> (<span class="fl">0.5</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="fl">0.2</span>):</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> (<span class="fl">0.5</span>, <span class="dv">2</span>, <span class="dv">4</span>, svgling.core.NodePos.descender_margin):</span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    examples.append(Caption(svgling.draw_tree(t1, distance_to_daughter<span class="op">=</span>i), <span class="st">"Example t1 with distance_to_daughter=</span><span class="sc">%g</span><span class="st">"</span> <span class="op">%</span> i))</span>
 <span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>RowByRow(<span class="op">*</span>examples)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="23">
@@ -509,7 +509,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><img src="manual_files/figure-html/cell-25-output-1.svg" class="img-fluid"></p>
 </div>
 </div>
-<p><strong><code>descend_direct</code></strong>: When an edge skips levels (currently only possible for leaf nodes, when <code>leaf_nodes_align=True</code>), should the line go directly from the parent to the daughter? If <code>False</code>, the line will go to the position that the daughter would have been at as if there is an empty node there, and descend vertically. This can be useful for very deep trees where a <code>True</code> value results in overlapping, and also just look better. However, it doesn’t allow distinguishing empty nodes visually in the tree. As with empty nodes, the positioning of the line join is affected by <code>vert_align</code>. Defaults to <code>True</code>.</p>
+<p><strong><code>descend_direct</code></strong>: When an edge skips levels (currently only possible for leaf nodes, when <code>leaf_nodes_align=True</code>), should the line go directly from the parent to the daughter? If <code>False</code>, the line will go to the position that the daughter would have been at as if there is an empty node there, and descend vertically. This can be useful for very deep trees where a <code>True</code> value results in overlapping, and also in some cases may just look better. However, it doesn’t allow distinguishing empty nodes visually in the tree. As with empty nodes, the positioning of the line join is affected by <code>vert_align</code>. Defaults to <code>True</code>.</p>
 <p>The following example shows a tree that renders quite badly without this option set to <code>True</code>, because of the asymmetry between leaf node widths.</p>
 <div class="cell" data-execution_count="25">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>t4 <span class="op">=</span> (<span class="st">"A"</span>, <span class="st">"B"</span>, (<span class="st">"C"</span>, (<span class="st">"D"</span>, <span class="st">"middle leaf"</span>), <span class="st">"H"</span>), (<span class="st">"E"</span>, <span class="st">"long leaf"</span>, <span class="st">"G"</span>))</span>
@@ -521,12 +521,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><img src="manual_files/figure-html/cell-26-output-1.svg" class="img-fluid"></p>
 </div>
 </div>
+<p><strong><code>leaf_edges</code></strong>: set to <code>False</code> to suppress edges leading to leaf nodes; more specifically, this draws the edge as an <code>EmptyEdge</code> still with the default distance value (<code>0.0</code>); see below for more on this edge style.</p>
 </section>
 <section id="edge-styles" class="level2" data-number="4.5">
 <h2 data-number="4.5" class="anchored" data-anchor-id="edge-styles"><span class="header-section-number">4.5</span> Edge styles</h2>
 <p>Custom styles can be applied to specific edges. The main application for this is drawing so-called “triangles of laziness”, but it does also allow you to change the color of particular edges and other related things. There is currently no way to change the edge styles for a tree as a whole (I’ll implement such a thing if there’s demand for it). Be aware that non-direct descents are implemented as an edge style, so if you apply a style to a leaf node with <code>leaf_nodes_align=True</code>, then it can override the indirect descent style; use the <code>IndirectDescent</code> class to avoid this.</p>
-<p>There are three classes that encapsulate edge styles: * <code>svgling.core.EdgeStyle</code> is the default edge style. It allows two svg parameters: <code>stroke</code> and <code>stroke_width</code>. * <code>svgling.core.IndirectDescent</code> implements indirect descents for nodes that skip levels. It inherits the svg parameters of <code>EdgeStyle</code>. * <code>svgling.core.TriangleEdge</code> draws a triangle with points at the center of the parent, and the left and right bounds of the daughter text. (Note that, as usual, text width is calculated heuristically.) This class also inherits the svg parameters of <code>EdgeStyle</code>.</p>
-<p>To set an edge style, call <code>set_edge_style</code> on the layout object with a path and one of the above objects. This function (and most that annotate or modify the style of a tree) modifies a tree object in place, but it also returns <code>self</code> in order to allow repeated styling calls, as in the following example:</p>
+<p>There are several classes that encapsulate edge styles: * <code>svgling.core.EdgeStyle</code> is the default edge style. It allows two svg parameters: <code>stroke</code> and <code>stroke_width</code>. * <code>svgling.core.IndirectDescent</code> implements indirect descents for nodes that skip levels. It inherits the svg parameters of <code>EdgeStyle</code>. This can be set globally via the <code>descend_direct</code>. * <code>svgling.core.TriangleEdge</code> draws a triangle with points at the center of the parent, and the left and right bounds of the daughter text. (Note that, as usual, text width is calculated heuristically.) This class also inherits the svg parameters of <code>EdgeStyle</code>. * <code>svgling.core.EmptyEdge</code> draws nothing at all. This has a configurable <code>distance</code> parameter, defaulting to 0.0. A value of 0.0 puts the top of the lower node at the baseline of the upper node. Pass <code>auto_distance=True</code> to instead use the distance that a regular edge would use. To set a value for all such edges, you can set <code>svgling.core.EmptyEdge.default_distance</code> (<code>None</code> here means use <code>auto_distance=True</code>). A main use of this is to easily do (what will be rendered as) multi-line nodes when working with nltk.</p>
+<p>To set an edge style on a specific edge, call <code>set_edge_style</code> on the layout object with a path and one of the above objects. This function (and most that annotate or modify the style of a tree) modifies a tree object in place, but it also returns <code>self</code> in order to allow repeated styling calls, as in the following example:</p>
 <div class="cell" data-execution_count="26">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>t5 <span class="op">=</span> (<span class="st">"S"</span>, (<span class="st">"NP"</span>, <span class="st">"The subject of this sentence"</span>), (<span class="st">"VP"</span>, <span class="st">"is collapsed"</span>))</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -621,16 +622,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>                                               fill<span class="op">=</span>options.text_color, <span class="co"># use options to set fill/stroke</span></span>
 <span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>                                               stroke<span class="op">=</span>options.text_stroke)</span>
 <span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># the hard part is figuring out the center point to rotate around, which is in user</span></span>
-<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># coordinates relative to the node container. This container will add a compensation for</span></span>
-<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># descenders, so we need to factor that in.</span></span>
-<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>    center <span class="op">=</span> (options.em_to_px(width) <span class="op">/</span> <span class="dv">2</span>, options.em_to_px(<span class="fl">0.5</span> <span class="op">+</span> svgling.core.NodePos.descender))</span>
-<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> sideways <span class="kw">and</span> <span class="bu">len</span>(text) <span class="op">&gt;</span> <span class="dv">1</span>:</span>
-<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>        <span class="co"># exercise left to reader: arbitrary positioning/sizing for sideways nodes that are &gt; 1 char</span></span>
-<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">NotImplementedError</span>(<span class="st">"Sideways rotation requires len(text)==1"</span>)</span>
-<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>    degrees <span class="op">=</span> sideways <span class="kw">and</span> <span class="dv">90</span> <span class="kw">or</span> <span class="dv">180</span></span>
-<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>    svgtext.rotate(degrees, center)</span>
-<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>    svg_parent.add(svgtext)</span>
-<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> svgling.core.NodePos(svg_parent, x<span class="op">=</span><span class="dv">50</span>, y<span class="op">=</span><span class="dv">0</span>, width<span class="op">=</span>width, height<span class="op">=</span><span class="fl">1.0</span>, options<span class="op">=</span>options, text<span class="op">=</span><span class="ss">f"flip_node(</span><span class="sc">{</span>text<span class="sc">}</span><span class="ss">)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># coordinates relative to the node container. The center position of a line of text</span></span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># is not simply 0.5em, because the baseline-to-baseline distance includes space for</span></span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># an ascender, and not space for a descender. In addition, the normal node margin</span></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># applies only to the bottom of a node, not the top. Therefore, adjust the center</span></span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># downwards by approximately the height of a descender, to ensure half a descender</span></span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># margin on each side.</span></span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>    center <span class="op">=</span> (options.em_to_px(width) <span class="op">/</span> <span class="dv">2</span>, options.em_to_px(<span class="fl">0.5</span> <span class="op">+</span> svgling.core.NodePos.descender_margin))</span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> sideways <span class="kw">and</span> <span class="bu">len</span>(text) <span class="op">&gt;</span> <span class="dv">1</span>:</span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>        <span class="co"># exercise left to reader: arbitrary positioning/sizing for sideways nodes that are &gt; 1 char</span></span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">NotImplementedError</span>(<span class="st">"Sideways rotation requires len(text)==1"</span>)</span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>    degrees <span class="op">=</span> sideways <span class="kw">and</span> <span class="dv">90</span> <span class="kw">or</span> <span class="dv">180</span></span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>    svgtext.rotate(degrees, center)</span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>    svg_parent.add(svgtext)</span>
+<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> svgling.core.NodePos(svg_parent, x<span class="op">=</span><span class="dv">50</span>, y<span class="op">=</span><span class="dv">0</span>, width<span class="op">=</span>width, height<span class="op">=</span><span class="fl">1.0</span>, options<span class="op">=</span>options, text<span class="op">=</span><span class="ss">f"flip_node(</span><span class="sc">{</span>text<span class="sc">}</span><span class="ss">)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>For debugging purposes, the return value of one of these objects can be inspected directly (though note that exceptions will not be shown unless you manually call <code>_repr_svg_</code>):</p>
 <div class="cell" data-execution_count="31">
