@@ -8,7 +8,7 @@
 
 **Repository**: [https://github.com/rawlins/svgling/](https://github.com/rawlins/svgling/)
 
-**Installation**: download from github and use setuptools, or `pip install svgling` for the current release version
+**Installation**: `pip install svgling` for the current release version, install from the repository for the current unreleased version. (E.g., `pip install git+https://github.com/rawlins/svgling`)
 
 **License**: MIT License
 

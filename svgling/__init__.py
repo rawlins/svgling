@@ -1,7 +1,7 @@
 __all__ = ['core', 'figure', 'semantics', 'html', 'utils', '__main__']
 
-__version_info__ = (0, 4, 1)
-__release__ = False
+__version_info__ = (0, 5, 0)
+__release__ = True
 __version__ = ".".join(str(i) for i in __version_info__)
 if not __release__:
     __version__ = __version__ + "-a1"
